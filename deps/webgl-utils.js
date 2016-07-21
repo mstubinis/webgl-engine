@@ -88,21 +88,21 @@ var OTHER_PROBLEM = '' + "It doesn't appear your computer can support WebGL.<br/
  * @return {WebGLRenderingContext} The created context.
  */
 var setupWebGL = function(canvas, opt_attribs) {
-	function showLink(str) {
-		var container = canvas.parentNode;
-		if (container) {
-			container.innerHTML = makeFailHTML(str);
-		}
-	};
-	if (!window.WebGLRenderingContext) {
-		showLink(GET_A_WEBGL_BROWSER);
-		return null;
-	}
-	var context = create3DContext(canvas, opt_attribs);
-	if (!context) {
-		showLink(OTHER_PROBLEM);
-	}
-	return context;
+    function showLink(str) {
+        var container = canvas.parentNode;
+        if (container) {
+            container.innerHTML = makeFailHTML(str);
+        }
+    };
+    if (!window.WebGLRenderingContext) {
+        showLink(GET_A_WEBGL_BROWSER);
+        return null;
+    }
+    var context = create3DContext(canvas, opt_attribs);
+    if (!context) {
+        showLink(OTHER_PROBLEM);
+    }
+    return context;
 };
 
 /**
@@ -112,23 +112,23 @@ var setupWebGL = function(canvas, opt_attribs) {
  * @return {!WebGLContext} The created context.
  */
 var create3DContext = function(canvas, opt_attribs) {
-	var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-	var context = null;
-	for (var ii = 0; ii < names.length; ++ii) {
-		try {
-			context = canvas.getContext(names[ii], opt_attribs);
-		} 
-		catch(e) {}
-		if (context) {
-			break;
-		}
-	}
-	return context;
+    var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+    var context = null;
+    for (var ii = 0; ii < names.length; ++ii) {
+        try {
+            context = canvas.getContext(names[ii], opt_attribs);
+        } 
+        catch(e) {}
+        if (context) {
+            break;
+        }
+    }
+    return context;
 };
 
 return {
-	create3DContext: create3DContext,
-	setupWebGL: setupWebGL
+    create3DContext: create3DContext,
+    setupWebGL: setupWebGL
 };
 }();
 //Provides requestAnimationFrame in a cross browser way.
@@ -139,7 +139,7 @@ window.requestAnimFrame = (function() {
          window.oRequestAnimationFrame ||
          window.msRequestAnimationFrame ||
          function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-			return window.setTimeout(callback, 1000/60);
+            return window.setTimeout(callback, 1000/60);
          };
 })();
 //Provides cancelAnimationFrame in a cross browser way.

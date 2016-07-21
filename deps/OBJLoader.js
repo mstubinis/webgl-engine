@@ -1,58 +1,55 @@
-(function (scope, undefined) {
+
 'use strict';
 var OBJ = {};
-
-if (typeof module !== 'undefined') { module.exports = OBJ; } 
-else { scope.OBJ = OBJ; }
 
 OBJ.is_near = function(v1,v2,threshold){ return Math.abs( v1-v2 ) < threshold; }
 OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
     ret.found = false; ret.index = 0;
-	
+    
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){
-		
-		if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){
-			if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-				OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-				OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-				OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
-				OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
-				OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
-			){
-				ret.index = i; ret.found = true; return ret;
-			}
-		}
-		else if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length == 0){
-			if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-				OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-				OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold)
-			){
-				ret.index = i; ret.found = true; return ret;
-			}
-		}
-		else if(mesh.vec3_normals.length == 0 && mesh.vec2_uvs.length > 0){
-			if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-				OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-				OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-				OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
-				OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold)
-			){
-				ret.index = i; ret.found = true; return ret;
-			}
-		}
-		else{
-			if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-				OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-				OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-				OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
-				OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold) &&
-				OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
-				OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
-				OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
-			){
-				ret.index = i; ret.found = true; return ret;
-			}
-		}
+        
+        if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){
+            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
+                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
+                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
+                OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
+                OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
+                OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
+            ){
+                ret.index = i; ret.found = true; return ret;
+            }
+        }
+        else if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length == 0){
+            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
+                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
+                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold)
+            ){
+                ret.index = i; ret.found = true; return ret;
+            }
+        }
+        else if(mesh.vec3_normals.length == 0 && mesh.vec2_uvs.length > 0){
+            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
+                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
+                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
+                OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
+                OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold)
+            ){
+                ret.index = i; ret.found = true; return ret;
+            }
+        }
+        else{
+            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
+                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
+                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
+                OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
+                OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold) &&
+                OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
+                OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
+                OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
+            ){
+                ret.index = i; ret.found = true; return ret;
+            }
+        }
     }
     return ret;
 }
@@ -73,22 +70,22 @@ OBJ.indexVBO = function(mesh,threshold){
             new_mesh.indices.push( ret.index );
         }else{
             new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
-			if(mesh.vec2_uvs.length > 0)
-				new_mesh.vec2_uvs.push(mesh.vec2_uvs[i]);
-			if(mesh.vec3_normals.length > 0)
-				new_mesh.vec3_normals.push(mesh.vec3_normals[i]);
-			if(mesh.vec3_tangents.length > 0)
-				new_mesh.vec3_tangents.push(mesh.vec3_tangents[i]);
-			if(mesh.vec3_binormals.length > 0)
-				new_mesh.vec3_binormals.push(mesh.vec3_binormals[i]);
+            if(mesh.vec2_uvs.length > 0)
+                new_mesh.vec2_uvs.push(mesh.vec2_uvs[i]);
+            if(mesh.vec3_normals.length > 0)
+                new_mesh.vec3_normals.push(mesh.vec3_normals[i]);
+            if(mesh.vec3_tangents.length > 0)
+                new_mesh.vec3_tangents.push(mesh.vec3_tangents[i]);
+            if(mesh.vec3_binormals.length > 0)
+                new_mesh.vec3_binormals.push(mesh.vec3_binormals[i]);
             new_mesh.indices.push(new_mesh.vec3_vertices.length - 1);
         }
     }
     return new_mesh;
 }
 OBJ.calculateTBN = function(mesh){
-	if(mesh.vec3_normals.length == 0) return;
-	
+    if(mesh.vec3_normals.length == 0) return;
+    
     for(var i=0; i < mesh.vec3_vertices.length; i+=3){
         var deltaPos1 = vec3.fill(mesh.vec3_vertices[i + 1][0] - mesh.vec3_vertices[i + 0][0],
                                   mesh.vec3_vertices[i + 1][1] - mesh.vec3_vertices[i + 0][1],
@@ -174,10 +171,10 @@ OBJ.calculateTBN = function(mesh){
 OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices){
     for(var i=0; i < point_indices.length; i++ ){
         mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
-		if(uv_indices.length > 0)
-			mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
-		if(normal_indices.length > 0)
-			mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
+        if(uv_indices.length > 0)
+            mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
+        if(normal_indices.length > 0)
+            mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
     }
 }
 OBJ.vec3ArrayToFloatArray = function(vec3_array){
@@ -198,24 +195,24 @@ OBJ.vec2ArrayToFloatArray = function(vec2_array){
     return ret;
 }
 OBJ.finalize = function(mesh){
-	
-	mesh.radius = 0;
-	for(var i = 0; i < mesh.vec3_vertices.length; i++){
-		var len = vec3.length(mesh.vec3_vertices[i]);
-		if(len > mesh.radius){
-			mesh.radius = len;
-		}
-	}
-	
+    
+    mesh.radius = 0;
+    for(var i = 0; i < mesh.vec3_vertices.length; i++){
+        var len = vec3.length(mesh.vec3_vertices[i]);
+        if(len > mesh.radius){
+            mesh.radius = len;
+        }
+    }
+    
     mesh.vertices = OBJ.vec3ArrayToFloatArray(mesh.vec3_vertices);
-	if(mesh.vec2_uvs.length > 0)
-		mesh.uvs = OBJ.vec2ArrayToFloatArray(mesh.vec2_uvs);
-	if(mesh.vec3_normals.length > 0)
-		mesh.normals = OBJ.vec3ArrayToFloatArray(mesh.vec3_normals);
-	if(mesh.vec3_binormals.length > 0)
-		mesh.binormals = OBJ.vec3ArrayToFloatArray(mesh.vec3_binormals);
-	if(mesh.vec3_tangents.length > 0)
-		mesh.tangents = OBJ.vec3ArrayToFloatArray(mesh.vec3_tangents);
+    if(mesh.vec2_uvs.length > 0)
+        mesh.uvs = OBJ.vec2ArrayToFloatArray(mesh.vec2_uvs);
+    if(mesh.vec3_normals.length > 0)
+        mesh.normals = OBJ.vec3ArrayToFloatArray(mesh.vec3_normals);
+    if(mesh.vec3_binormals.length > 0)
+        mesh.binormals = OBJ.vec3ArrayToFloatArray(mesh.vec3_binormals);
+    if(mesh.vec3_tangents.length > 0)
+        mesh.tangents = OBJ.vec3ArrayToFloatArray(mesh.vec3_tangents);
     
 }
 OBJ.Mesh = function (meshObject,objectData){
@@ -242,10 +239,10 @@ OBJ.Mesh = function (meshObject,objectData){
                 var face_vertex = elements[j].split( '/' );
                 
                 point_indices.push(face_vertex[0]);
-				if(face_vertex[1] != undefined)
-					uv_indices.push(face_vertex[1]);
-				if(face_vertex[2] != undefined)
-					normal_indices.push(face_vertex[2]);
+                if(face_vertex[1] != undefined)
+                    uv_indices.push(face_vertex[1]);
+                if(face_vertex[2] != undefined)
+                    normal_indices.push(face_vertex[2]);
             }
         }
     }
@@ -259,14 +256,15 @@ OBJ.Mesh = function (meshObject,objectData){
     OBJ.finalize(newMesh);
     
     meshObject.vertices = newMesh.vertices;
-	if(newMesh.uvs != undefined)
-		meshObject.uvs = newMesh.uvs;
-	if(newMesh.normals != undefined)
-		meshObject.normals = newMesh.normals;
-	if(newMesh.binormals != undefined)
-		meshObject.binormals = newMesh.binormals;
-	if(newMesh.tangents != undefined)
-		meshObject.tangents = newMesh.tangents;
+    if(newMesh.uvs != undefined)
+        meshObject.uvs = newMesh.uvs;
+    if(newMesh.normals != undefined)
+        meshObject.normals = newMesh.normals;
+    if(newMesh.binormals != undefined)
+        meshObject.binormals = newMesh.binormals;
+    if(newMesh.tangents != undefined)
+        meshObject.tangents = newMesh.tangents;
+	meshObject.radius = newMesh.radius;
     meshObject.indices = newMesh.indices;
     
     //cleanup
@@ -323,27 +321,26 @@ var _buildBuffer = function( gl, type, data, itemSize ){
 }  
 OBJ.initMeshBuffers = function( gl, mesh ){
     mesh.vertexBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.vertices, 3);
-	if(mesh.uvs != undefined)
-		mesh.uvBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.uvs, 2);
-	if(mesh.normals != undefined)
-		mesh.normalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.normals, 3);
-	if(mesh.binormals != undefined)
-		mesh.binormalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.binormals, 3);
-	if(mesh.tangents != undefined)
-		mesh.tangentBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.tangents, 3);
+    if(mesh.uvs != undefined)
+        mesh.uvBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.uvs, 2);
+    if(mesh.normals != undefined)
+        mesh.normalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.normals, 3);
+    if(mesh.binormals != undefined)
+        mesh.binormalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.binormals, 3);
+    if(mesh.tangents != undefined)
+        mesh.tangentBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.tangents, 3);
     mesh.indexBuffer = _buildBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, mesh.indices, 1);
     return mesh;
 }
 OBJ.deleteMeshBuffers = function( gl, mesh ){
     gl.deleteBuffer(mesh.vertexBuffer);
-	if(mesh.uvBuffer != undefined)
-		gl.deleteBuffer(mesh.uvBuffer);
-	if(mesh.normalBuffer != undefined)
-		gl.deleteBuffer(mesh.normalBuffer);
-	if(mesh.binormalBuffer != undefined)
-		gl.deleteBuffer(mesh.binormalBuffer);
-	if(mesh.tangentBuffer != undefined)
-		gl.deleteBuffer(mesh.tangentBuffer);
+    if(mesh.uvBuffer != undefined)
+        gl.deleteBuffer(mesh.uvBuffer);
+    if(mesh.normalBuffer != undefined)
+        gl.deleteBuffer(mesh.normalBuffer);
+    if(mesh.binormalBuffer != undefined)
+        gl.deleteBuffer(mesh.binormalBuffer);
+    if(mesh.tangentBuffer != undefined)
+        gl.deleteBuffer(mesh.tangentBuffer);
     gl.deleteBuffer(mesh.indexBuffer);
 }
-})(this);

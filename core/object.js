@@ -2,39 +2,39 @@
 
 var GameObject = function(name,mesh,material){
     if(name in Engine.ResourceManager.objects){ return undefined; }
-	
+    
     this.radius = 0;
     this.modelMatrix = mat4.create();
     this.position = vec3.fill(0,0,0);
     this.rotation = quat.fill(0,0,0,1);
     this.scale = vec3.fill(1,1,1);
-	Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
-	
+    Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
+    
     this.mesh = mesh;
     this.material = material;
-	
-	this.visible = true;
-	
+    
+    this.visible = true;
+    
     Engine.ResourceManager.objects[name] = this;
 }; 
 GameObject.prototype.translate = function(x,y,z) {
     Engine.GameObjectManager.translate(this,x,y,z);
 };
 GameObject.prototype.scale = function(x,y,z){
-	Engine.GameObjectManager.scale(this,x,y,z);
+    Engine.GameObjectManager.scale(this,x,y,z);
 }
 GameObject.prototype.setScale = function(x,y,z){
-	Engine.GameObjectManager.setScale(this,x,y,z);
+    Engine.GameObjectManager.setScale(this,x,y,z);
 }
 GameObject.prototype.setPosition = function(x,y,z){
     Engine.GameObjectManager.setPosition(this,x,y,z);
     this.update(Engine.dt);
 }
 GameObject.prototype.update = function(dt){
-	if(this.radius == 0 && this.mesh != undefined && this.mesh.loaded){
-		Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
-	}
-	
+    if(this.radius == 0 && Engine.ResourceManager.meshes[this.mesh] != undefined && Engine.ResourceManager.meshes[this.mesh].loaded){
+        Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
+    }
+    
     mat4.identity(this.modelMatrix);
 
     mat4.translate(this.modelMatrix,this.modelMatrix,this.position);
@@ -44,14 +44,14 @@ GameObject.prototype.update = function(dt){
     mat4.scale(this.modelMatrix,this.modelMatrix,this.scale);
 }
 GameObject.prototype.render = function(){
-	if(!this.visible) return;
-	//if(!Engine.camera.sphereIntersectTest(this.position,this.radius)){ 
-		//return;
-	//}
-	
-	this.shader = Engine.ResourceManager.shaders["Default"].program;
-	this.drawMode = gl.TRIANGLES;
-	Engine.RenderManager.objectQueue.push(this);
+    if(!this.visible) return;
+    if(!Engine.camera.sphereIntersectTest(this.position,this.radius)){ 
+        return;
+    }
+    
+    this.shader = Engine.ResourceManager.shaders["Default"].program;
+    this.drawMode = gl.TRIANGLES;
+    Engine.RenderManager.objectQueue.push(this);
 }
 GameObject.prototype.draw = function(){
     Engine.RenderManager.drawObject(this);

@@ -29,18 +29,18 @@ var Engine = Engine || {};
                                              obj.position[2] + offset[2]);
     }
     Engine.GameObjectManager.scale = function(obj,x,y,z){
-		Engine.GameObjectManager.setScale(obj,obj.scale[0] + x,obj.scale[1] + y,obj.scale[2] + z);
+        Engine.GameObjectManager.setScale(obj,obj.scale[0] + x,obj.scale[1] + y,obj.scale[2] + z);
     }
     Engine.GameObjectManager.setScale = function(obj,x,y,z){
         obj.scale[0] = x;
         obj.scale[1] = y;
         obj.scale[2] = z;
-		if(obj.mesh == undefined){
-			obj.radius = 0;
-		}
-		else{
-			obj.radius = mesh.radius * vec3.maxElement(obj.scale);
-		}
+        if(Engine.ResourceManager.meshes[obj.mesh] == undefined){
+            obj.radius = 0;
+        }
+        else{
+            obj.radius = Engine.ResourceManager.meshes[obj.mesh].radius * vec3.maxElement(obj.scale);
+        }
     }
     Engine.GameObjectManager.setPosition = function(obj,x,y,z){
         obj.position[0] = x;

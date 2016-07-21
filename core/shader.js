@@ -2,10 +2,10 @@
 
 var Shader = function(name,vShaderFile,fShaderFile){
     if(name in Engine.ResourceManager.shaders){ return undefined; }
-	
-	this.program = -1;
-	this.compile(vShaderFile,fShaderFile);
-	
+    
+    this.program = -1;
+    this.compile(vShaderFile,fShaderFile);
+    
     Engine.ResourceManager.shaders[name] = this;
 }; 
 Shader.prototype.compile = function(vshader, fshader){
@@ -26,7 +26,7 @@ Shader.prototype.compile = function(vshader, fshader){
 }
 Shader.prototype.load = function(shaderId){
     var shaderScript = document.getElementById(shaderId);
-	var shaderType;
+    var shaderType;
     if (!shaderScript) { return null; }
     if (shaderScript.type == "x-shader/x-vertex")        shaderType = gl.VERTEX_SHADER;
     else if (shaderScript.type == "x-shader/x-fragment") shaderType = gl.FRAGMENT_SHADER;

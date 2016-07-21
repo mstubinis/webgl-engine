@@ -6,39 +6,39 @@
     <style>
     html,head,body{
         margin:0; outline:0; border:0; padding:0; overflow:hidden;
-		left:0;top:0;
-		position:absolute;
-		z-index:1;
+        left:0;top:0;
+        position:absolute;
+        z-index:1;
     }
-	canvas{
-		top:0;left:0;z-index:3;
-	}
-	#canvasDebug{
-		margin:0; outline:0; border:0; padding:0;
-		left:0;top:0;
-		position:absolute;
-		color: yellow;
-		font-size: 200%;
-	}
+    canvas{
+        top:0;left:0;z-index:3;
+    }
+    #canvasDebug{
+        margin:0; outline:0; border:0; padding:0;
+        left:0;top:0;
+        position:absolute;
+        color: yellow;
+        font-size: 200%;
+    }
     </style>
     <script src="deps/gl-matrix.js"> </script>
     <script src="deps/webgl-utils.js"></script>
     <script src="deps/OBJLoader.js"></script>
 
-	<script src="core/Engine_ResourceManager.js"></script>
-	<script src="core/Engine_GBuffer.js"></script>
+    <script src="core/Engine_ResourceManager.js"></script>
+    <script src="core/Engine_GBuffer.js"></script>
     <script src="core/Engine_RenderManager.js"></script>
     <script src="core/Engine_ObjectManager.js"></script>
     <script src="core/Engine_EventManager.js"></script>
     <script src="core/Engine_Core.js"></script>
     
-	<script src="core/shader.js"></script>
+    <script src="core/shader.js"></script>
     <script src="core/mesh.js"></script>
-	<script src="core/texture.js"></script>
+    <script src="core/texture.js"></script>
     <script src="core/material.js"></script>
     <script src="core/camera.js"></script>
     <script src="core/object.js"></script>
-	<script src="core/skybox.js"></script>
+    <script src="core/skybox.js"></script>
     
     <script src="game.js"></script>
     
@@ -48,21 +48,21 @@
         uniform mat4 M;
         uniform mat4 V;
         uniform mat4 P;
-		
-		varying vec3 UV;
+        
+        varying vec3 UV;
 
         void main(){
-			UV = position;
+            UV = position;
             gl_Position =  (P * V * M) * vec4(position,1.0);
         }
     </script>
     <script id="fshader-skybox" type="x-shader/x-fragment">
         precision highp float;
-		uniform samplerCube texture;
-		varying vec3 UV;
-		void main(){
-			gl_FragColor = textureCube(texture, UV);
-		}
+        uniform samplerCube texture;
+        varying vec3 UV;
+        void main(){
+            gl_FragColor = textureCube(texture, UV);
+        }
     </script>   
     <script id="vshader" type="x-shader/x-vertex">
         struct Light{
@@ -190,7 +190,7 @@
                 color = v_ambient;
             }
             gl_FragColor = (color*vec4(diffuseMapColor,1.0)) + v_ambient;
-			//gl_FragColor = vec4(n,1.0);
+            //gl_FragColor = vec4(n,1.0);
         }
     </script>   
     <script>
@@ -224,8 +224,8 @@
     </script>
 </head>
 <body style = "background-color:black;">
-	<div id = "canvasEventCatcher" tabindex="0" style = "position:absolute;top:0;left:0;x-index:5;outline:none;"></div>
-	<div id = "canvasDebug" tabindex = "-1"></div>
+    <div id = "canvasEventCatcher" tabindex="0" style = "position:absolute;top:0;left:0;x-index:5;outline:none;"></div>
+    <div id = "canvasDebug" tabindex = "-1"></div>
     <canvas tabindex="-1" id="canvas"></canvas>
     <!--<div id="framerate"></div>-->
     <script>

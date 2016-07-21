@@ -33,23 +33,23 @@ var Skybox = function(name,files){
         Engine.ResourceManager.meshes["Skybox"] = m;
     }
     this.modelMatrix = mat4.create();
-	//mat4.scale(this.modelMatrix,this.modelMatrix,vec3.fill(10,10,10));
+    //mat4.scale(this.modelMatrix,this.modelMatrix,vec3.fill(10,10,10));
     this.cubeMap = new Texture(name,files);
     Engine.ResourceManager.objects[name] = this;
 };
 Skybox.prototype.update = function(dt){
-	this.modelMatrix[12] = Engine.camera.position[0];
-	this.modelMatrix[13] = Engine.camera.position[1];
-	this.modelMatrix[14] = Engine.camera.position[2];
+    this.modelMatrix[12] = Engine.camera.position[0];
+    this.modelMatrix[13] = Engine.camera.position[1];
+    this.modelMatrix[14] = Engine.camera.position[2];
 }
 Skybox.prototype.render = function(){
-	if(!this.cubeMap.loaded) return;
+    if(!this.cubeMap.loaded) return;
     if(Engine.ResourceManager.meshes["Skybox"] == undefined || !Engine.ResourceManager.meshes["Skybox"].loaded){ return; }
-	Engine.RenderManager.skyboxQueue.push(this);
+    Engine.RenderManager.skyboxQueue.push(this);
 }
 Skybox.prototype.draw = function(){
-	if(!this.cubeMap.loaded) return;
-	gl.depthMask(false);
+    if(!this.cubeMap.loaded) return;
+    gl.depthMask(false);
     var shader = Engine.ResourceManager.shaders["Skybox"].program;
 
     gl.useProgram(shader);
@@ -66,8 +66,8 @@ Skybox.prototype.draw = function(){
     gl.bindBuffer(gl.ARRAY_BUFFER, Engine.ResourceManager.meshes["Skybox"].vertexBuffer);
     gl.vertexAttribPointer(0, Engine.ResourceManager.meshes["Skybox"].vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Engine.ResourceManager.meshes["Skybox"].indexBuffer);
-	gl.drawElements(gl.TRIANGLES, Engine.ResourceManager.meshes["Skybox"].indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	gl.disableVertexAttribArray(0);
+    gl.drawElements(gl.TRIANGLES, Engine.ResourceManager.meshes["Skybox"].indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    gl.disableVertexAttribArray(0);
 
-	gl.depthMask(true);
+    gl.depthMask(true);
 }

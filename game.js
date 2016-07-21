@@ -7,15 +7,15 @@ var Engine = Engine || {};
         var defiantMaterial = new Material("Defiant","models/defiant.png","models/defiant_Glow.png","models/defiant_Normal.png");
     }
     Engine.Game.initLogic = function(){
-		var files = [
-			"skyboxes/SolarSystem/Front.jpg",
-			"skyboxes/SolarSystem/Back.jpg",
-			"skyboxes/SolarSystem/Left.jpg",
-			"skyboxes/SolarSystem/Right.jpg",
-			"skyboxes/SolarSystem/Top.jpg",
-			"skyboxes/SolarSystem/Bottom.jpg"
-		];
-		var skybox = new Skybox("SceneSkybox",files);
+        var files = [
+            "skyboxes/SolarSystem/Front.jpg",
+            "skyboxes/SolarSystem/Back.jpg",
+            "skyboxes/SolarSystem/Left.jpg",
+            "skyboxes/SolarSystem/Right.jpg",
+            "skyboxes/SolarSystem/Top.jpg",
+            "skyboxes/SolarSystem/Bottom.jpg"
+        ];
+        var skybox = new Skybox("SceneSkybox",files);
         var defiant = new GameObject("Defiant","Defiant","Defiant");
     }
     Engine.Game.update = function(dt){
