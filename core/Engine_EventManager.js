@@ -1,7 +1,14 @@
+'use strict';
 var Engine = Engine || {};
 (function (scope, undefined){
-    'use strict';
     Engine.EventManager = {};
+    
+	Engine.EventManager.loaded = false;
+    Engine.EventManager.pointerLock = {
+        available: 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document,
+        activated: false,
+        desired: false
+    };
     Engine.EventManager.touch = {
         zoom1: vec2.zero(),
         zoom2: vec2.zero(),
@@ -131,14 +138,22 @@ var Engine = Engine || {};
     };
     Engine.EventManager.isKeyDown = function(k){ return Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]] || false; }
     Engine.EventManager.isKeyUp = function(k){ return (!Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]]) || true; }
-    Engine.EventManager.updateMouseCoords = function(x,y){
+    Engine.EventManager.updateMouseCoords = function(x,y,e){
         Engine.EventManager.mouse.pX = Engine.EventManager.mouse.x;
         Engine.EventManager.mouse.pY = Engine.EventManager.mouse.y;
         Engine.EventManager.mouse.x = x;
         Engine.EventManager.mouse.y = y;
         
-        Engine.EventManager.mouse.diffX = Engine.EventManager.mouse.x - Engine.EventManager.mouse.pX;
-        Engine.EventManager.mouse.diffY = Engine.EventManager.mouse.y - Engine.EventManager.mouse.pY;
+		if(!Engine.EventManager.loaded) return;
+        if(Engine.EventManager.pointerLock.activated){
+			
+            Engine.EventManager.mouse.diffX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+            Engine.EventManager.mouse.diffY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+        }
+        else{
+            Engine.EventManager.mouse.diffX = (Engine.EventManager.mouse.x - Engine.EventManager.mouse.pX);
+            Engine.EventManager.mouse.diffY = (Engine.EventManager.mouse.y - Engine.EventManager.mouse.pY);
+        }
     }
     Engine.EventManager.update = function(){
         if(Math.abs(Engine.EventManager.mouse.diffX) > 0){
@@ -151,160 +166,234 @@ var Engine = Engine || {};
             Engine.EventManager.mouse.wheel *= 0.7; if(Math.abs(Engine.EventManager.mouse.wheel) < 0.01){ Engine.EventManager.mouse.wheel = 0; }
         }
     }
-    Engine.EventManager.init = function(canvas,canvasEventCatcher){
-        canvasEventCatcher.addEventListener('touchstart',function(e){
-            var e = window.event || e;
-            switch(e.touches.length){
-                case 1:
-                    Engine.EventManager.mouse.x = e.touches[0].clientX;
-                    Engine.EventManager.mouse.y = e.touches[0].clientY;
-                    Engine.EventManager.mouse.pX = e.touches[0].clientX;
-                    Engine.EventManager.mouse.pY = e.touches[0].clientY;
-                    break;
-                case 2:
-                    Engine.EventManager.touch.prevZoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
-                    Engine.EventManager.touch.prevZoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
-                    Engine.EventManager.touch.zoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
-                    Engine.EventManager.touch.zoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
-                    break;
-                default:
-                    break;  
-            }
-            Engine.EventManager.mouse.wheel = 0;
-                    
-            Engine.EventManager.mouse.state = "down";
-            Engine.EventManager.mouse.inBounds = true;
-        });
-        canvasEventCatcher.addEventListener('touchmove',function(e){
-            var e = window.event || e;
-            e.preventDefault();
-            e.stopPropagation();
-            switch(e.touches.length){
-                case 1:
-                    Engine.EventManager.updateMouseCoords(e.touches[0].clientX,e.touches[0].clientY);
-                    Engine.EventManager.mouse.wheel = 0;
-                    break;
-                case 2://probably zoom
-                    Engine.EventManager.touch.prevZoom1 = Engine.EventManager.touch.zoom1;
-                    Engine.EventManager.touch.prevZoom2 = Engine.EventManager.touch.zoom2;
-                    
-                    Engine.EventManager.touch.zoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
-                    Engine.EventManager.touch.zoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
-                    
-                    var y2 = Engine.EventManager.touch.zoom2[1]; var x2 = Engine.EventManager.touch.zoom2[0];
-                    var y1 = Engine.EventManager.touch.zoom1[1]; var x1 = Engine.EventManager.touch.zoom1[0];
-                    
-                    var _y2 = Engine.EventManager.touch.prevZoom2[1]; var _x2 = Engine.EventManager.touch.prevZoom2[0];
-                    var _y1 = Engine.EventManager.touch.prevZoom1[1]; var _x1 = Engine.EventManager.touch.prevZoom1[0];
-                    
-                    var x2Mx1 = (x2 - x1); x2Mx1*=x2Mx1; var y2My1 = (y2 - y1); y2My1*=y2My1;   
-                    var _x2Mx1 = (_x2 - _x1); _x2Mx1*=_x2Mx1; var _y2My1 = (_y2 - _y1); _y2My1*=_y2My1;
-                    
-                    var prevDiameter = Math.sqrt(x2Mx1 + y2My1);
-                    var currDiameter = Math.sqrt(_x2Mx1 + _y2My1);
-                    var sizeDiff = currDiameter - prevDiameter;
-                    Engine.EventManager.mouse.wheel = -(sizeDiff * 0.1);    
-                    break;
-                default:
-                    break;
-            }
-            Engine.EventManager.mouse.state = "down";
-            Engine.EventManager.mouse.inBounds = true;
-        });
-        canvasEventCatcher.addEventListener('touchend',function(e){
-            var e = window.event || e;
-            switch(e.touches.length){
-                case 0:
-                    break;
-                case 1:
-                    Engine.EventManager.updateMouseCoords(e.touches[0].clientX,e.touches[0].clientY);
-                    break;
-                default:
-                    break;
-            }
-            Engine.EventManager.mouse.wheel = 0;
-            
-            Engine.EventManager.mouse.state = "up";
-        });
-        canvasEventCatcher.addEventListener('mousedown',function(e){
-            var e = window.event || e;
-            Engine.EventManager.updateMouseCoords(e.x,e.y);
-            Engine.EventManager.mouse.state = "down";
-        });
-        canvasEventCatcher.addEventListener('mouseup',function(e){
-            var e = window.event || e;
-            Engine.EventManager.updateMouseCoords(e.x,e.y);
-            Engine.EventManager.mouse.state = "up";
-        });
-        canvasEventCatcher.addEventListener('mousemove',function(e){
-            var e = window.event || e;
-            e.stopPropagation();
-            e.preventDefault();
-            Engine.EventManager.updateMouseCoords(e.x,e.y);
-        });
-        canvasEventCatcher.addEventListener('mousewheel',function(e){
-            var e = window.event || e;
-            e.stopPropagation();
-            e.preventDefault();
-            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-            Engine.EventManager.mouse.wheel = delta;
-        });
-        canvasEventCatcher.addEventListener('DOMMouseScroll',function(e){
-            var e = window.event || e;
-            e.stopPropagation();
-            e.preventDefault();
-            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-            Engine.EventManager.mouse.wheel = delta;
-        });
-        canvasEventCatcher.addEventListener('mouseover',function(e){
-            var e = window.event || e;
-            e.stopPropagation();
-            e.preventDefault();
-            Engine.EventManager.mouse.inBounds = true;
-        });
-        canvasEventCatcher.addEventListener('mouseout',function(e){
-            var e = window.event || e;
-            e.stopPropagation();
-            e.preventDefault();
-            Engine.EventManager.mouse.inBounds = false;
-        });
-        canvasEventCatcher.addEventListener('keydown',function(e){
-            var e = window.event || e;
-            e.preventDefault();
-            Engine.EventManager.keyboard.key[e.keyCode] = true;
-            Engine.EventManager.keyboard.state = "down";
-        });
-        canvasEventCatcher.addEventListener('keyup',function(e){
-            var e = window.event || e;
-            e.preventDefault();
-            Engine.EventManager.keyboard.key[e.keyCode] = false;
-            Engine.EventManager.keyboard.state = "up";
-        });
-        canvasEventCatcher.addEventListener('focusout',function(e){
-            var e = window.event || e;
-            e.preventDefault();
-            
-            for(var k in Engine.EventManager.keyboard.key){
-                Engine.EventManager.keyboard.key[k] = false;
-            }
-            Engine.EventManager.keyboard.state = "up";
-            Engine.EventManager.mouse.state = "up";
-        });
-        //the hard part...
-        if(window.DeviceOrientationEvent){
-            canvasEventCatcher.addEventListener("deviceorientation",function(e){
-
-            },true);
+    Engine.EventManager.ontouchstart = function(e){
+        if (!e) e = window.event;
+        switch(e.touches.length){
+            case 1:
+                Engine.EventManager.mouse.x = e.touches[0].clientX;
+                Engine.EventManager.mouse.y = e.touches[0].clientY;
+                Engine.EventManager.mouse.pX = e.touches[0].clientX;
+                Engine.EventManager.mouse.pY = e.touches[0].clientY;
+                break;
+            case 2:
+                Engine.EventManager.touch.prevZoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
+                Engine.EventManager.touch.prevZoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
+                Engine.EventManager.touch.zoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
+                Engine.EventManager.touch.zoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
+                break;
+            default:
+                break;  
         }
-        else if(window.DeviceMotionEvent){
-            canvasEventCatcher.addEventListener('devicemotion',function(e){
-
-            },true);
+        Engine.EventManager.mouse.wheel = 0;
+                
+        Engine.EventManager.mouse.state = "down";
+        Engine.EventManager.mouse.inBounds = true;
+    }
+    Engine.EventManager.ontouchmove = function(e){
+        if (!e) e = window.event;
+        e.preventDefault();
+        e.stopPropagation();
+        switch(e.touches.length){
+            case 1:
+                Engine.EventManager.updateMouseCoords(e.touches[0].clientX,e.touches[0].clientY,e);
+                Engine.EventManager.mouse.wheel = 0;
+                break;
+            case 2://probably zoom
+                Engine.EventManager.touch.prevZoom1 = Engine.EventManager.touch.zoom1;
+                Engine.EventManager.touch.prevZoom2 = Engine.EventManager.touch.zoom2;
+                
+                Engine.EventManager.touch.zoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
+                Engine.EventManager.touch.zoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
+                
+                var y2 = Engine.EventManager.touch.zoom2[1]; var x2 = Engine.EventManager.touch.zoom2[0];
+                var y1 = Engine.EventManager.touch.zoom1[1]; var x1 = Engine.EventManager.touch.zoom1[0];
+                
+                var _y2 = Engine.EventManager.touch.prevZoom2[1]; var _x2 = Engine.EventManager.touch.prevZoom2[0];
+                var _y1 = Engine.EventManager.touch.prevZoom1[1]; var _x1 = Engine.EventManager.touch.prevZoom1[0];
+                
+                var x2Mx1 = (x2 - x1); x2Mx1*=x2Mx1; var y2My1 = (y2 - y1); y2My1*=y2My1;   
+                var _x2Mx1 = (_x2 - _x1); _x2Mx1*=_x2Mx1; var _y2My1 = (_y2 - _y1); _y2My1*=_y2My1;
+                
+                var prevDiameter = Math.sqrt(x2Mx1 + y2My1);
+                var currDiameter = Math.sqrt(_x2Mx1 + _y2My1);
+                var sizeDiff = currDiameter - prevDiameter;
+                Engine.EventManager.mouse.wheel = -(sizeDiff * 0.1);    
+                break;
+            default:
+                break;
+        }
+        Engine.EventManager.mouse.state = "down";
+        Engine.EventManager.mouse.inBounds = true;
+    }
+    Engine.EventManager.ontouchend = function(e){
+        if (!e) e = window.event;
+        switch(e.touches.length){
+            case 0:
+                break;
+            case 1:
+                Engine.EventManager.updateMouseCoords(e.touches[0].clientX,e.touches[0].clientY,e);
+                break;
+            default:
+                break;
+        }
+        Engine.EventManager.mouse.wheel = 0;
+        Engine.EventManager.mouse.state = "up";
+    }
+    Engine.EventManager.onmousedown = function(e){
+        if (!e) e = window.event;
+        Engine.EventManager.updateMouseCoords(e.x || e.clientX,e.y || e.clientY,e);
+        Engine.EventManager.mouse.state = "down";
+        
+        if(Engine.EventManager.pointerLock.desired){
+            if(!Engine.EventManager.pointerLock.activated && e.button == 0){
+                Engine.EventManager.requestPointerLock();
+            }
+        }
+    }
+    Engine.EventManager.onmouseup = function(e){
+        if (!e) e = window.event;
+        Engine.EventManager.updateMouseCoords(e.x || e.clientX,e.y || e.clientY,e);
+        Engine.EventManager.mouse.state = "up";
+    }
+    Engine.EventManager.onmousemove = function(e){
+        if (!e) e = window.event;
+        e.stopPropagation();
+        e.preventDefault();
+        Engine.EventManager.updateMouseCoords(e.x || e.clientX,e.y || e.clientY,e);
+    }
+    Engine.EventManager.onmousewheel = function(e){
+        if (!e) e = window.event;
+        e.stopPropagation();
+        e.preventDefault();
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        Engine.EventManager.mouse.wheel = delta;
+    }
+    Engine.EventManager.onmouseover = function(e){
+        if (!e) e = window.event;
+        e.stopPropagation();
+        e.preventDefault();
+        Engine.EventManager.mouse.inBounds = true;
+    }
+    Engine.EventManager.onmouseout = function(e){
+        if (!e) e = window.event;
+        e.stopPropagation();
+        e.preventDefault();
+        Engine.EventManager.mouse.inBounds = false;
+    }
+    Engine.EventManager.onkeydown = function(e){
+        if (!e) e = window.event;
+        e.preventDefault();
+        Engine.EventManager.keyboard.key[e.keyCode] = true;
+        Engine.EventManager.keyboard.state = "down";
+    }
+    Engine.EventManager.onkeyup = function(e){
+        if (!e) e = window.event;
+        e.preventDefault();
+        Engine.EventManager.keyboard.key[e.keyCode] = false;
+        Engine.EventManager.keyboard.state = "up";
+    }
+    Engine.EventManager.onfocusout = function(e){
+        if (!e) e = window.event;
+        e.preventDefault(); 
+        for(var k in Engine.EventManager.keyboard.key){
+            Engine.EventManager.keyboard.key[k] = false;
+        }
+        Engine.EventManager.keyboard.state = "up";
+        Engine.EventManager.mouse.state = "up";
+    }
+    Engine.EventManager.ondeviceorientation = function(e){
+		if (!e) e = window.event;
+    }
+    Engine.EventManager.ondevicemotion = function(e){
+		if (!e) e = window.event;
+    }
+    Engine.EventManager.onMozOrientation = function(e){
+		if (!e) e = window.event;
+    }
+    Engine.EventManager.requestPointerLock = function(){
+        if(!Engine.EventManager.pointerLock.available){ 
+			console.log("error: browser does not have pointer lock available.");
+			return;
+		}
+        Engine.canvasEventCatcher.requestPointerLock = Engine.canvasEventCatcher.requestPointerLock || Engine.canvasEventCatcher.mozRequestPointerLock || Engine.canvasEventCatcher.webkitRequestPointerLock;
+        Engine.canvasEventCatcher.requestPointerLock();
+    }
+    Engine.EventManager.exitPointerLock = function(){
+        if(!Engine.EventManager.pointerLock.available){ 
+			console.log("error: browser does not have pointer lock available.");
+			return;
+		}
+        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+        document.exitPointerLock();
+    }
+    Engine.EventManager.onpointerlockchange = function(e){
+		if (!e) e = window.event;
+        if(document.pointerLockElement === Engine.canvasEventCatcher || document.mozPointerLockElement === Engine.canvasEventCatcher || document.webkitPointerLockElement === Engine.canvasEventCatcher) {
+            Engine.EventManager.pointerLock.activated = true;
+            Engine.EventManager.mouse.diffX = 0;
+            Engine.EventManager.mouse.diffY = 0;
         } 
         else{
-            canvasEventCatcher.addEventListener("MozOrientation",function(e){
-
-            },true);
+            Engine.EventManager.pointerLock.activated = false;
         }
+    }
+    Engine.EventManager.onpointerlockchangeerror = function(){ console.log("error: could not activate pointer lock."); }
+    Engine.EventManager.init = function(){
+		if(Engine.EventManager.loaded) return;
+        Engine.canvasEventCatcher.addEventListener('touchstart',Engine.EventManager.ontouchstart);
+        Engine.canvasEventCatcher.addEventListener('touchmove',Engine.EventManager.ontouchmove);
+        Engine.canvasEventCatcher.addEventListener('touchend',Engine.EventManager.ontouchend);
+        Engine.canvasEventCatcher.addEventListener('mousedown',Engine.EventManager.onmousedown);
+        Engine.canvasEventCatcher.addEventListener('mouseup',Engine.EventManager.onmouseup);
+        Engine.canvasEventCatcher.addEventListener('mousemove',Engine.EventManager.onmousemove);
+        Engine.canvasEventCatcher.addEventListener('mousewheel',Engine.EventManager.onmousewheel);
+        Engine.canvasEventCatcher.addEventListener('DOMMouseScroll',Engine.EventManager.onmousewheel);
+        Engine.canvasEventCatcher.addEventListener('mouseover',Engine.EventManager.onmouseover);
+        Engine.canvasEventCatcher.addEventListener('mouseout',Engine.EventManager.onmouseout);
+        Engine.canvasEventCatcher.addEventListener('keydown',Engine.EventManager.onkeydown);
+        Engine.canvasEventCatcher.addEventListener('keyup',Engine.EventManager.onkeyup);
+        Engine.canvasEventCatcher.addEventListener('focusout',Engine.EventManager.onfocusout);
+        
+        document.addEventListener('pointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        document.addEventListener('mozpointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        document.addEventListener('webkitpointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        
+        document.addEventListener('pointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        document.addEventListener('mozpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        document.addEventListener('webkitpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        
+        if(window.DeviceOrientationEvent){Engine.canvasEventCatcher.addEventListener("deviceorientation",Engine.EventManager.ondeviceorientation,true);}
+        else if(window.DeviceMotionEvent){Engine.canvasEventCatcher.addEventListener('devicemotion',Engine.EventManager.ondevicemotion,true);} 
+        else{Engine.canvasEventCatcher.addEventListener("MozOrientation",Engine.EventManager.onMozOrientation,true);}
+		Engine.EventManager.loaded = true;
+    }
+    Engine.EventManager.cleanup = function(){
+		if(!Engine.EventManager.loaded) return;
+        Engine.canvasEventCatcher.removeEventListener('touchstart',Engine.EventManager.ontouchstart);
+        Engine.canvasEventCatcher.removeEventListener('touchmove',Engine.EventManager.ontouchmove);
+        Engine.canvasEventCatcher.removeEventListener('touchend',Engine.EventManager.ontouchend);
+        Engine.canvasEventCatcher.removeEventListener('mousedown',Engine.EventManager.onmousedown);
+        Engine.canvasEventCatcher.removeEventListener('mouseup',Engine.EventManager.onmouseup);
+        Engine.canvasEventCatcher.removeEventListener('mousemove',Engine.EventManager.onmousemove);
+        Engine.canvasEventCatcher.removeEventListener('mousewheel',Engine.EventManager.onmousewheel);
+        Engine.canvasEventCatcher.removeEventListener('DOMMouseScroll',Engine.EventManager.onmousewheel);
+        Engine.canvasEventCatcher.removeEventListener('mouseover',Engine.EventManager.onmouseover);
+        Engine.canvasEventCatcher.removeEventListener('mouseout',Engine.EventManager.onmouseout);
+        Engine.canvasEventCatcher.removeEventListener('keydown',Engine.EventManager.onkeydown);
+        Engine.canvasEventCatcher.removeEventListener('keyup',Engine.EventManager.onkeyup);
+        Engine.canvasEventCatcher.removeEventListener('focusout',Engine.EventManager.onfocusout);
+        
+        document.removeEventListener('pointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        document.removeEventListener('mozpointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        document.removeEventListener('webkitpointerlockchange', Engine.EventManager.onpointerlockchange, false);
+        
+        document.removeEventListener('pointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        document.removeEventListener('mozpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        document.removeEventListener('webkitpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
+        
+        if(window.DeviceOrientationEvent){Engine.canvasEventCatcher.removeEventListener("deviceorientation",Engine.EventManager.ondeviceorientation,true);}
+        else if(window.DeviceMotionEvent){Engine.canvasEventCatcher.removeEventListener('devicemotion',Engine.EventManager.ondevicemotion,true);} 
+        else{Engine.canvasEventCatcher.removeEventListener("MozOrientation",Engine.EventManager.onMozOrientation,true);}
+		Engine.EventManager.loaded = false;
     }
 })(this);

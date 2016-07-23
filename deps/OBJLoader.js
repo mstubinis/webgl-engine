@@ -7,7 +7,6 @@ OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
     ret.found = false; ret.index = 0;
     
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){
-        
         if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){
             if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
                 OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
@@ -65,7 +64,10 @@ OBJ.indexVBO = function(mesh,threshold){
     new_mesh.indices = [];
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){ 
         var ret = {}; ret.index = -1; ret.found = false;    
-        ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i], mesh.vec2_uvs[i], mesh.vec3_normals[i],new_mesh,ret,threshold);
+        ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],
+		                                 mesh.vec2_uvs[i] || vec2.fill(0,0),
+										 mesh.vec3_normals[i] || vec3.fill(0,0,0),
+										 new_mesh,ret,threshold);
         if ( ret.found ){
             new_mesh.indices.push( ret.index );
         }else{
@@ -194,16 +196,14 @@ OBJ.vec2ArrayToFloatArray = function(vec2_array){
     }
     return ret;
 }
-OBJ.finalize = function(mesh){
-    
+OBJ.finalize = function(mesh){  
     mesh.radius = 0;
     for(var i = 0; i < mesh.vec3_vertices.length; i++){
         var len = vec3.length(mesh.vec3_vertices[i]);
         if(len > mesh.radius){
             mesh.radius = len;
         }
-    }
-    
+    }   
     mesh.vertices = OBJ.vec3ArrayToFloatArray(mesh.vec3_vertices);
     if(mesh.vec2_uvs.length > 0)
         mesh.uvs = OBJ.vec2ArrayToFloatArray(mesh.vec2_uvs);
@@ -212,8 +212,7 @@ OBJ.finalize = function(mesh){
     if(mesh.vec3_binormals.length > 0)
         mesh.binormals = OBJ.vec3ArrayToFloatArray(mesh.vec3_binormals);
     if(mesh.vec3_tangents.length > 0)
-        mesh.tangents = OBJ.vec3ArrayToFloatArray(mesh.vec3_tangents);
-    
+        mesh.tangents = OBJ.vec3ArrayToFloatArray(mesh.vec3_tangents);   
 }
 OBJ.Mesh = function (meshObject,objectData){
     var file_verts = [], file_uvs = [], file_normals = [];
@@ -226,7 +225,9 @@ OBJ.Mesh = function (meshObject,objectData){
         var elements = line.split((/\s+/));
         elements.shift();
 
-        var xF = parseFloat(elements[0]); var yF = parseFloat(elements[1]); var zF = parseFloat(elements[2]);
+        var xF = parseFloat(elements[0] || "0.0");
+		var yF = parseFloat(elements[1] || "0.0");
+		var zF = parseFloat(elements[2] || "0.0");
 
         if ((/^v\s/).test(line)) {
             file_verts.push(vec3.fill(xF,yF,zF));
@@ -294,7 +295,7 @@ OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshD
                     }
                     else {
                         error = true;
-                        console.error('An error has occurred and the mesh "' + name + '" could not be downloaded.');
+                        console.error('An error has occurred. mesh "' + name + '" could not be downloaded.');
                     }
                     semaphore--;
                     if (semaphore === 0) {

@@ -11,10 +11,6 @@ var Texture = function(name,file){
         _this.texture = gl.createTexture();
         _this.loadingCount = 0;
         gl.bindTexture(gl.TEXTURE_CUBE_MAP,_this.texture);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
         for(var i = 0; i < 6; i++){(function(_i){
             var img = new Image();
             img.src = file[_i];
@@ -36,21 +32,35 @@ Texture.prototype.onload = function(img,textureMount){
     //gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.loaded = true;
+    
+    if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
+        Engine.EventManager.init();
+    }
 }
 Texture.prototype.onloadcubemap = function(_this,img){
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, _this.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    if(img._i == 0){    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
-    else if(img._i==1){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
-    else if(img._i==2){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
-    else if(img._i==3){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
-    else if(img._i==4){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }       
-    else if(img._i==5){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
+    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    if(img._i == 0){    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//font
+    else if(img._i==1){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//back
+    else if(img._i==2){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//left
+    else if(img._i==3){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//right
+    else if(img._i==4){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//top
+    else if(img._i==5){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//bottom
     _this.loadingCount++;
     
     if(_this.loadingCount == 6){
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+        
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
         _this.loaded = true;
         delete _this.loadingCount;
+        
+        if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
+            Engine.EventManager.init();
+        }
     }
 }
 Texture.prototype.load = function(_this,file){

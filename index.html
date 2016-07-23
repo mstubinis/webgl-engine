@@ -4,22 +4,7 @@
     <meta charset="utf-8">
     <title>WebGL Engine</title>
     <style>
-    html,head,body{
-        margin:0; outline:0; border:0; padding:0; overflow:hidden;
-        left:0;top:0;
-        position:absolute;
-        z-index:1;
-    }
-    canvas{
-        top:0;left:0;z-index:3;
-    }
-    #canvasDebug{
-        margin:0; outline:0; border:0; padding:0;
-        left:0;top:0;
-        position:absolute;
-        color: yellow;
-        font-size: 200%;
-    }
+    html,head,body{margin:0;outline:0;border:0;padding:0;overflow:hidden;left:0;top:0;position:absolute;z-index:1;}
     </style>
     <script src="deps/gl-matrix.js"> </script>
     <script src="deps/webgl-utils.js"></script>
@@ -32,6 +17,7 @@
     <script src="core/Engine_EventManager.js"></script>
     <script src="core/Engine_Core.js"></script>
     
+	<script src="core/scene.js"></script>
     <script src="core/shader.js"></script>
     <script src="core/mesh.js"></script>
     <script src="core/texture.js"></script>
@@ -39,47 +25,11 @@
     <script src="core/camera.js"></script>
     <script src="core/object.js"></script>
     <script src="core/skybox.js"></script>
+    <script src="core/light.js"></script>
     
     <script src="game.js"></script>
-    
-    <script id="vshader-skybox" type="x-shader/x-vertex">
-        attribute vec3 position;
-
-        uniform mat4 M;
-        uniform mat4 V;
-        uniform mat4 P;
-        
-        varying vec3 UV;
-
-        void main(){
-            UV = position;
-            gl_Position =  (P * V * M) * vec4(position,1.0);
-        }
-    </script>
-    <script id="fshader-skybox" type="x-shader/x-fragment">
-        precision highp float;
-        uniform samplerCube texture;
-        varying vec3 UV;
-        void main(){
-            gl_FragColor = textureCube(texture, UV);
-        }
-    </script>   
+     
     <script id="vshader" type="x-shader/x-vertex">
-        struct Light{
-            highp vec4 ambient;
-            highp vec4 diffuse;
-            highp vec4 specular;
-            highp vec4 position;
-            highp vec3 halfVector;
-        };
-        struct Material{
-            highp vec4 emission;
-            highp vec4 ambient;
-            highp vec4 diffuse;
-            highp vec4 specular;
-            highp float shininess;
-        };
-
         attribute vec3 position;
         attribute vec2 uv;
         attribute vec3 normal;
@@ -89,151 +39,123 @@
         uniform mat4 M;
         uniform mat4 V;
         uniform mat4 P;
-        uniform mat4 normalMatrix;
-
-        uniform Light u_light;
-
-        uniform vec4 ambientColor;
-        uniform Material u_frontMaterial;
-        uniform Material u_backMaterial;
-
-        varying vec4 v_diffuse, v_ambient;
-        varying vec3 Normal, Binormal, Tangent;
-        varying vec3 v_lightDir;
-        varying vec2 UV;
-
-        vec3 directionalLight(){
-            return normalize(vec3(u_light.position));
-        }
-        void main(){
-            vec4 transformedNormal = normalMatrix * vec4(normal, 1.0);
-            vec4 transformedBinormal = normalMatrix * vec4(binormal, 1.0);
-            vec4 transformedTangent = normalMatrix * vec4(tangent, 1.0);
-            //vec4 transformedNormal = (V*M) * vec4(normal, 0.0);
-            //vec4 transformedBinormal = (V*M) * vec4(binormal, 0.0);
-            //vec4 transformedTangent = (V*M) * vec4(tangent, 0.0);
-        
-            Normal = normalize(transformedNormal).xyz;
-            Binormal = normalize(transformedBinormal).xyz;
-            Tangent = normalize(transformedTangent).xyz;
-            
-            vec4 ambient = vec4(0.0, 0.0, 0.0, 1.0);
-            vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
-            vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
-
-            ambient += u_light.ambient;
-            diffuse += u_light.diffuse;
-            
-            v_lightDir = directionalLight();
-
-            v_ambient = u_frontMaterial.ambient * ambient;
-            v_ambient += ambientColor * u_frontMaterial.ambient;
-            v_diffuse = u_frontMaterial.diffuse * diffuse;
+        //uniform mat4 normalMatrix;
+		
+		varying vec2 UV;
+		varying vec4 Part1; //Normals and Binormal.x
+		varying vec4 Part2; //Binormal.y Binormal.z Tangent.x Tangent.y
+		varying vec4 Part3; //Tangent.z World Position
+        void main(void){
+            vec3 Normal = normalize((V*M) * vec4(normal, 0.0)).xyz;
+            vec3 Binormal = normalize((V*M) * vec4(binormal, 0.0)).xyz;
+            vec3 Tangent = normalize((V*M) * vec4(tangent, 0.0)).xyz;
+            //vec3 Normal = normalize((normalMatrix) * vec4(normal, 1.0)).xyz;
+            //vec3 Binormal = normalize((normalMatrix) * vec4(binormal, 1.0)).xyz;
+            //vec3 Tangent = normalize((normalMatrix) * vec4(tangent, 1.0)).xyz;
+			
+			vec3 WorldPosition = (M * vec4(position,1.0)).xyz;
+			
+			UV = uv;
+			Part1 = vec4(Normal.xyz,Binormal.x);
+			Part2 = vec4(Binormal.y,Binormal.z,Tangent.x,Tangent.y);
+			Part3 = vec4(Tangent.z,WorldPosition.xyz);
 
             gl_Position =  (P * V * M) * vec4(position,1.0);
-            UV = uv;
         }
     </script>
     <script id="fshader" type="x-shader/x-fragment">
-        precision highp float;
-        struct Light{
-            vec4 ambient;
-            vec4 diffuse;
-            vec4 specular;
-            vec4 position;
-            vec3 halfVector;
-        };
-        struct Material{
-            vec4 emission;
-            vec4 ambient;
-            vec4 diffuse;
-            vec4 specular;
-            float shininess;
-        };
+        precision mediump float;
 
         uniform sampler2D diffuseMap;
         uniform sampler2D glowMap;
         uniform sampler2D normalMap;
         
-        uniform Light u_light;
-        uniform Material u_frontMaterial;
-
-        varying vec4 v_diffuse, v_ambient;
-        varying vec3 Normal, Binormal, Tangent;
-        varying vec3 v_lightDir;
-        varying vec2 UV;
+		uniform vec3 LightAttenuation;
+        uniform vec3 LightPosition;
+        uniform vec3 LightColor;
         
-        vec3 CalcBumpedNormal(){
+        //x = ambientPower | y = DiffusePower | z = SpecularPower | w = LightW
+        uniform vec4 LightProperties;
+        
+        uniform vec4 MaterialSpecular;
+        
+        uniform vec3 CameraPosition;
+
+		varying vec2 UV;
+		varying vec4 Part1; //Normals and Binormal.x
+		varying vec4 Part2; //Binormal.y Binormal.z Tangent.x Tangent.y
+		varying vec4 Part3; //Tangent.z World Position
+        vec4 CalcLightInternal(vec3 LightDir,vec3 PxlWorldPos,vec3 PxlNormal){
+            vec4 AmbientColor = vec4(LightColor, 1.0) * LightProperties.x;
+            float Lambertian = max(dot(LightDir,PxlNormal), 0.0);
+            vec4 DiffuseColor  = vec4(0.0);
+            vec4 SpecularColor = vec4(0.0);
+            vec4 lightWithoutSpecular = vec4(0.0);
+            if (Lambertian > 0.0) {
+                DiffuseColor = vec4(LightColor, 1.0) * LightProperties.y * Lambertian;
+                vec3 ViewVector = normalize(-PxlWorldPos - CameraPosition);
+
+                // this is blinn phong
+                vec3 halfDir = normalize(LightDir + ViewVector);
+                float SpecularAngle = max(dot(halfDir, PxlNormal), 0.0);
+                SpecularAngle = pow(SpecularAngle, LightProperties.z);
+                if (SpecularAngle > 0.0 && LightProperties.z > 0.001) {
+                    SpecularColor = (vec4(LightColor, 1.0) * MaterialSpecular * SpecularAngle);
+                }
+                lightWithoutSpecular = (AmbientColor + DiffuseColor);
+                lightWithoutSpecular += SpecularColor;
+            }
+            else{
+                lightWithoutSpecular = AmbientColor;
+            }
+            return lightWithoutSpecular;
+        }
+        vec4 CalcPointLight(vec3 PxlWorldPos, vec3 PxlNormal){
+            vec3 LightDir = LightPosition - PxlWorldPos;
+            float Distance = length(LightDir);
+            LightDir = normalize(LightDir);
+
+            vec4 c = CalcLightInternal(LightDir, PxlWorldPos, PxlNormal);
+
+            float a =  max(1.0 , LightAttenuation.x + (LightAttenuation.y * Distance) + (LightAttenuation.z * Distance * Distance));
+            return c / a;
+        }
+        vec3 CalcBumpedNormal(vec3 unpackedNormals){
             vec3 normalMapTexture = (texture2D(normalMap, UV).xyz) * 2.0 - 1.0;
-            mat3 TBN = mat3(Tangent, Binormal, Normal);
+			
+			vec3 unpackedBinormals = vec3(Part1.w,Part2.x,Part2.y);
+			vec3 unpackedTangents = vec3(Part2.z,Part2.w,Part3.x);
+			
+            mat3 TBN = mat3(unpackedTangents, unpackedBinormals, unpackedNormals);
             return normalize(TBN * normalMapTexture);
         }
-        void main(){
-            vec4 color = v_diffuse;
+
+        void main(void){
             vec3 diffuseMapColor = texture2D(diffuseMap,UV).rgb;
             float glowMapValue = texture2D(glowMap,UV).r;
             
-            //vec3 n = CalcBumpedNormal();
-            vec3 n = normalize(Normal);
+			vec3 unpackedNormals = Part1.xyz;
+			vec3 WorldPosition = Part3.yzw;
+			
+            //vec3 PxlNormal = CalcBumpedNormal(unpackedNormals);
+            vec3 PxlNormal = normalize(unpackedNormals);
             
-            Light light = u_light;
-            vec3 lightDir = v_lightDir;
-            float nDotL = max(dot(n, lightDir),0.0);
-            if (nDotL > 0.0) {
-                color = vec4(color.rgb * nDotL, color.a);
-                float nDotHV = max(dot(n, light.halfVector),0.0);
-                vec4 specular = u_frontMaterial.specular * light.specular;
-                color += max(vec4(specular.rgb * pow(nDotHV, u_frontMaterial.shininess), specular.a),
-                             vec4(glowMapValue));
-            }
-            else{
-                color = v_ambient;
-            }
-            gl_FragColor = (color*vec4(diffuseMapColor,1.0)) + v_ambient;
-            //gl_FragColor = vec4(n,1.0);
+            vec4 lightCalculation = vec4(0.0);
+            
+            lightCalculation = CalcPointLight(WorldPosition,PxlNormal);
+
+            lightCalculation.a = 1.0;
+            gl_FragColor = max(lightCalculation,vec4(glowMapValue)) * vec4(diffuseMapColor,1.0);
         }
     </script>   
-    <script>
-    function setDirectionalLight(program, eyeVector, direction, ambient, diffuse, specular){
-        var lightString = "u_light.";
-        gl.uniform4f(gl.getUniformLocation(program, lightString+"ambient"), ambient[0], ambient[1], ambient[2], ambient[3]);
-        gl.uniform4f(gl.getUniformLocation(program, lightString+"diffuse"), diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
-        gl.uniform4f(gl.getUniformLocation(program, lightString+"specular"), specular[0], specular[1], specular[2], specular[3]);
-        gl.uniform4f(gl.getUniformLocation(program, lightString+"position"), direction[0], direction[1], direction[2], direction[3]);
-
-        // compute the half vector
-        var halfVector = [ eyeVector[0] + direction[0], eyeVector[1] + direction[1], eyeVector[2] + direction[2] ];
-        var length = Math.sqrt(halfVector[0] * halfVector[0] + halfVector[1] * halfVector[1] + halfVector[2] * halfVector[2]);
-        if (length == 0)
-            halfVector = [ 0, 0, 1 ];
-        else {
-            halfVector[0] /= length;
-            halfVector[1] /= length;
-            halfVector[2] /= length;
-        }
-        gl.uniform3f(gl.getUniformLocation(program, lightString+"halfVector"),halfVector[0], halfVector[1], halfVector[2]);
-    }
-    function setMaterial(program, emission, ambient, diffuse, specular, shininess){
-        var matString = "u_frontMaterial.";
-        gl.uniform4f(gl.getUniformLocation(program, matString+"emission"),emission[0], emission[1], emission[2], emission[3]);
-        gl.uniform4f(gl.getUniformLocation(program, matString+"ambient"),ambient[0], ambient[1], ambient[2], ambient[3]);
-        gl.uniform4f(gl.getUniformLocation(program, matString+"diffuse"),diffuse[0], diffuse[1], diffuse[2], diffuse[3]);
-        gl.uniform4f(gl.getUniformLocation(program, matString+"specular"),specular[0], specular[1], specular[2], specular[3]);
-        gl.uniform1f(gl.getUniformLocation(program, matString+"shininess"), shininess);
-    }
-    </script>
 </head>
 <body style = "background-color:black;">
-    <div id = "canvasEventCatcher" tabindex="0" style = "position:absolute;top:0;left:0;x-index:5;outline:none;"></div>
-    <div id = "canvasDebug" tabindex = "-1"></div>
-    <canvas tabindex="-1" id="canvas"></canvas>
-    <!--<div id="framerate"></div>-->
     <script>
     function getParamValue(paramName){
         var url = window.location.search.substring(1);
-        var qArray = url.split('&');
-        for (var i = 0; i < qArray.length; i++){
-            var pArr = qArray[i].split('=');
+        var array = url.split('&');
+        for (var i = 0; i < array.length; i++){
+            var pArr = array[i].split('=');
             if (pArr[0] == paramName) 
                 return pArr[1];
         }
@@ -241,7 +163,7 @@
     function init(){
         var w = Math.floor(window.innerWidth * 1.0);
         var h = Math.floor(window.innerHeight * 1.0);
-        Engine.init( document.getElementById("canvas"),w,h );
+        Engine.init( w,h );
     }
     window.onload = init;
     </script>

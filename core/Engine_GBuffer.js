@@ -1,7 +1,6 @@
-
+'use strict';
 var Engine = Engine || {};
 (function (scope, undefined){
-    'use strict';
     Engine.GBuffer = {};
     
     Engine.GBuffer.fbo = -1;

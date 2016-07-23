@@ -6,7 +6,6 @@ var g = {}; // global variables
 function log(msg) { if (window.console && window.console.log) { window.console.log(msg); } }
 Engine.toRad = function(degree){ return degree * 0.0174533; }
 
-
 Engine.Framerate = function(id){
     this.numFramerates = 10;
     this.framerateUpdateInterval = 500;
@@ -55,9 +54,34 @@ Engine.handleContextLost = function(e) {
 Engine.handleContextRestored = function() {
     Engine.run();
 }
-Engine.init = function(canvas,w,h){
+Engine.init = function(w,h){
+	//first build the canvas and it's necessary html elements.
+	var body = document.getElementsByTagName('body')[0];
+	
+	var canvas_event_element = document.createElement('div');
+	canvas_event_element.setAttribute('tabindex', '0');
+	canvas_event_element.setAttribute('id', 'canvasEventCatcher');
+	canvas_event_element.setAttribute('style', 'position:absolute;top:0;left:0;z-index:5;outline:none;');
+	
+	var canvas_debug_element = document.createElement('div');
+	canvas_debug_element.setAttribute('tabindex', '-1');
+	canvas_debug_element.setAttribute('id', 'canvasDebug');
+	canvas_debug_element.setAttribute('style', 'margin:0;outline:0;border:0;padding:0;left:0;top:0;position:absolute;color:yellow;font-size:200%;');
+
+	var canvas_element = document.createElement('canvas');
+	canvas_element.setAttribute('tabindex', '-1');
+	canvas_element.setAttribute('id', 'canvas');
+	canvas_element.setAttribute('style', 'top:0;left:0;z-index:3;');
+	
+	//framerate thing for future reference
+	//<!--<div id="framerate"></div>-->
+	
+	body.appendChild(canvas_event_element);
+	body.appendChild(canvas_debug_element);
+	body.appendChild(canvas_element);
+	//
     Engine.requestId = undefined;
-    Engine.canvas = canvas;
+    Engine.canvas = document.getElementById('canvas');
     Engine.canvasEventCatcher = document.getElementById("canvasEventCatcher");
     Engine.canvas.width = w;
     Engine.canvas.height = h;
@@ -67,46 +91,53 @@ Engine.init = function(canvas,w,h){
     
     Engine.dt = 0;
     
-    Engine.EventManager.init(Engine.canvas,Engine.canvasEventCatcher);
     gl = Engine.RenderManager.init(Engine.canvas);
-    Engine.ResourceManager.init();
-    
+  
     new Shader("Default","vshader","fshader");
-    new Shader("Skybox","vshader-skybox","fshader-skybox");
-    Engine.camera = new Camera("DefaultCamera",w,h);
-    
+
     //Engine.framerate = new Framerate("framerate");
 
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
     
+	Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
+	Engine.ResourceManager.initDefaultResources();
+	
+	Engine.ResourceManager.initPreGameLogic();
     Engine.Game.initLogic();
+	Engine.ResourceManager.initDefaultLogic();
     
     Engine.resize(w,h);
 
     Engine.run();
 }
+Engine.requestPointerLock = function(){
+    Engine.EventManager.pointerLock.desired = true;
+}
 Engine.resize = function(width,height){
     gl.viewport(0, 0, width, height);
-    for (var key in Engine.ResourceManager.cameras) {
-        Engine.ResourceManager.cameras[key].resize(width,height);
+    for (var key in Engine.ResourceManager.scenes.cameras) {
+        Engine.ResourceManager.scenes.cameras[key].resize(width,height);
     }
 }
 Engine.update = function(dt){
     Engine.Game.update(dt);
-    for (var key in Engine.ResourceManager.objects) {
-        Engine.ResourceManager.objects[key].update(dt);
+    for (var key in Engine.scene.lights) {
+        Engine.scene.lights[key].update(dt);
     }
-    for (var key in Engine.ResourceManager.cameras) {
-        Engine.ResourceManager.cameras[key].update(dt);
+    for (var key in Engine.scene.objects) {
+        Engine.scene.objects[key].update(dt);
+    }
+    for (var key in Engine.scene.cameras) {
+        Engine.scene.cameras[key].update(dt);
     }
     Engine.EventManager.update(dt);
 }
 
 Engine.render = function(){
     gl.clearColor(0.0,0.0,0.0,1.0);
-    gl.clearDepth(10000);
+    gl.clearDepth(Engine.camera.far);
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
@@ -120,23 +151,13 @@ Engine.render = function(){
     
     gl.uniform4f(gl.getUniformLocation(shader, "ambientColor"), 0.05, 0.05, 0.05, 1);
 
-    setDirectionalLight(Engine.ResourceManager.shaders["Default"].program,
-                        [0.00, 0.00, 1.00     ],   // eyeVector
-                        [0.00, 0.00, 1.00, 1.00],   // position
-                        [0.05, 0.05, 0.05, 1.00],   // ambient
-                        [1.00, 1.00, 1.00, 1.00],   // diffuse
-                        [1.00, 1.00, 1.00, 1.00]);  // specular
-
-    setMaterial(Engine.ResourceManager.shaders["Default"].program,
-        [0.00, 0.00, 0.00, 0.00],  // emission
-        [0.05, 0.05, 0.05, 1.00],  // ambient
-        [1.00, 1.00, 1.00, 1.00],  // diffuse
-        [1.00, 1.00, 1.00, 1.00],  // specular
-        50);                   // shininess
-    //
-    
-    for (var key in Engine.ResourceManager.objects) {
-        Engine.ResourceManager.objects[key].render();
+    //dir light
+    for(key in Engine.scene.lights){
+        Engine.scene.lights[key].sendUniforms(shader);
+    }
+	//queue up game objects for drawing
+    for (var key in Engine.scene.objects) {
+        Engine.scene.objects[key].render();
     }
     Engine.RenderManager.render();
 }
