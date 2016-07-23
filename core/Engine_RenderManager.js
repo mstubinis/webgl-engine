@@ -32,8 +32,10 @@ var Engine = Engine || {};
 		var antialias = gl.getContextAttributes().antialias;
 		var size = gl.getParameter(gl.SAMPLES);
 
-		//always have this enabled.
-		gl.enableVertexAttribArray(0)
+		gl.enableVertexAttribArray(0);//always have this enabled.
+		
+		gl.enable(gl.CULL_FACE);
+		gl.cullFace(gl.BACK);
 		
         return gl;
     }

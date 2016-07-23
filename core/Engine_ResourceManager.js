@@ -15,7 +15,7 @@ var Engine = Engine || {};
 	}
 	Engine.ResourceManager.initPreGameLogic = function(){//add mandatory game logic
 		if(!Engine.hasOwnProperty('scene')){
-			var s = new Scene('DefaultScene');
+			new Scene('DefaultScene');
 		}
 	}
 	
@@ -24,7 +24,7 @@ var Engine = Engine || {};
     }
     Engine.ResourceManager.initDefaultLogic = function(){//add any needed game logic that the user might have forgotten
 		if(!Engine.hasOwnProperty('camera')){
-			var c = new Camera('DefaultCamera',Engine.canvas.width,Engine.canvas.height);
+			new Camera('DefaultCamera',Engine.canvas.width,Engine.canvas.height);
 		}
     }
 	Engine.ResourceManager.checkIfAllResourcesAreLoaded = function(){

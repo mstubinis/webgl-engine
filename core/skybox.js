@@ -10,27 +10,27 @@ var Skybox = function(name,files,scene){
 	
 	//add skybox mesh if it does not already exist.
     if(!("Skybox" in Engine.ResourceManager.meshes)){
-        var meshdata = "v 1.000000 -1.000000 -1.000000\n" +
-                   "v 1.000000 -1.000000 1.000000\n" +
-                   "v -1.000000 -1.000000 1.000000\n" +
-                   "v -1.000000 -1.000000 -1.000000\n" +
-                   "v 1.000000 1.000000 -1.000000\n" +
-                   "v 1.000000 1.000000 1.000001\n" +
-                   "v -1.000000 1.000000 1.000000\n" +
-                   "v -1.000000 1.000000 -1.000000\n" +
-                   "f 2 4 1\n" +
-                   "f 8 6 5\n" +
-                   "f 5 2 1\n" +
-                   "f 6 3 2\n" +
-                   "f 3 8 4\n" +
-                   "f 1 8 5\n" +
-                   "f 2 3 4\n" +
-                   "f 8 7 6\n" +
-                   "f 5 6 2\n" +
-                   "f 6 7 3\n" +
-                   "f 3 7 8\n" +
-                   "f 1 4 8\n";
-		var m = new Mesh("Skybox",meshdata,false);
+        var meshdata =  "v 1.000000 -1.000000 -1.000000\n" + 
+						"v 1.000000 -1.000000 1.000000\n" + 
+						"v -1.000000 -1.000000 1.000000\n" + 
+						"v -1.000000 -1.000000 -1.000000\n" + 
+						"v 1.000000 1.000000 -1.000000\n" + 
+						"v 1.000000 1.000000 1.000000\n" + 
+						"v -1.000000 1.000000 1.000000\n" + 
+						"v -1.000000 1.000000 -1.000000\n" + 
+						"f 4 2 1\n" + 
+						"f 6 8 5\n" + 
+						"f 2 5 1\n" + 
+						"f 3 6 2\n" + 
+						"f 3 8 7\n" + 
+						"f 8 1 5\n" + 
+						"f 4 3 2\n" + 
+						"f 6 7 8\n" + 
+						"f 2 6 5\n" + 
+						"f 3 7 6\n" + 
+						"f 3 4 8\n" + 
+						"f 8 4 1";
+		new Mesh("Skybox",meshdata,false);
     }
 	//add skybox shaders if they do not already exist.
 	if(!("Skybox" in Engine.ResourceManager.shaders)){
