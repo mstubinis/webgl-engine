@@ -39,22 +39,23 @@
         uniform mat4 M;
         uniform mat4 V;
         uniform mat4 P;
-        //uniform mat4 normalMatrix;
+        uniform mat4 normalMatrix;
 		
 		varying vec2 UV;
 		varying vec4 Part1; //Normals and Binormal.x
 		varying vec4 Part2; //Binormal.y Binormal.z Tangent.x Tangent.y
 		varying vec4 Part3; //Tangent.z World Position
         void main(void){
-            vec3 Normal = normalize((V*M) * vec4(normal, 0.0)).xyz;
-            vec3 Binormal = normalize((V*M) * vec4(binormal, 0.0)).xyz;
-            vec3 Tangent = normalize((V*M) * vec4(tangent, 0.0)).xyz;
-            //vec3 Normal = normalize((normalMatrix) * vec4(normal, 1.0)).xyz;
-            //vec3 Binormal = normalize((normalMatrix) * vec4(binormal, 1.0)).xyz;
-            //vec3 Tangent = normalize((normalMatrix) * vec4(tangent, 1.0)).xyz;
+            vec3 Normal = normalize(normalMatrix * vec4(normal,1.0)).xyz;
+            vec3 Binormal = normalize(normalMatrix * vec4(binormal,1.0)).xyz;
+            vec3 Tangent = normalize(normalMatrix * vec4(tangent,1.0)).xyz;
+			
+            //vec3 Normal = normalize(mat3(normalMatrix) * normal);
+            //vec3 Binormal = normalize(mat3(normalMatrix) * binormal);
+            //vec3 Tangent = normalize(mat3(normalMatrix) * tangent);
 			
 			vec3 WorldPosition = (M * vec4(position,1.0)).xyz;
-			
+
 			UV = uv;
 			Part1 = vec4(Normal.xyz,Binormal.x);
 			Part2 = vec4(Binormal.y,Binormal.z,Tangent.x,Tangent.y);
@@ -77,75 +78,68 @@
         //x = ambientPower | y = DiffusePower | z = SpecularPower | w = LightW
         uniform vec4 LightProperties;
         
-        uniform vec4 MaterialSpecular;
-        
+		uniform vec3 SceneAmbient;
+		
+        uniform vec4 MaterialColor;       //rgb is color. a is transparency
+		uniform vec4 MaterialSpecularity; //rgb is color. a is shininess
+		
         uniform vec3 CameraPosition;
-
+		
 		varying vec2 UV;
 		varying vec4 Part1; //Normals and Binormal.x
 		varying vec4 Part2; //Binormal.y Binormal.z Tangent.x Tangent.y
 		varying vec4 Part3; //Tangent.z World Position
-        vec4 CalcLightInternal(vec3 LightDir,vec3 PxlWorldPos,vec3 PxlNormal){
-            vec4 AmbientColor = vec4(LightColor, 1.0) * LightProperties.x;
-            float Lambertian = max(dot(LightDir,PxlNormal), 0.0);
-            vec4 DiffuseColor  = vec4(0.0);
-            vec4 SpecularColor = vec4(0.0);
-            vec4 lightWithoutSpecular = vec4(0.0);
-            if (Lambertian > 0.0) {
-                DiffuseColor = vec4(LightColor, 1.0) * LightProperties.y * Lambertian;
-                vec3 ViewVector = normalize(-PxlWorldPos - CameraPosition);
-
-                // this is blinn phong
-                vec3 halfDir = normalize(LightDir + ViewVector);
-                float SpecularAngle = max(dot(halfDir, PxlNormal), 0.0);
-                SpecularAngle = pow(SpecularAngle, LightProperties.z);
-                if (SpecularAngle > 0.0 && LightProperties.z > 0.001) {
-                    SpecularColor = (vec4(LightColor, 1.0) * MaterialSpecular * SpecularAngle);
-                }
-                lightWithoutSpecular = (AmbientColor + DiffuseColor);
-                lightWithoutSpecular += SpecularColor;
-            }
-            else{
-                lightWithoutSpecular = AmbientColor;
-            }
-            return lightWithoutSpecular;
-        }
-        vec4 CalcPointLight(vec3 PxlWorldPos, vec3 PxlNormal){
-            vec3 LightDir = LightPosition - PxlWorldPos;
-            float Distance = length(LightDir);
-            LightDir = normalize(LightDir);
-
-            vec4 c = CalcLightInternal(LightDir, PxlWorldPos, PxlNormal);
-
-            float a =  max(1.0 , LightAttenuation.x + (LightAttenuation.y * Distance) + (LightAttenuation.z * Distance * Distance));
-            return c / a;
-        }
         vec3 CalcBumpedNormal(vec3 unpackedNormals){
-            vec3 normalMapTexture = (texture2D(normalMap, UV).xyz) * 2.0 - 1.0;
-			
+            vec3 normalMapTexture = (texture2D(normalMap, UV).xyz) * 2.0 - 1.0;	
 			vec3 unpackedBinormals = vec3(Part1.w,Part2.x,Part2.y);
 			vec3 unpackedTangents = vec3(Part2.z,Part2.w,Part3.x);
-			
             mat3 TBN = mat3(unpackedTangents, unpackedBinormals, unpackedNormals);
             return normalize(TBN * normalMapTexture);
         }
-
+		vec4 CalcLightInternal(vec3 SurfaceToLight,vec3 SurfaceNormal,vec3 SurfacePosition){
+			vec3 AmbientColor = LightProperties.x * SceneAmbient;
+			vec3 LightingFinal = AmbientColor;
+			float nDotL = max(0.0, dot(SurfaceNormal, SurfaceToLight));
+			if(nDotL > 0.0){
+				vec3 DiffuseColor = nDotL * (MaterialColor.rgb * LightProperties.y);
+			    vec3 ViewVector = -normalize(SurfacePosition - CameraPosition);
+				// this is blinn phong
+				vec3 HalfVector = normalize(SurfaceToLight + ViewVector);
+				float SpecularAngle = max(dot(HalfVector, SurfaceNormal), 0.0);
+				SpecularAngle = pow(SpecularAngle, MaterialSpecularity.w);
+				vec3 SpecularColor = MaterialSpecularity.rgb * LightProperties.z * SpecularAngle;
+				LightingFinal += (DiffuseColor + SpecularColor);
+			}
+			return vec4(LightingFinal,MaterialColor.w);
+		}
+		
         void main(void){
-            vec3 diffuseMapColor = texture2D(diffuseMap,UV).rgb;
-            float glowMapValue = texture2D(glowMap,UV).r;
-            
-			vec3 unpackedNormals = Part1.xyz;
-			vec3 WorldPosition = Part3.yzw;
-			
-            //vec3 PxlNormal = CalcBumpedNormal(unpackedNormals);
-            vec3 PxlNormal = normalize(unpackedNormals);
-            
-            vec4 lightCalculation = vec4(0.0);
-            
-            lightCalculation = CalcPointLight(WorldPosition,PxlNormal);
+			vec4 diffuseTexture = texture2D(diffuseMap,UV);
+			vec4 glowTexture = vec4(texture2D(glowMap,UV).r);
+			vec3 SurfacePosition = Part3.yzw;
 
-            lightCalculation.a = 1.0;
-            gl_FragColor = max(lightCalculation,vec4(glowMapValue)) * vec4(diffuseMapColor,1.0);
+            //vec3 SurfaceNormal = CalcBumpedNormal(Part1.xyz);
+            vec3 SurfaceNormal = normalize(Part1.xyz);
+
+			vec4 lighting = vec4(0.0);
+			if(LightProperties.w == 0.0) {//directional light
+				lighting = CalcLightInternal(normalize(LightPosition),SurfaceNormal,SurfacePosition);
+			} 
+			else {//point light
+				vec3 SurfaceToLight = normalize(LightPosition - SurfacePosition);
+				lighting = CalcLightInternal(SurfaceToLight,SurfaceNormal,SurfacePosition);
+				float D = length(LightPosition - SurfacePosition);
+				float Att = max(1.0 , LightAttenuation.x + (LightAttenuation.y * D) + (LightAttenuation.z * D * D));
+				
+				//cone restrictions (affects attenuation)
+				//float lightToSurfaceAngle = degrees(acos(dot(-SurfaceToLight, normalize(light.coneDirection))));
+				//if(lightToSurfaceAngle > light.coneAngle){
+					//Att = 0.0;
+				//}
+				lighting /= Att;
+			}	
+            gl_FragColor = max(lighting,glowTexture) * diffuseTexture;
+			gl_FragColor.a = lighting.a * diffuseTexture.a;
         }
     </script>   
 </head>

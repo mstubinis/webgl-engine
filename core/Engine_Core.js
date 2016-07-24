@@ -93,7 +93,6 @@ Engine.init = function(w,h){
     
     gl = Engine.RenderManager.init(Engine.canvas);
   
-    new Shader("Default","vshader","fshader");
 
     //Engine.framerate = new Framerate("framerate");
 
@@ -117,8 +116,11 @@ Engine.requestPointerLock = function(){
 }
 Engine.resize = function(width,height){
     gl.viewport(0, 0, width, height);
-    for (var key in Engine.ResourceManager.scenes.cameras) {
-        Engine.ResourceManager.scenes.cameras[key].resize(width,height);
+    for (var key in Engine.ResourceManager.scenes) {
+		var scene = Engine.ResourceManager.scenes[key];
+		for (var key1 in scene.cameras) {
+			scene.cameras[key1].resize(width,height);
+		}
     }
 }
 Engine.update = function(dt){
@@ -149,7 +151,7 @@ Engine.render = function(){
     
     gl.useProgram(shader);
     
-    gl.uniform4f(gl.getUniformLocation(shader, "ambientColor"), 0.05, 0.05, 0.05, 1);
+    gl.uniform3f(gl.getUniformLocation(shader,"SceneAmbient"),Engine.scene.ambient[0],Engine.scene.ambient[1],Engine.scene.ambient[2]);
 
     //dir light
     for(key in Engine.scene.lights){

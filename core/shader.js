@@ -1,15 +1,15 @@
 'use strict';
 
-var Shader = function(name,vShaderFile,fShaderFile,vId,fId){
+var Shader = function(name,vShaderFile,fShaderFile,attribs,vId,fId){
     if(name in Engine.ResourceManager.shaders){ return undefined; }
     
     this.program = -1;
 	if(vId === undefined && fId === undefined){
-		this.compile(vShaderFile,fShaderFile);
+		this.compile(vShaderFile,fShaderFile,attribs);
 	}
 	else{
 		this.loadFromText(vShaderFile,fShaderFile,vId,fId);
-		this.compile(vId,fId);
+		this.compile(vId,fId,attribs);
 	}
     
     Engine.ResourceManager.shaders[name] = this;
@@ -29,16 +29,20 @@ Shader.prototype.loadFromText = function(vShaderText,fShaderText,vId,fId){
 	s.innerHTML = fShaderText;
 	head.appendChild(s);
 }
-Shader.prototype.compile = function(vshader, fshader){
+Shader.prototype.compile = function(vshader, fshader, attribs){
     var vertexShader = this.load(vshader);
     var fragmentShader = this.load(fshader);
     this.program = gl.createProgram();
     gl.attachShader (this.program, vertexShader);
     gl.attachShader (this.program, fragmentShader);
+	
+	for(var i = 0; i < attribs.length; i++)
+		gl.bindAttribLocation(this.program,i,attribs[i]);
+	
     gl.linkProgram(this.program);
     var linked = gl.getProgramParameter(this.program, gl.LINK_STATUS);
-    if (!linked && !gl.isContextLost()) {
-        var error = gl.getProgramInfoLog (this.program);
+    if(!linked){
+        var error = gl.getProgramInfoLog(this.program);
         gl.deleteProgram(this.program);
         gl.deleteProgram(fragmentShader);
         gl.deleteProgram(vertexShader);
@@ -65,7 +69,7 @@ Shader.prototype.load = function(shaderId){
 			if(match){
 				var fileno = parseInt(match[1], 10)-1;
 				var lineno = parseInt(match[2], 10)-1;
-				msg += match[3] + "\n";
+				msg += "File Line " + fileno + " , Shader Line " + lineno + ": " + match[3] + "\n";
 				
 			}
 		}

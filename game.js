@@ -17,10 +17,11 @@ var Engine = Engine || {};
         ];
         var skybox = new Skybox("SceneSkybox",files);
         var defiant = new GameObject("Defiant","Defiant","Defiant");
-        defiant.setPosition(0,0,1);
+        defiant.setPosition(0,0,0);
         
         var light = new Light("DirLight1");
-        
+		light.setPosition(5,5,5);
+
         Engine.requestPointerLock();
     }
     Engine.Game.update = function(dt){

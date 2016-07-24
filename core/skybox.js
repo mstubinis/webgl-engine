@@ -53,7 +53,7 @@ var Skybox = function(name,files,scene){
 			"void main(void){\n"+
 			"	gl_FragColor = textureCube(texture, UV);\n"+
 			"}";
-		new Shader("Skybox",skyboxVertexShaderText,skyboxFragmentShaderText,"vshader-skybox","fshader-skybox");
+		new Shader("Skybox",skyboxVertexShaderText,skyboxFragmentShaderText,["position"],"vshader-skybox","fshader-skybox");
 	}
     this.modelMatrix = mat4.create();
     mat4.scale(this.modelMatrix,this.modelMatrix,vec3.fill(1000,1000,1000));

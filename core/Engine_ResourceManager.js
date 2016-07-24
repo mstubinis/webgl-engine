@@ -11,7 +11,7 @@ var Engine = Engine || {};
 	Engine.ResourceManager.scenes = {};
     
 	Engine.ResourceManager.initPreGameResources = function(){//add mandatory game resources
-
+		new Shader("Default","vshader","fshader",["position","uv","normal","binormal","tangent"]);
 	}
 	Engine.ResourceManager.initPreGameLogic = function(){//add mandatory game logic
 		if(!Engine.hasOwnProperty('scene')){

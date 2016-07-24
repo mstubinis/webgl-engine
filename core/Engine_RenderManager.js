@@ -68,6 +68,11 @@ var Engine = Engine || {};
         mat4.transpose(normalMatrix,normalMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
 		*/
+        var normalMatrix = mat4.create();
+        mat4.invert(normalMatrix,obj.modelMatrix);
+        mat4.transpose(normalMatrix,normalMatrix);
+        gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
+
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "P"),false,Engine.camera.projectionMatrix); 
         
         material.sendUniforms(obj.shader);

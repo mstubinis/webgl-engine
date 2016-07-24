@@ -8,14 +8,14 @@ var Light = function(name,scene){
 	}
     
 	this._position = vec4.fill(0,0,0);
-	this.w = 0;
+	this.w = 1.0;
 	
 	this.modelMatrix = mat4.create();
 	this.rotation = quat.fill(0,0,0,1);
 	this.scale = vec3.fill(1,1,1);
 	
-	this.color = vec4.fill(1,1,1,1);
-	this.specularPower = 50.0;
+	this.color = vec3.fill(1,1,1);
+	this.specularPower = 1.0;
 	this.diffusePower = 1.0;
 	this.ambientPower = 0.05;
 	
