@@ -31,7 +31,7 @@ var Light = function(name,scene){
 Light.prototype.sendUniforms = function(shader){
 	var pos = this.position();
 	
-	if(this.w != 1.0){
+	if(this.w != 0.0){
 		gl.uniform3f(gl.getUniformLocation(shader, "LightAttenuation"), this.constant,this.linear,this.exponent);
 	}
 	gl.uniform3f(gl.getUniformLocation(shader, "LightPosition"), pos[0],pos[1],pos[2]);
