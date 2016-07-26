@@ -1,10 +1,10 @@
 'use strict';
 var Light = function(name,scene){
 	if(scene === undefined){
-		if(name in Engine.scene.lights){ return undefined; }
+		if(name in Engine.scene.lights){ return Engine.scene.lights[name]; }
 	}
 	else{
-		if(name in Engine.ResourceManager.scenes[scene].lights){ return undefined; }
+		if(name in Engine.ResourceManager.scenes[scene].lights){ return Engine.ResourceManager.scenes[scene].lights[name]; }
 	}
     
 	this._position = vec4.fill(0,0,0);
@@ -23,6 +23,32 @@ var Light = function(name,scene){
 	this.linear = 0.2;
 	this.exponent = 0.3;
 	
+	
+	//this is important
+	var shader = Engine.ResourceManager.shaders["Default"].program;
+	var lightLocations = [
+	  "LightProperties",
+	  "LightColor",
+	  "LightPosition",
+	  "LightAttenuation"
+	];
+	var locations = {};
+	for (var i = 0; i < lightLocations.length; ++i){
+		if(scene === undefined){
+			var l = Object.keys(Engine.scene.lights).length;
+			var str = "lights[" + l + "]." + lightLocations[i];
+			locations[lightLocations[i]] = str;
+		}
+		else{
+			var l = Object.keys(Engine.ResourceManager.scenes[scene].lights).length;
+			var str = "lights[" + l + "]." + lightLocations[i];
+			locations[lightLocations[i]] = str;
+		}
+	}
+	this.uniforms = locations;
+	//
+	
+	
 	if(scene === undefined)
 		Engine.scene.lights[name] = this;
 	else
@@ -30,14 +56,12 @@ var Light = function(name,scene){
 }
 Light.prototype.sendUniforms = function(shader){
 	var pos = this.position();
-	
 	if(this.w != 0.0){
-		gl.uniform3f(gl.getUniformLocation(shader, "LightAttenuation"), this.constant,this.linear,this.exponent);
+		gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightAttenuation"]), this.constant,this.linear,this.exponent);
 	}
-	gl.uniform3f(gl.getUniformLocation(shader, "LightPosition"), pos[0],pos[1],pos[2]);
-	gl.uniform3f(gl.getUniformLocation(shader, "LightColor"), this.color[0],this.color[1],this.color[2]);
-	
-	gl.uniform4f(gl.getUniformLocation(shader, "LightProperties"),this.ambientPower,this.diffusePower,this.specularPower,this.w);
+	gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightPosition"]), pos[0],pos[1],pos[2]);
+	gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightColor"]), this.color[0],this.color[1],this.color[2]);
+	gl.uniform4f(gl.getUniformLocation(shader,this.uniforms["LightProperties"]),this.ambientPower,this.diffusePower,this.specularPower,this.w);
 }
 Light.prototype.translate = function(x,y,z) {
     Engine.GameObjectManager.translate(this,x,y,z);

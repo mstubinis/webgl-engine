@@ -1,7 +1,7 @@
 'use strict';
 
 var Mesh = function(name,meshFile,fromFile){
-    if(name in Engine.ResourceManager.meshes){ return undefined; }
+    if(name in Engine.ResourceManager.meshes){ return Engine.ResourceManager.meshes[name]; }
 	if(fromFile === undefined) fromFile = true;
 	
 	var _this = this;
@@ -14,14 +14,13 @@ var Mesh = function(name,meshFile,fromFile){
         OBJ.Mesh(_this,meshFile);
 		InitMeshFunc(_this,name);
 	}
-	Engine.ResourceManager.meshes[name] = _this;
 }; 
 var InitMeshFunc = function(_this,name){
     _this = OBJ.initMeshBuffers(gl, _this);
     _this.loaded = true;
-	
+	Engine.ResourceManager.meshes[name] = _this;
 	if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
-		Engine.EventManager.init();
+		Engine.onResourcesLoaded();
 	}
 }
 Mesh.prototype.sendUniforms = function(drawMode){

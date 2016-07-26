@@ -1,7 +1,7 @@
 'use strict';
 
 var Scene = function(name){
-    if(name in Engine.ResourceManager.scenes){ return undefined; }
+    if(name in Engine.ResourceManager.scenes){ return Engine.ResourceManager.scenes[name]; }
 
 	this.objects = {};
 	this.lights = {};

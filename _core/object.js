@@ -1,10 +1,10 @@
 'use strict';
 var GameObject = function(name,mesh,material,scene){
 	if(scene === undefined){
-		if(name in Engine.scene.objects){ return undefined; }
+		if(name in Engine.scene.objects){ return Engine.scene.objects[name]; }
 	}
 	else{
-		if(name in Engine.ResourceManager.scenes[scene].objects){ return undefined; }
+		if(name in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[name]; }
 	}
     
     this.mesh = mesh;
@@ -13,6 +13,7 @@ var GameObject = function(name,mesh,material,scene){
     this.modelMatrix = mat4.create();
     this._position = vec3.fill(0,0,0);
     this.rotation = quat.fill(0,0,0,1);
+	this.color = vec4.fill(1,1,1,1);
     this.scale = vec3.fill(1,1,1);
 	this.visible = true;
 	

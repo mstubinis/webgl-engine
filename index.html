@@ -9,7 +9,8 @@
     <script src="_deps/gl-matrix.js"> </script>
     <script src="_deps/webgl-utils.js"></script>
     <script src="_deps/OBJLoader.js"></script>
-
+	<script src="_deps/ammo.js"></script>
+	
     <script src="_core/Engine_ResourceManager.js"></script>
     <script src="_core/Engine_GBuffer.js"></script>
     <script src="_core/Engine_RenderManager.js"></script>
@@ -70,20 +71,25 @@
         uniform sampler2D diffuseMap;
         uniform sampler2D glowMap;
         uniform sampler2D normalMap;
-        
-		uniform vec3 LightAttenuation;
-        uniform vec3 LightPosition;
-        uniform vec3 LightColor;
-        
-        //x = ambientPower | y = DiffusePower | z = SpecularPower | w = LightW
-        uniform vec4 LightProperties;
-        
+
+		const int MAX_LIGHTS = 8;
+		uniform int numLights;
+		struct Light {
+			vec4 LightProperties;//x = ambientPower | y = DiffusePower | z = SpecularPower | w = LightW
+			vec3 LightColor;
+			vec3 LightPosition;
+			vec3 LightAttenuation;
+		};
+		uniform Light lights[MAX_LIGHTS];
+
 		uniform vec3 SceneAmbient;
 		
+		uniform int MaterialShadeless;
         uniform vec4 MaterialColor;       //rgb is color. a is transparency
 		uniform vec4 MaterialSpecularity; //rgb is color. a is shininess
 		
         uniform vec3 CameraPosition;
+		uniform vec4 ObjectColor;
 		
 		varying vec2 UV;
 		varying vec4 Part1; //Normals and Binormal.x
@@ -96,25 +102,30 @@
             mat3 TBN = mat3(unpackedTangents, unpackedBinormals, unpackedNormals);
             return normalize(TBN * normalMapTexture);
         }
-		vec3 CalcLightInternal(vec3 SurfaceToLight,vec3 SurfaceNormal,vec3 SurfacePosition){
-			vec3 AmbientColor = LightProperties.x * SceneAmbient;
+		vec3 CalcLightInternal(vec3 SurfaceToLight,Light light,vec3 SurfaceNormal,vec3 SurfacePosition){
+			vec3 AmbientColor = light.LightProperties.x * SceneAmbient;
 			vec3 LightingFinal = AmbientColor;
 			float nDotL = max(0.0, dot(SurfaceNormal, SurfaceToLight));
 			if(nDotL > 0.0){
-				vec3 DiffuseColor = nDotL * (MaterialColor.rgb * LightProperties.y);
+				vec3 DiffuseColor = nDotL * (MaterialColor.rgb * light.LightProperties.y);
 			    vec3 ViewVector = -normalize(SurfacePosition - CameraPosition);
 				// this is blinn phong
 				vec3 HalfVector = normalize(SurfaceToLight + ViewVector);
 				float SpecularAngle = max(dot(HalfVector, SurfaceNormal), 0.0);
 				SpecularAngle = pow(SpecularAngle, MaterialSpecularity.w);
-				vec3 SpecularColor = MaterialSpecularity.rgb * LightProperties.z * SpecularAngle;
+				vec3 SpecularColor = MaterialSpecularity.rgb * light.LightProperties.z * SpecularAngle;
 				LightingFinal += (DiffuseColor + SpecularColor);
 			}
 			return LightingFinal;
 		}
-		
         void main(void){
 			vec4 diffuseTexture = texture2D(diffuseMap,UV);
+			if(MaterialShadeless == int(1.0)){
+				gl_FragColor.rgb = (diffuseTexture.rgb * ObjectColor.rgb);
+				gl_FragColor.a = MaterialColor.a * (diffuseTexture.a * ObjectColor.a);
+				return;
+			}
+			
 			vec3 glowTexture = vec3(texture2D(glowMap,UV).r);
 			vec3 SurfacePosition = Part3.yzw;
 
@@ -122,24 +133,31 @@
             vec3 SurfaceNormal = normalize(Part1.xyz);
 
 			vec3 lighting = vec3(0.0);
-			if(LightProperties.w == 0.0) {//directional light
-				lighting = CalcLightInternal(normalize(LightPosition),SurfaceNormal,SurfacePosition);
-			} 
-			else {//point light
-				vec3 SurfaceToLight = normalize(LightPosition - SurfacePosition);
-				lighting = CalcLightInternal(SurfaceToLight,SurfaceNormal,SurfacePosition);
-				float D = length(LightPosition - SurfacePosition);
-				float Att = max(1.0 , LightAttenuation.x + (LightAttenuation.y * D) + (LightAttenuation.z * D * D));
-				
-				//cone restrictions (affects attenuation)
-				//float lightToSurfaceAngle = degrees(acos(dot(-SurfaceToLight, normalize(light.coneDirection))));
-				//if(lightToSurfaceAngle > light.coneAngle){
-					//Att = 0.0;
-				//}
-				lighting /= Att;
-			}	
-            gl_FragColor.rgb = max(lighting,glowTexture) * diffuseTexture.rgb;
-			gl_FragColor.a = MaterialColor.a * diffuseTexture.a;
+			for(int i = 0; i < MAX_LIGHTS; ++i){ // stupid loop index cannot be compared with a non constant uniform... idk why...
+				if(i < numLights){
+					Light light = lights[i];
+					vec3 individualLighting = vec3(0.0);
+					if(light.LightProperties.w == 0.0) {//directional light
+						individualLighting = CalcLightInternal(normalize(light.LightPosition),light,SurfaceNormal,SurfacePosition);
+					} 
+					else {//point light
+						vec3 SurfaceToLight = normalize(light.LightPosition - SurfacePosition);
+						individualLighting = CalcLightInternal(SurfaceToLight,light,SurfaceNormal,SurfacePosition);
+						float D = length(light.LightPosition - SurfacePosition);
+						float Att = max(1.0 , light.LightAttenuation.x + (light.LightAttenuation.y * D) + (light.LightAttenuation.z * D * D));
+						
+						//cone restrictions (affects attenuation)
+						//float lightToSurfaceAngle = degrees(acos(dot(-SurfaceToLight, normalize(light.coneDirection))));
+						//if(lightToSurfaceAngle > light.coneAngle){
+							//Att = 0.0;
+						//}
+						individualLighting /= Att;
+					}
+					lighting += individualLighting;
+				}
+			}
+            gl_FragColor.rgb = max(lighting,glowTexture) * (diffuseTexture.rgb * ObjectColor.rgb);
+			gl_FragColor.a = MaterialColor.a * (diffuseTexture.a * ObjectColor.a);
         }
     </script>   
 </head>
@@ -155,8 +173,8 @@
         }
     }
     function init(){
-        var w = Math.floor(window.innerWidth * 1.0);
-        var h = Math.floor(window.innerHeight * 1.0);
+		var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+		var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
         Engine.init( w,h );
     }
     window.onload = init;

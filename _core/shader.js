@@ -1,7 +1,7 @@
 'use strict';
 
 var Shader = function(name,vShaderFile,fShaderFile,attribs,vId,fId){
-    if(name in Engine.ResourceManager.shaders){ return undefined; }
+    if(name in Engine.ResourceManager.shaders){ return Engine.ResourceManager.shaders[name]; }
     
     this.program = -1;
 	if(vId === undefined && fId === undefined){

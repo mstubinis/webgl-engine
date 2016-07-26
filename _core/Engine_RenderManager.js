@@ -8,11 +8,8 @@ var Engine = Engine || {};
     Engine.RenderManager.init = function(canvas){
         gl = WebGLUtils.setupWebGL(canvas,{antialias: true});
         if (!gl) { return; }
-        
-        gl.ext = gl.getExtension('WEBGL_draw_buffers');
-        if (!gl.ext) {
-          // ...
-        }
+        gl.extensions = {};
+        gl.extensions.drawBuffers = gl.getExtension('WEBGL_draw_buffers');
 
         Engine.GBuffer.init();
 		
@@ -37,9 +34,33 @@ var Engine = Engine || {};
 		gl.enable(gl.CULL_FACE);
 		gl.cullFace(gl.BACK);
 		
+		
+		
         return gl;
     }
     Engine.RenderManager.render = function(){
+		gl.clearColor(0.0,0.0,0.0,1.0);
+		gl.clearDepth(Engine.camera.far);
+
+		gl.enable(gl.DEPTH_TEST);
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		
+		var shader = Engine.ResourceManager.shaders["Default"].program;
+		
+		gl.useProgram(shader);
+		
+		gl.uniform3f(gl.getUniformLocation(shader,"SceneAmbient"),Engine.scene.ambient[0],Engine.scene.ambient[1],Engine.scene.ambient[2]);
+		gl.uniform1i(gl.getUniformLocation(shader, "numLights"), Object.keys(Engine.scene.lights).length);
+		
+		for(key in Engine.scene.lights){
+			Engine.scene.lights[key].sendUniforms(shader);
+		}
+		//queue up game objects for drawing
+		for (var key in Engine.scene.objects) { Engine.scene.objects[key].render(); }
+		//then actually draw them...
         for(var i = 0; i < Engine.RenderManager.skyboxQueue.length; i++){
             Engine.RenderManager.skyboxQueue[i].draw();
         }
@@ -53,12 +74,14 @@ var Engine = Engine || {};
         var mesh = Engine.ResourceManager.meshes[obj.mesh];
         var material = Engine.ResourceManager.materials[obj.material];
         if(mesh == undefined || !mesh.loaded){ return; }
-
         gl.useProgram(obj.shader);
+		
+		
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "M"),false,obj.modelMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "V"),false,Engine.camera.viewMatrix);
 
 		var camPos = Engine.camera.position();
+		gl.uniform4f(gl.getUniformLocation(obj.shader, "ObjectColor"),obj.color[0],obj.color[1],obj.color[2],obj.color[3]);
 		gl.uniform3f(gl.getUniformLocation(obj.shader, "CameraPosition"),camPos[0],camPos[1],camPos[2]);
 		/*
         var mvMatrix = mat4.create();

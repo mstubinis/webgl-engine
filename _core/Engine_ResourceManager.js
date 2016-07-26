@@ -20,7 +20,20 @@ var Engine = Engine || {};
 	}
 	
     Engine.ResourceManager.initDefaultResources = function(){//add any needed game resources that the user might have forgotten
-
+		if(!("Plane" in Engine.ResourceManager.meshes)){
+			var data = "v -1.000000 -1.000000 0.000000\n"+
+					   "v 1.000000 -1.000000 0.000000\n"+
+					   "v -1.000000 1.000000 0.000000\n"+
+					   "v 1.000000 1.000000 0.000000\n"+
+					   "vt 1.0000 0.0000\n"+
+					   "vt 0.0000 1.0000\n"+
+					   "vt 0.0000 0.0000\n"+
+					   "vt 1.0000 1.0000\n"+
+					   "vn 0.0000 0.0000 1.0000\n"+
+					   "f 2/1/1 3/2/1 1/3/1\n"+
+					   "f 2/1/1 4/4/1 3/2/1";
+			new Mesh("Plane",data,false);
+		}
     }
     Engine.ResourceManager.initDefaultLogic = function(){//add any needed game logic that the user might have forgotten
 		if(!Engine.hasOwnProperty('camera')){
@@ -40,5 +53,4 @@ var Engine = Engine || {};
 		}
 		return true;
 	}
-	
 })(this);

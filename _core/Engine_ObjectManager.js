@@ -4,25 +4,25 @@ var Engine = Engine || {};
     Engine.GameObjectManager = {};
     
     Engine.GameObjectManager.translate = function(obj,x,y,z){
-        var offset = vec3.fill(0,0,0);
-
+        var offsetX = 0; var offsetY = 0; var offsetZ = 0;
+		
         var forwardVector = Engine.GameObjectManager.forward(obj);
         var rightVector = Engine.GameObjectManager.right(obj);
         var upVector = Engine.GameObjectManager.up(obj);
         
-        offset[0] += forwardVector[0] * z; 
-        offset[1] += forwardVector[1] * z; 
-        offset[2] += forwardVector[2] * z;
+        offsetX += forwardVector[0] * z; 
+        offsetY += forwardVector[1] * z; 
+        offsetZ += forwardVector[2] * z;
         
-        offset[0] += rightVector[0] * x; 
-        offset[1] += rightVector[1] * x; 
-        offset[2] += rightVector[2] * x;
+        offsetX += rightVector[0] * x; 
+        offsetY += rightVector[1] * x; 
+        offsetZ += rightVector[2] * x;
         
-        offset[0] += upVector[0] * y; 
-        offset[1] += upVector[1] * y; 
-        offset[2] += upVector[2] * y;
+        offsetX += upVector[0] * y; 
+        offsetY += upVector[1] * y; 
+        offsetZ += upVector[2] * y;
 
-        Engine.GameObjectManager.setPosition(obj,obj._position[0] + offset[0],obj._position[1] + offset[1],obj._position[2] + offset[2]);
+        Engine.GameObjectManager.setPosition(obj,obj._position[0] + offsetX,obj._position[1] + offsetY,obj._position[2] + offsetZ);
     }
     Engine.GameObjectManager.scale = function(obj,x,y,z){
         Engine.GameObjectManager.setScale(obj,obj.scale[0] + x,obj.scale[1] + y,obj.scale[2] + z);

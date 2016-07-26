@@ -2,10 +2,10 @@
 //files is array[6], [front,back,left,right,top,bottom]
 var Skybox = function(name,files,scene){
 	if(scene === undefined){
-		if(name in Engine.scene.objects){ return undefined; }
+		if(name in Engine.scene.objects){ return Engine.scene.objects[name]; }
 	}
 	else{
-		if(name in Engine.ResourceManager.scenes[scene].objects){ return undefined; }
+		if(name in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[name]; }
 	}
 	
 	//add skybox mesh if it does not already exist.

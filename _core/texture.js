@@ -1,7 +1,7 @@
 'use strict';
 
 var Texture = function(name,file){
-    if(name in Engine.ResourceManager.textures){ return undefined; }
+    if(name in Engine.ResourceManager.textures){ return Engine.ResourceManager.textures[name]; }
     var _this = this;
     _this.loaded = false;
     if(typeof file == "string"){
@@ -15,6 +15,7 @@ var Texture = function(name,file){
             var img = new Image();
             img.src = file[_i];
             img._i = _i;
+			img._ext = Engine.getExtension(file[_i]);
             img.onload = function() {
                 _this.onloadcubemap(_this,img);
             }
@@ -22,9 +23,14 @@ var Texture = function(name,file){
     }
     Engine.ResourceManager.textures[name] = _this;
 }; 
-Texture.prototype.onload = function(img,textureMount){
+Texture.prototype.onload = function(img,textureMount,extension){
     gl.bindTexture(gl.TEXTURE_2D, textureMount);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+	
+	var buffType = gl.RGBA;
+	if(extension == "jpg" || extension == "jpeg")
+		buffType = gl.RGB;
+	gl.texImage2D(gl.TEXTURE_2D, 0, buffType, buffType, gl.UNSIGNED_BYTE, img);
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -34,18 +40,23 @@ Texture.prototype.onload = function(img,textureMount){
     this.loaded = true;
     
     if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
-        Engine.EventManager.init();
+        Engine.onResourcesLoaded();
     }
 }
 Texture.prototype.onloadcubemap = function(_this,img){
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, _this.texture);
-    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    if(img._i == 0){    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//font
-    else if(img._i==1){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//back
-    else if(img._i==2){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//left
-    else if(img._i==3){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//right
-    else if(img._i==4){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//top
-    else if(img._i==5){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }//bottom
+
+	var buffType = gl.RGBA;
+	if(img._ext == "jpg" || img._ext == "jpeg")
+		buffType = gl.RGB;
+	
+	
+    if(img._i == 0){    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//font
+    else if(img._i==1){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//back
+    else if(img._i==2){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//left
+    else if(img._i==3){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//right
+    else if(img._i==4){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//top
+    else if(img._i==5){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//bottom
     _this.loadingCount++;
     
     if(_this.loadingCount == 6){
@@ -56,21 +67,27 @@ Texture.prototype.onloadcubemap = function(_this,img){
         
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
         _this.loaded = true;
-        delete _this.loadingCount;
-        
+        delete _this.loadingCount; delete img._ext; delete img._i;
         if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
-            Engine.EventManager.init();
+            Engine.onResourcesLoaded();
         }
     }
 }
 Texture.prototype.load = function(_this,file){
     var textureMount = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, textureMount);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+	
+	var buffType = gl.RGBA;
+	var extension = Engine.getExtension(file);
+	if(extension == "jpg" || extension == "jpeg")
+		buffType = gl.RGB;
+	gl.texImage2D(gl.TEXTURE_2D, 0, buffType, 1, 1, 0,buffType, gl.UNSIGNED_BYTE, null);
+	
+    
     var image = new Image();
     image.src = file;
     image.onload = function() { 
-        _this.onload(image, textureMount);
+        _this.onload(image, textureMount,extension);
     }
     return textureMount;
 }
