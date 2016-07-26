@@ -16,15 +16,12 @@ var Camera = function(name,width,height,scene){
     //6 vec4's describing the viewing frustrum
     this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
     
-    var w = width || Math.floor(window.innerWidth * 1.0);
-    var h = height || Math.floor(window.innerHeight * 1.0); 
-    
     this.angle = 45.0;
-    this.ratio = w/h;
+    this.ratio = Engine.canvas.width/Engine.canvas.height;
     this.near = 0.001;
     this.far = 10000.0;
     
-    this.resize(w,h);
+    this.resize(Engine.canvas.width,Engine.canvas.height);
 	this.update(Engine.dt);
     this.lookAt(this.position(),this.target(),this.up());
 	

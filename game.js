@@ -27,24 +27,24 @@ var Engine = Engine || {};
     Engine.Game.update = function(dt){
         Engine.camera.translate(0,0,-Engine.EventManager.mouse.wheel);
         if(Engine.isKeyDown("KEY_W")){
-            Engine.camera.translate(0,0,-0.1);
+            Engine.camera.translate(0,0,-10);
         }
         if(Engine.isKeyDown("KEY_S")){
-            Engine.camera.translate(0,0,0.1);
+            Engine.camera.translate(0,0,10);
         }
         if(Engine.isKeyDown("KEY_A")){
-            Engine.camera.translate(0.1,0,0);
+            Engine.camera.translate(10,0,0);
         }
         if(Engine.isKeyDown("KEY_D")){
-            Engine.camera.translate(-0.1,0,0);
+            Engine.camera.translate(-10,0,0);
         }
         if(Engine.isKeyDown("KEY_Q")){
-            Engine.camera.rotateZ(-0.03);
+            Engine.camera.rotateZ(-3);
         }
         if(Engine.isKeyDown("KEY_E")){
-            Engine.camera.rotateZ(0.03);
+            Engine.camera.rotateZ(3);
         }
-        Engine.camera.rotateX(Engine.EventManager.mouse.diffY*0.0025);
-        Engine.camera.rotateY(-Engine.EventManager.mouse.diffX*0.0025);
+        Engine.camera.rotateX(Engine.EventManager.mouse.diffY*0.25);
+        Engine.camera.rotateY(-Engine.EventManager.mouse.diffX*0.25);
     }
 })(this);
