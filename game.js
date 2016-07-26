@@ -20,7 +20,7 @@ var Engine = Engine || {};
         defiant.setPosition(0,0,0);
         
         var light = new Light("DirLight1");
-		light.setPosition(2,2,2);
+        light.setPosition(2,2,2);
 
         Engine.requestPointerLock();
     }

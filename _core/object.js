@@ -1,11 +1,11 @@
 'use strict';
 var GameObject = function(name,mesh,material,scene){
-	if(scene === undefined){
-		if(name in Engine.scene.objects){ return Engine.scene.objects[name]; }
-	}
-	else{
-		if(name in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[name]; }
-	}
+    if(scene === undefined){
+        if(name in Engine.scene.objects){ return Engine.scene.objects[name]; }
+    }
+    else{
+        if(name in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[name]; }
+    }
     
     this.mesh = mesh;
     this.material = material;
@@ -13,16 +13,16 @@ var GameObject = function(name,mesh,material,scene){
     this.modelMatrix = mat4.create();
     this._position = vec3.fill(0,0,0);
     this.rotation = quat.fill(0,0,0,1);
-	this.color = vec4.fill(1,1,1,1);
+    this.color = vec4.fill(1,1,1,1);
     this.scale = vec3.fill(1,1,1);
-	this.visible = true;
-	
+    this.visible = true;
+    
     Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
-	
-	if(scene === undefined)
-		Engine.scene.objects[name] = this;
-	else
-		Engine.ResourceManager.scenes[scene].objects[name] = this;
+    
+    if(scene === undefined)
+        Engine.scene.objects[name] = this;
+    else
+        Engine.ResourceManager.scenes[scene].objects[name] = this;
 }; 
 GameObject.prototype.translate = function(x,y,z) {
     Engine.GameObjectManager.translate(this,x,y,z);

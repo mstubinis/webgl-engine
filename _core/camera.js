@@ -1,11 +1,11 @@
 'use strict';
 var Camera = function(name,width,height,scene){
-	if(scene === undefined){
-		if(name in Engine.scene.cameras){ return undefined; }
-	}
-	else{
-		if(name in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
-	}
+    if(scene === undefined){
+        if(name in Engine.scene.cameras){ return undefined; }
+    }
+    else{
+        if(name in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
+    }
     
     this.modelMatrix = mat4.create();
     this._position = vec3.fill(0,0,-9);
@@ -22,15 +22,15 @@ var Camera = function(name,width,height,scene){
     this.far = 10000.0;
     
     this.resize(Engine.canvas.width,Engine.canvas.height);
-	this.update(Engine.dt);
+    this.update(Engine.dt);
     this.lookAt(this.position(),this.target(),this.up());
-	
-	if(scene === undefined)
-		Engine.scene.cameras[name] = this;
-	else
-		Engine.ResourceManager.scenes[scene].cameras[name] = this;
-	
-	if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
+    
+    if(scene === undefined)
+        Engine.scene.cameras[name] = this;
+    else
+        Engine.ResourceManager.scenes[scene].cameras[name] = this;
+    
+    if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
 };
 Camera.prototype.constructFrustrum = function(){
     var mat4_vp = mat4.create(); mat4.mul(mat4_vp,this.viewMatrix,this.projectionMatrix);
@@ -52,7 +52,7 @@ Camera.prototype.constructFrustrum = function(){
     vec4.normalize(rowWMinusRowY,rowWMinusRowY);
     vec4.normalize(rowWPlusRowZ,rowWPlusRowZ);
     vec4.normalize(rowWMinusRowZ,rowWMinusRowZ);
-	
+    
     this.planes[0]=rowWPlusRowX;
     this.planes[1]=rowWMinusRowX;
     this.planes[2]=rowWPlusRowY;
@@ -69,14 +69,14 @@ Camera.prototype.constructFrustrum = function(){
 }
 Camera.prototype.sphereIntersectTest = function(pos,radius){
     if(radius <= 0){
-		return false;
-	}
+        return false;
+    }
     for (var i = 0; i < 6; i++){
         var dist = this.planes[i][0] * pos[0] + this.planes[i][1] * pos[1] + this.planes[i][2] * pos[2] + this.planes[i][3] - radius;
-		document.getElementById("canvasDebug").innerHTML = dist;
-		if (dist > 0){
-			return false;
-		}
+        document.getElementById("canvasDebug").innerHTML = dist;
+        if (dist > 0){
+            return false;
+        }
     }
     return true;
 }
@@ -95,7 +95,7 @@ Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,up
     if(centerX == undefined && centerY == undefined && centerZ == undefined && upX == undefined && upY == undefined && upZ == undefined){
         this._position = eyeX;
         mat4.lookAt(this.viewMatrix,eyeX,eyeY,eyeZ);
-		this.constructFrustrum();
+        this.constructFrustrum();
         return;
     }
     var vec3_eye = vec3.fill(eyeX,eyeY,eyeZ);
@@ -103,7 +103,7 @@ Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,up
     var vec3_up = vec3.fill(upX,upY,upZ);
     this._position = vec3_eye;
     mat4.lookAt(this.viewMatrix,vec3_eye,vec3_center,vec3_up);
-	this.constructFrustrum();
+    this.constructFrustrum();
 }
 Camera.prototype.translate = function(x,y,z){
     Engine.GameObjectManager.translate(this,x,y,z);

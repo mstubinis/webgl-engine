@@ -1,11 +1,8 @@
-
 'use strict';
 var OBJ = {};
-
 OBJ.is_near = function(v1,v2,threshold){ return Math.abs( v1-v2 ) < threshold; }
 OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
     ret.found = false; ret.index = 0;
-    
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){
         if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){
             if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
@@ -65,9 +62,9 @@ OBJ.indexVBO = function(mesh,threshold){
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){ 
         var ret = {}; ret.index = -1; ret.found = false;    
         ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],
-		                                 mesh.vec2_uvs[i] || vec2.fill(0,0),
-										 mesh.vec3_normals[i] || vec3.fill(0,0,0),
-										 new_mesh,ret,threshold);
+                                         mesh.vec2_uvs[i] || vec2.fill(0,0),
+                                         mesh.vec3_normals[i] || vec3.fill(0,0,0),
+                                         new_mesh,ret,threshold);
         if ( ret.found ){
             new_mesh.indices.push( ret.index );
         }else{
@@ -226,8 +223,8 @@ OBJ.Mesh = function (meshObject,objectData){
         elements.shift();
 
         var xF = parseFloat(elements[0] || "0.0");
-		var yF = parseFloat(elements[1] || "0.0");
-		var zF = parseFloat(elements[2] || "0.0");
+        var yF = parseFloat(elements[1] || "0.0");
+        var zF = parseFloat(elements[2] || "0.0");
 
         if ((/^v\s/).test(line)) {
             file_verts.push(vec3.fill(xF,yF,zF));
@@ -265,7 +262,7 @@ OBJ.Mesh = function (meshObject,objectData){
         meshObject.binormals = newMesh.binormals;
     if(newMesh.tangents != undefined)
         meshObject.tangents = newMesh.tangents;
-	meshObject.radius = newMesh.radius;
+    meshObject.radius = newMesh.radius;
     meshObject.indices = newMesh.indices;
     
     //cleanup

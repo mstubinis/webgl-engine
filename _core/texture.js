@@ -15,7 +15,7 @@ var Texture = function(name,file){
             var img = new Image();
             img.src = file[_i];
             img._i = _i;
-			img._ext = Engine.getExtension(file[_i]);
+            img._ext = Engine.getExtension(file[_i]);
             img.onload = function() {
                 _this.onloadcubemap(_this,img);
             }
@@ -25,11 +25,11 @@ var Texture = function(name,file){
 }; 
 Texture.prototype.onload = function(img,textureMount,extension){
     gl.bindTexture(gl.TEXTURE_2D, textureMount);
-	
-	var buffType = gl.RGBA;
-	if(extension == "jpg" || extension == "jpeg")
-		buffType = gl.RGB;
-	gl.texImage2D(gl.TEXTURE_2D, 0, buffType, buffType, gl.UNSIGNED_BYTE, img);
+    
+    var buffType = gl.RGBA;
+    if(extension == "jpg" || extension == "jpeg")
+        buffType = gl.RGB;
+    gl.texImage2D(gl.TEXTURE_2D, 0, buffType, buffType, gl.UNSIGNED_BYTE, img);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -46,11 +46,11 @@ Texture.prototype.onload = function(img,textureMount,extension){
 Texture.prototype.onloadcubemap = function(_this,img){
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, _this.texture);
 
-	var buffType = gl.RGBA;
-	if(img._ext == "jpg" || img._ext == "jpeg")
-		buffType = gl.RGB;
-	
-	
+    var buffType = gl.RGBA;
+    if(img._ext == "jpg" || img._ext == "jpeg")
+        buffType = gl.RGB;
+    
+    
     if(img._i == 0){    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//font
     else if(img._i==1){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//back
     else if(img._i==2){ gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, buffType, buffType, gl.UNSIGNED_BYTE, img); }//left
@@ -76,13 +76,13 @@ Texture.prototype.onloadcubemap = function(_this,img){
 Texture.prototype.load = function(_this,file){
     var textureMount = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, textureMount);
-	
-	var buffType = gl.RGBA;
-	var extension = Engine.getExtension(file);
-	if(extension == "jpg" || extension == "jpeg")
-		buffType = gl.RGB;
-	gl.texImage2D(gl.TEXTURE_2D, 0, buffType, 1, 1, 0,buffType, gl.UNSIGNED_BYTE, null);
-	
+    
+    var buffType = gl.RGBA;
+    var extension = Engine.getExtension(file);
+    if(extension == "jpg" || extension == "jpeg")
+        buffType = gl.RGB;
+    gl.texImage2D(gl.TEXTURE_2D, 0, buffType, 1, 1, 0,buffType, gl.UNSIGNED_BYTE, null);
+    
     
     var image = new Image();
     image.src = file;

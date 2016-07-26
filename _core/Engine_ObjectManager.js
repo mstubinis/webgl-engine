@@ -4,31 +4,31 @@ var Engine = Engine || {};
     Engine.GameObjectManager = {};
     
     Engine.GameObjectManager.translate = function(obj,x,y,z,local){
-		x *= Engine.dt; y *= Engine.dt; z *= Engine.dt;
-		if(local !== undefined && local == false){
-			Engine.GameObjectManager.setPosition(obj,obj._position[0] + x,obj._position[1] + y,obj._position[2] + z);
-			return;
-		}
-		var offsetX = 0; var offsetY = 0; var offsetZ = 0;
+        x *= Engine.dt; y *= Engine.dt; z *= Engine.dt;
+        if(local !== undefined && local == false){
+            Engine.GameObjectManager.setPosition(obj,obj._position[0] + x,obj._position[1] + y,obj._position[2] + z);
+            return;
+        }
+        var offsetX = 0; var offsetY = 0; var offsetZ = 0;
         var forwardVector = Engine.GameObjectManager.forward(obj);
         var rightVector = Engine.GameObjectManager.right(obj);
         var upVector = Engine.GameObjectManager.up(obj);
         
-		if(z != 0.0){
-			offsetX += forwardVector[0] * z; 
-			offsetY += forwardVector[1] * z; 
-			offsetZ += forwardVector[2] * z;
-		}
+        if(z != 0.0){
+            offsetX += forwardVector[0] * z; 
+            offsetY += forwardVector[1] * z; 
+            offsetZ += forwardVector[2] * z;
+        }
         if(x != 0.0){
-			offsetX += rightVector[0] * x; 
-			offsetY += rightVector[1] * x; 
-			offsetZ += rightVector[2] * x;
-		}
+            offsetX += rightVector[0] * x; 
+            offsetY += rightVector[1] * x; 
+            offsetZ += rightVector[2] * x;
+        }
         if(y != 0.0){
-			offsetX += upVector[0] * y; 
-			offsetY += upVector[1] * y; 
-			offsetZ += upVector[2] * y;
-		}
+            offsetX += upVector[0] * y; 
+            offsetY += upVector[1] * y; 
+            offsetZ += upVector[2] * y;
+        }
         Engine.GameObjectManager.setPosition(obj,obj._position[0] + offsetX,obj._position[1] + offsetY,obj._position[2] + offsetZ);
     }
     Engine.GameObjectManager.scale = function(obj,x,y,z){
@@ -60,7 +60,7 @@ var Engine = Engine || {};
         mat4.scale(obj.modelMatrix,obj.modelMatrix,obj.scale);
     }
     Engine.GameObjectManager.rotate = function(obj,x,y,z){
-		x *= Engine.dt; y *= Engine.dt; z *= Engine.dt;
+        x *= Engine.dt; y *= Engine.dt; z *= Engine.dt;
         if(x != 0 && x !== undefined)
             quat.rotateX(obj.rotation,obj.rotation,x);
         if(y != 0 && y !== undefined)
@@ -71,8 +71,8 @@ var Engine = Engine || {};
     Engine.GameObjectManager.up = function(obj){ return quat.up(obj.rotation); }
     Engine.GameObjectManager.right = function(obj){ return quat.right(obj.rotation); }
     Engine.GameObjectManager.forward = function(obj){ return quat.forward(obj.rotation); }
-	Engine.GameObjectManager.position = function(obj){ 
-		var pos = vec3.fill(obj.modelMatrix[12],obj.modelMatrix[13],obj.modelMatrix[14]);
-		return pos;
-	}
+    Engine.GameObjectManager.position = function(obj){ 
+        var pos = vec3.fill(obj.modelMatrix[12],obj.modelMatrix[13],obj.modelMatrix[14]);
+        return pos;
+    }
 })(this);
