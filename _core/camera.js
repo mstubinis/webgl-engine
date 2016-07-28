@@ -21,10 +21,11 @@ var Camera = function(name,width,height,scene){
     this.near = 0.001;
     this.far = 10000.0;
     
+	this.viewWasOverriden = false;
+	
     this.resize(Engine.canvas.width,Engine.canvas.height);
     this.update(Engine.dt);
-    this.lookAt(this.position(),this.target(),this.up());
-    
+	
     if(scene === undefined)
         Engine.scene.cameras[name] = this;
     else
@@ -91,7 +92,7 @@ Camera.prototype.perspective = function(angle,ratio,near,far){
 Camera.prototype.ortho = function(left,right,bottom,top,near,far){
     mat4.ortho(this.projectionMatrix,left,right,bottom,top,near,far);
 }
-Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ){
+Camera.prototype.__lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ){
     if(centerX == undefined && centerY == undefined && centerZ == undefined && upX == undefined && upY == undefined && upZ == undefined){
         this._position = eyeX;
         mat4.lookAt(this.viewMatrix,eyeX,eyeY,eyeZ);
@@ -105,27 +106,28 @@ Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,up
     mat4.lookAt(this.viewMatrix,vec3_eye,vec3_center,vec3_up);
     this.constructFrustrum();
 }
+Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ){
+	this.__lookAt(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ);
+	this.viewWasOverriden = true;
+}
 Camera.prototype.translate = function(x,y,z){
-    Engine.GameObjectManager.translate(this,x,y,z);
+    Engine.GameObjectManager.translate(this,-x,y,z);
     this.update(Engine.dt);
-    this.lookAt(this.position(),this.target(),this.up());
 }
 Camera.prototype.setPosition = function(x,y,z){
     Engine.GameObjectManager.setPosition(this,x,y,z);
     this.update(Engine.dt);
-    this.lookAt(this.position(),this.target(),this.up());
 }
 Camera.prototype.update = function(dt){
-    mat4.identity(this.modelMatrix);
-    mat4.translate(this.modelMatrix,this.modelMatrix,this._position);
-    var mat4FromQuat = mat4.create();
-    mat4.fromQuat(mat4FromQuat,this.rotation)
-    mat4.mul(this.modelMatrix,this.modelMatrix,mat4FromQuat);
+	Engine.GameObjectManager.update(this);
+	if(!this.viewWasOverriden){
+		this.__lookAt(this.position(),this.target(),this.up());
+	}
+	this.viewWasOverriden = false;
 }
 Camera.prototype.rotate = function(x,y,z){
     Engine.GameObjectManager.rotate(this,x,y,z);
     this.update(Engine.dt);
-    this.lookAt(this.position(),this.target(),this.up());
 }
 Camera.prototype.rotateX = function(x){ this.rotate(x,0,0); }
 Camera.prototype.rotateY = function(y){ this.rotate(0,y,0); }

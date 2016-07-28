@@ -73,12 +73,7 @@ Light.prototype.setScale = function(x,y,z){
     Engine.GameObjectManager.setScale(this,x,y,z);
 }
 Light.prototype.update = function(dt){
-    mat4.identity(this.modelMatrix);
-
-    mat4.translate(this.modelMatrix,this.modelMatrix,this._position);
-    var mat4FromQuat = mat4.create(); mat4.fromQuat(mat4FromQuat,this.rotation);
-    mat4.mul(this.modelMatrix,this.modelMatrix,mat4FromQuat);
-    mat4.scale(this.modelMatrix,this.modelMatrix,this.scale);
+	Engine.GameObjectManager.update(this);
 }
 Light.prototype.setPosition = function(x,y,z){
     Engine.GameObjectManager.setPosition(this,x,y,z);

@@ -70,6 +70,8 @@ Engine.init = function(w,h){
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
     
+	
+	Engine.PhysicsManager.init();
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
     Engine.ResourceManager.initDefaultResources();
@@ -116,6 +118,7 @@ Engine.update = function(dt){
         Engine.scene.cameras[key].update(dt);
     }
     Engine.EventManager.update(dt);
+	Engine.PhysicsManager.update(dt);
 }
 
 Engine.render = function(){
