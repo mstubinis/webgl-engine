@@ -1,10 +1,10 @@
 'use strict';
-var Camera = function(name,width,height,scene){
+var Camera = function(n,width,height,scene){
     if(scene === undefined){
-        if(name in Engine.scene.cameras){ return undefined; }
+        if(n in Engine.scene.cameras){ return undefined; }
     }
     else{
-        if(name in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
+        if(n in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
     }
     
     this.modelMatrix = mat4.create();
@@ -20,16 +20,25 @@ var Camera = function(name,width,height,scene){
     this.ratio = Engine.canvas.width/Engine.canvas.height;
     this.near = 0.001;
     this.far = 10000.0;
+	
+	if(scene === undefined){
+		this.id = Object.keys(Engine.scene.cameras).length;
+	}
+	else{
+		this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
+	}
     
 	this.viewWasOverriden = false;
 	
     this.resize(Engine.canvas.width,Engine.canvas.height);
     this.update(Engine.dt);
 	
-    if(scene === undefined)
-        Engine.scene.cameras[name] = this;
-    else
-        Engine.ResourceManager.scenes[scene].cameras[name] = this;
+	if(scene === undefined){
+		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
+	}
+	else{
+		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
+	}
     
     if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
 };

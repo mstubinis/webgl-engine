@@ -1,10 +1,10 @@
 'use strict';
-var Light = function(name,scene){
+var Light = function(n,scene){
     if(scene === undefined){
-        if(name in Engine.scene.lights){ return Engine.scene.lights[name]; }
+        if(n in Engine.scene.lights){ return Engine.scene.lights[n]; }
     }
     else{
-        if(name in Engine.ResourceManager.scenes[scene].lights){ return Engine.ResourceManager.scenes[scene].lights[name]; }
+        if(n in Engine.ResourceManager.scenes[scene].lights){ return Engine.ResourceManager.scenes[scene].lights[n]; }
     }
     
     this._position = vec4.fill(0,0,0);
@@ -22,6 +22,14 @@ var Light = function(name,scene){
     this.constant = 0.3;
     this.linear = 0.2;
     this.exponent = 0.3;
+	
+	
+	if(scene === undefined){
+		this.id = Object.keys(Engine.scene.lights).length;
+	}
+	else{
+		this.id = Object.keys(Engine.ResourceManager.scenes[scene].lights).length;
+	}
     
     
     //this is important
@@ -49,10 +57,12 @@ var Light = function(name,scene){
     //
     
     
-    if(scene === undefined)
-        Engine.scene.lights[name] = this;
-    else
-        Engine.ResourceManager.scenes[scene].lights[name] = this;
+	if(scene === undefined){
+		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"lights");
+	}
+	else{
+		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"lights");
+	}
 }
 Light.prototype.sendUniforms = function(shader){
     var pos = this.position();

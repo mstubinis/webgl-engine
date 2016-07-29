@@ -73,24 +73,16 @@ var Engine = Engine || {};
     Engine.RenderManager.drawObject = function(obj){
         var mesh = Engine.ResourceManager.meshes[obj.mesh];
         var material = Engine.ResourceManager.materials[obj.material];
-        if(mesh == undefined || !mesh.loaded){ return; }
+        if(mesh === undefined || !mesh.loaded){ return; }
         gl.useProgram(obj.shader);
-        
-        
+          
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "M"),false,obj.modelMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "V"),false,Engine.camera.viewMatrix);
 
         var camPos = Engine.camera.position();
         gl.uniform4f(gl.getUniformLocation(obj.shader, "ObjectColor"),obj.color[0],obj.color[1],obj.color[2],obj.color[3]);
         gl.uniform3f(gl.getUniformLocation(obj.shader, "CameraPosition"),camPos[0],camPos[1],camPos[2]);
-        /*
-        var mvMatrix = mat4.create();
-        mat4.mul(mvMatrix,obj.modelMatrix,Engine.camera.viewMatrix);
-        var normalMatrix = mat4.create();
-        mat4.invert(normalMatrix,mvMatrix);
-        mat4.transpose(normalMatrix,normalMatrix);
-        gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
-        */
+
         var normalMatrix = mat4.create();
         mat4.invert(normalMatrix,obj.modelMatrix);
         mat4.transpose(normalMatrix,normalMatrix);
@@ -98,7 +90,12 @@ var Engine = Engine || {};
 
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "P"),false,Engine.camera.projectionMatrix); 
         
-        material.sendUniforms(obj.shader);
+        if(material !== undefined){
+            material.sendUniforms(obj.shader);
+            if(material.shadeless == false){
+                gl.uniform1i(gl.getUniformLocation(obj.shader, "MaterialShadeless"), (obj.shadeless ? 1 : 0));
+            }
+        }
         mesh.sendUniforms(obj.drawMode);
     }
 })(this);

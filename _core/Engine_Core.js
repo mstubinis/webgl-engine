@@ -3,17 +3,17 @@ var Engine = Engine || {};
 var gl;
 var g = {}; // global variables
 
-function log(msg) { if (window.console && window.console.log) { window.console.log(msg); } }
 Engine.toRad = function(degree){ return degree * 0.0174533; }
 Engine.getExtension = function(fname){ return fname.substr((~-fname.lastIndexOf(".") >>> 0) + 2); }
 
-Engine.framerate = function(){ return 1.0 / Engine.dt; }
+Engine.framerate = function(){ return 1.00000000 / Engine.dt; }
 Engine.fps = Engine.framerate;
 
 
 Engine.run = function(){
     var now = Date.now();
-    Engine.dt = (now - Engine.currentTime)/1000.0;
+    Engine.dt = (now - Engine.currentTime)/1000.00000000;
+	document.getElementById("canvasDebug").innerHTML = Engine.fps();
     Engine.currentTime = now;
     
     Engine.update(Engine.dt);
@@ -32,8 +32,8 @@ Engine.handleContextRestored = function() {
     Engine.run();
 }
 Engine.init = function(w,h){
-    Engine.currentTime = 0;
-    Engine.dt = 0;
+    Engine.currentTime = 0.0000000;
+    Engine.dt = 0.0000000;
     //first build the canvas and it's necessary html elements.
     var body = document.getElementsByTagName('body')[0];
     
@@ -70,7 +70,7 @@ Engine.init = function(w,h){
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
     
-	
+	Engine.Math.init();
 	Engine.PhysicsManager.init();
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
@@ -80,8 +80,11 @@ Engine.init = function(w,h){
 }
 Engine.onResourcesLoaded = function(){
     Engine.EventManager.init();
-    Engine.currentTime = Date.now();
-    Engine.dt = 0;
+	
+    var now = Date.now();
+    Engine.dt = 0.0000000;
+    Engine.currentTime = now;
+
     
     //move this to above area if needed
     Engine.ResourceManager.initPreGameLogic();

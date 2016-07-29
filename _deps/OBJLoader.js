@@ -53,6 +53,7 @@ OBJ.indexVBO = function(mesh,threshold){
     if(threshold == 0.0) return mesh;
 
     var new_mesh = {};
+	new_mesh.triangles = mesh.triangles;
     new_mesh.vec3_vertices = [];
     new_mesh.vec2_uvs = [];
     new_mesh.vec3_normals = [];
@@ -168,13 +169,43 @@ OBJ.calculateTBN = function(mesh){
     }
 }
 OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices){
+	var triangle = {v1:{},v2:{},v3:{}};
+	var triangles = [];
+	var count = 0;
     for(var i=0; i < point_indices.length; i++ ){
         mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
         if(uv_indices.length > 0)
             mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
         if(normal_indices.length > 0)
             mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
+		count++;
+		
+		if(count == 1){
+			triangle.v1.position = file_verts[ point_indices[i]-1 ];
+			if(uv_indices.length > 0)
+				triangle.v1.uv = file_uvs[ uv_indices[i]-1 ];
+			if(normal_indices.length > 0)
+				triangle.v1.normal = file_normals[ normal_indices[i]-1 ];
+		}
+		else if(count == 2){
+			triangle.v2.position = file_verts[ point_indices[i]-1 ];
+			if(uv_indices.length > 0)
+				triangle.v2.uv = file_uvs[ uv_indices[i]-1 ];
+			if(normal_indices.length > 0)
+				triangle.v2.normal = file_normals[ normal_indices[i]-1 ];
+		}
+		else if(count >= 3){
+			triangle.v3.position = file_verts[ point_indices[i]-1 ];
+			if(uv_indices.length > 0)
+				triangle.v3.uv = file_uvs[ uv_indices[i]-1 ];
+			if(normal_indices.length > 0)
+				triangle.v3.normal = file_normals[ normal_indices[i]-1 ];
+			count = 0;
+			triangles.push(triangle);
+			triangle = {v1:{},v2:{},v3:{}};
+		}
     }
+	mesh.triangles = triangles;
 }
 OBJ.vec3ArrayToFloatArray = function(vec3_array){
     var ret = [];
@@ -195,12 +226,28 @@ OBJ.vec2ArrayToFloatArray = function(vec2_array){
 }
 OBJ.finalize = function(mesh){  
     mesh.radius = 0;
+	mesh.radiusX = 0;
+	mesh.radiusY = 0;
+	mesh.radiusZ = 0;
     for(var i = 0; i < mesh.vec3_vertices.length; i++){
         var len = vec3.length(mesh.vec3_vertices[i]);
+		var pt = mesh.vec3_vertices[i];	
+		var x = Math.abs(pt[0]);
+		if(x > mesh.radiusX){
+			mesh.radiusX = x;
+		}
+		var y = Math.abs(pt[1]);
+		if(y > mesh.radiusY){
+			mesh.radiusY = y;
+		}	
+		var z = Math.abs(pt[2]);
+		if(z > mesh.radiusZ){
+			mesh.radiusZ = z;
+		}		
         if(len > mesh.radius){
             mesh.radius = len;
         }
-    }   
+    }
     mesh.vertices = OBJ.vec3ArrayToFloatArray(mesh.vec3_vertices);
     if(mesh.vec2_uvs.length > 0)
         mesh.uvs = OBJ.vec2ArrayToFloatArray(mesh.vec2_uvs);
@@ -262,7 +309,11 @@ OBJ.Mesh = function (meshObject,objectData){
         meshObject.binormals = newMesh.binormals;
     if(newMesh.tangents != undefined)
         meshObject.tangents = newMesh.tangents;
+	meshObject.triangles = newMesh.triangles;
     meshObject.radius = newMesh.radius;
+    meshObject.radiusX = newMesh.radiusX;
+    meshObject.radiusY = newMesh.radiusY;
+    meshObject.radiusZ = newMesh.radiusZ;
     meshObject.indices = newMesh.indices;
     
     //cleanup

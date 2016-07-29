@@ -73,7 +73,9 @@ Shader.prototype.load = function(shaderId){
                 
             }
         }
-        console.log(msg);
+		if(window.console && window.console.log){
+			console.log(msg);
+		}
         gl.deleteShader(shader);
         return null;
     }

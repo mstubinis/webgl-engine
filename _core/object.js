@@ -15,33 +15,52 @@
 		this.color = vec4.fill(1,1,1,1);
 		this.scale = vec3.fill(1,1,1);
 		this.visible = true;
+		this.shadeless = false;
+		this.needsUpdate = true;
+		
+		if(scene === undefined){
+			this.id = Object.keys(Engine.scene.objects).length;
+		}
+		else{
+			this.id = Object.keys(Engine.ResourceManager.scenes[scene].objects).length;
+		}
 		
 		Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
 		
-		if(scene === undefined){ Engine.scene.objects[n] = this; }
-		else{ Engine.ResourceManager.scenes[scene].objects[n] = this; }
+		if(scene === undefined){
+			Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"objects");
+		}
+		else{
+			Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"objects");
+		}
 	}; 
 	GameObject.prototype.translate = function(x,y,z) {
 		Engine.GameObjectManager.translate(this,x,y,z);
+		this.needsUpdate = true;
 	};
 	GameObject.prototype.scale = function(x,y,z){
 		Engine.GameObjectManager.scale(this,x,y,z);
+		this.needsUpdate = true;
 	}
 	GameObject.prototype.setScale = function(x,y,z){
 		Engine.GameObjectManager.setScale(this,x,y,z);
+		this.needsUpdate = true;
 	}
 	GameObject.prototype.setPosition = function(x,y,z){
 		Engine.GameObjectManager.setPosition(this,x,y,z);
 		this.update(Engine.dt);
+		this.needsUpdate = true;
 	}
 	GameObject.prototype.update = function(dt){
+		if(this.needsUpdate == false){ return; }
 		if(this.radius == 0 && (this.mesh) in Engine.ResourceManager.meshes && Engine.ResourceManager.meshes[this.mesh].loaded){
 			Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
 		}
 		Engine.GameObjectManager.update(this);
+		this.needsUpdate = false;
 	}
 	GameObject.prototype.render = function(){
-		if(!this.visible) return;
+		if(this.visible == false){ return; }
 		//if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
 		
 		this.shader = Engine.ResourceManager.shaders["Default"].program;
@@ -53,6 +72,7 @@
 	}
 	GameObject.prototype.rotate = function(x,y,z){
 		Engine.GameObjectManager.rotate(this,x,y,z);
+		this.needsUpdate = true;
 	}
 	GameObject.prototype.rotateX = function(x){ this.rotate(x,0,0); }
 	GameObject.prototype.rotateY = function(y){ this.rotate(0,y,0); }
@@ -75,33 +95,57 @@
 		this.radius = Engine.ResourceManager.meshes[this.mesh].radius;
 		this.color = vec4.fill(1,1,1,1);
 		this.visible = true;
+		this.shadeless = false;
+		
+		if(scene === undefined){ 
+			this.id = Object.keys(Engine.scene.objects).length;
+		}
+		else{
+			this.id = Object.keys(Engine.ResourceManager.scenes[scene].objects).length;
+		}
+		
 		
 		this.modelMatrix = mat4.create();
 
-		var mass = Engine.ResourceManager.meshes[this.mesh].radius;
-		var startTransform = new Bullet.Transform();
+		var _mesh = Engine.ResourceManager.meshes[this.mesh];
+		var mass = (_mesh.radiusX * _mesh.radiusY * _mesh.radiusZ) * 0.05;
+		var startTransform = new Ammo.btTransform();
 		startTransform.setIdentity();
-		startTransform.origin = new Vecmath.Vec3(0,0,0); // Set initial position 
-		var localInertia = new Vecmath.Vec3(0,0,0); 
-		var boxShape = new Bullet.BoxShape(new Vecmath.Vec3( 1.5, 1.5, 1.5 )); //Collision shape
-		boxShape.calculateLocalInertia(mass,localInertia );
-		var motionState = new Bullet.MotionState( startTransform );
-		var ci = new Bullet.RigidBodyConstructionInfo(mass,motionState,boxShape,localInertia);
-		this.rigidBody = new Bullet.RigidBody(ci);
+		startTransform.setOrigin(new Ammo.btVector3(0,0,0)); // Set initial position 
+		
+		
+		
+		var localInertia = new Ammo.btVector3(0,0,0); 
+		var collision = Engine.PhysicsManager.constructCollisionShape(collision,_mesh);
+		collision.calculateLocalInertia(mass,localInertia );
+		var motionState = new Ammo.btDefaultMotionState(startTransform);
+		var ci = new Ammo.btRigidBodyConstructionInfo(mass,motionState,collision,localInertia);
+		
+		
+		
+		this.rigidBody = new Ammo.btRigidBody(ci);
 		
 		this.rigidBody.setSleepingThresholds(0.015,0.015);
 		
-		this.rigidBody.friction = 0.3;
+		this.rigidBody.setFriction(0.3);
 		this.rigidBody.setDamping(0.1,0.4);//this makes the objects slowly slow down in space, like air friction
-		//this.rigidBody.setUserPointer(this);
+		
+		this.rigidBody.getCollisionShape().setUserIndex(this.id);
+		this.rigidBody.setUserIndex(this.id);
 		Engine.PhysicsManager.world.addRigidBody(this.rigidBody);
 
 		
 		Engine.GameObjectManager.setScaleDynamic(this,this.scale[0],this.scale[1],this.scale[2]);
 		
-		if(scene === undefined){ Engine.scene.objects[n] = this; }
-		else{ Engine.ResourceManager.scenes[scene].objects[n] = this; }
+		if(scene === undefined){
+			Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"objects");
+		}
+		else{
+			Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"objects");
+		}
 	}; 
+	GameObjectDynamic.prototype.collisionResponse = function(other){
+	}
 	GameObjectDynamic.prototype.translate = function(x,y,z) {
 		Engine.GameObjectManager.translateDynamic(this,x,y,z);
 	};
