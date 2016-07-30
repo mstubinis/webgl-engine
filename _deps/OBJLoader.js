@@ -172,39 +172,60 @@ OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point
 	var triangle = {v1:{},v2:{},v3:{}};
 	var triangles = [];
 	var count = 0;
-    for(var i=0; i < point_indices.length; i++ ){
-        mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
-        if(uv_indices.length > 0)
-            mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
-        if(normal_indices.length > 0)
-            mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
-		count++;
-		
-		if(count == 1){
-			triangle.v1.position = file_verts[ point_indices[i]-1 ];
-			if(uv_indices.length > 0)
-				triangle.v1.uv = file_uvs[ uv_indices[i]-1 ];
-			if(normal_indices.length > 0)
-				triangle.v1.normal = file_normals[ normal_indices[i]-1 ];
+	
+	if(point_indices.length == 0){
+		for(var i=0; i < file_verts.length; i++ ){
+			mesh.vec3_vertices.push(file_verts[i]);
+			count++;
+			if(count == 1){
+				triangle.v1.position = file_verts[i];
+			}
+			else if(count == 2){
+				triangle.v2.position = file_verts[i];
+			}
+			else if(count >= 3){
+				triangle.v3.position = file_verts[i];
+				count = 0;
+				triangles.push(triangle);
+				triangle = {v1:{},v2:{},v3:{}};
+			}
 		}
-		else if(count == 2){
-			triangle.v2.position = file_verts[ point_indices[i]-1 ];
+	}
+	else{		
+		for(var i=0; i < point_indices.length; i++ ){
+			mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
 			if(uv_indices.length > 0)
-				triangle.v2.uv = file_uvs[ uv_indices[i]-1 ];
+				mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
 			if(normal_indices.length > 0)
-				triangle.v2.normal = file_normals[ normal_indices[i]-1 ];
+				mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
+			count++;
+			
+			if(count == 1){
+				triangle.v1.position = file_verts[ point_indices[i]-1 ];
+				if(uv_indices.length > 0)
+					triangle.v1.uv = file_uvs[ uv_indices[i]-1 ];
+				if(normal_indices.length > 0)
+					triangle.v1.normal = file_normals[ normal_indices[i]-1 ];
+			}
+			else if(count == 2){
+				triangle.v2.position = file_verts[ point_indices[i]-1 ];
+				if(uv_indices.length > 0)
+					triangle.v2.uv = file_uvs[ uv_indices[i]-1 ];
+				if(normal_indices.length > 0)
+					triangle.v2.normal = file_normals[ normal_indices[i]-1 ];
+			}
+			else if(count >= 3){
+				triangle.v3.position = file_verts[ point_indices[i]-1 ];
+				if(uv_indices.length > 0)
+					triangle.v3.uv = file_uvs[ uv_indices[i]-1 ];
+				if(normal_indices.length > 0)
+					triangle.v3.normal = file_normals[ normal_indices[i]-1 ];
+				count = 0;
+				triangles.push(triangle);
+				triangle = {v1:{},v2:{},v3:{}};
+			}
 		}
-		else if(count >= 3){
-			triangle.v3.position = file_verts[ point_indices[i]-1 ];
-			if(uv_indices.length > 0)
-				triangle.v3.uv = file_uvs[ uv_indices[i]-1 ];
-			if(normal_indices.length > 0)
-				triangle.v3.normal = file_normals[ normal_indices[i]-1 ];
-			count = 0;
-			triangles.push(triangle);
-			triangle = {v1:{},v2:{},v3:{}};
-		}
-    }
+	}
 	mesh.triangles = triangles;
 }
 OBJ.vec3ArrayToFloatArray = function(vec3_array){

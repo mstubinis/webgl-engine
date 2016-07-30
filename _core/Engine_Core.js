@@ -72,6 +72,7 @@ Engine.init = function(w,h){
     
 	Engine.Math.init();
 	Engine.PhysicsManager.init();
+	Engine.SoundManager.init();
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
     Engine.ResourceManager.initDefaultResources();

@@ -85,7 +85,9 @@ Light.prototype.setScale = function(x,y,z){
 Light.prototype.update = function(dt){
 	Engine.GameObjectManager.update(this);
 }
-Light.prototype.setPosition = function(x,y,z){
+Light.prototype.setPosition = function(x,y,z,w){
+	if(w !== undefined)
+		this.w = w;
     Engine.GameObjectManager.setPosition(this,x,y,z);
     this.update(Engine.dt);
 }

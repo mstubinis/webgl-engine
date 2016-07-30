@@ -26,7 +26,7 @@ var Engine = Engine || {};
 		Engine.PhysicsManager.world.setGravity(new Ammo.btVector3(x,y,z));
 	}
 	Engine.PhysicsManager.update = function(dt){
-		Engine.PhysicsManager.world.stepSimulation(dt, 5);
+		Engine.PhysicsManager.world.stepSimulation(dt, 1, 1.0/60.0);
 		
 		var numManifolds = Engine.PhysicsManager.world.getDispatcher().getNumManifolds();
 		for (var i = 0; i < numManifolds; i++){
@@ -55,19 +55,19 @@ var Engine = Engine || {};
 		var shape;
 		if(flag === undefined || (flag && Engine.PhysicsManager.COLLISION_FLAG_CONVEX)){
 			shape = new Ammo.btConvexHullShape();
-			var vec = new Ammo.btVector3();	
 			var check = {};
 			for(var i = 0; i < mesh.triangles.length; i++){
 				for(var key in mesh.triangles[i]){
 					var value = mesh.triangles[i][key].position;
-					vec = new Ammo.btVector3(value[0],value[1],value[2]);
-					var strRep = value[0].toFixed(2) + "," + value[1].toFixed(2) + "," + value[2].toFixed(2);
+					var vec = new Ammo.btVector3(value[0],value[1],value[2]);
+					var strRep = value[0].toFixed(2) + " , " + value[1].toFixed(2) + " , " + value[2].toFixed(2);
+					console.log(strRep);
 					if(!check.hasOwnProperty(strRep)){
 						check[strRep] = false;
 						shape.addPoint(vec,true);
 					}
 				}
-			}	
+			}
 		}
 		else if(flag && Engine.PhysicsManager.COLLISION_FLAG_BOX){
 			shape = new Ammo.btBoxShape(new Ammo.btVector3(mesh.radiusX,mesh.radiusY,mesh.radiusZ));
@@ -80,7 +80,7 @@ var Engine = Engine || {};
 			console.log("Error: could not set up object collision shape, returning without one.");
 			return undefined;
 		}
-		shape.setMargin(0.01);
+		//shape.setMargin(0.01);
 		return shape;
 	}
 	

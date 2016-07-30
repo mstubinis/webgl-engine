@@ -86,7 +86,7 @@
 }
 //Dynamic GameObject - Interacts with ammo.js physics
 {
-	var GameObjectDynamic = function(n,mesh,material,collision,scene){
+	var GameObjectDynamic = function(n,mesh,material,collision,collisionMesh,scene){
 		if(scene === undefined){ if(n in Engine.scene.objects){ return Engine.scene.objects[n]; } }
 		else{if(n in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[n];}}
 		
@@ -108,20 +108,18 @@
 		this.modelMatrix = mat4.create();
 
 		var _mesh = Engine.ResourceManager.meshes[this.mesh];
+		var _col_mesh = Engine.ResourceManager.meshes[collisionMesh] || _mesh;
+
 		var mass = (_mesh.radiusX * _mesh.radiusY * _mesh.radiusZ) * 0.05;
 		var startTransform = new Ammo.btTransform();
 		startTransform.setIdentity();
 		startTransform.setOrigin(new Ammo.btVector3(0,0,0)); // Set initial position 
 		
-		
-		
 		var localInertia = new Ammo.btVector3(0,0,0); 
-		var collision = Engine.PhysicsManager.constructCollisionShape(collision,_mesh);
+		var collision = Engine.PhysicsManager.constructCollisionShape(collision,_col_mesh);
 		collision.calculateLocalInertia(mass,localInertia );
 		var motionState = new Ammo.btDefaultMotionState(startTransform);
 		var ci = new Ammo.btRigidBodyConstructionInfo(mass,motionState,collision,localInertia);
-		
-		
 		
 		this.rigidBody = new Ammo.btRigidBody(ci);
 		

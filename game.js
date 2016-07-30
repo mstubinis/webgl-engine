@@ -4,8 +4,9 @@ var Engine = Engine || {};
     Engine.Game = {};
     
     Engine.Game.initResources = function(){
-        var defiantMesh = new Mesh("Defiant","data/models/defiant.obj");
-        var defiantMaterial = new Material("Defiant","data/models/defiant.png","data/models/defiant_Glow.png","data/models/defiant_Normal.png");
+        new Mesh("Defiant","data/models/defiant.obj");
+		new Mesh("DefiantCol","data/models/defiantCol.obj");
+        new Material("Defiant","data/models/defiant.png","data/models/defiant_Glow.png","data/models/defiant_Normal.png");
     }
     Engine.Game.initLogic = function(){
         var files = [
@@ -17,14 +18,14 @@ var Engine = Engine || {};
             "data/skyboxes/SolarSystem/Bottom.jpg"
         ];
         var skybox = new Skybox("SceneSkybox",files);
-        var defiant = new GameObjectDynamic("Defiant","Defiant","Defiant");
+        var defiant = new GameObjectDynamic("Defiant","Defiant","Defiant",Engine.PhysicsManager.COLLISION_FLAG_CONVEX,"DefiantCol");
         defiant.setPosition(0,0,0);
        
-        //var defiant1 = new GameObjectDynamic("Defiant1","Defiant","Defiant");
-        //defiant1.setPosition(13,0,0);
+        var defiant1 = new GameObjectDynamic("Defiant1","Defiant","Defiant",Engine.PhysicsManager.COLLISION_FLAG_CONVEX,"DefiantCol");
+        defiant1.setPosition(13,0,0);
        
         var light = new Light("DirLight1");
-        light.setPosition(2,2,2);
+        light.setPosition(2,2,2,0);
 
         Engine.requestPointerLock();
         
@@ -71,13 +72,13 @@ var Engine = Engine || {};
             Engine.scene.objects["Defiant"].applyCentralForce(0,10,0);
         }
         if(Engine.isKeyDown("KEY_Q")){
-            Engine.scene.objects["Defiant"].rotateZ(750);
+            Engine.scene.objects["Defiant"].rotateZ(155);
         }
         if(Engine.isKeyDown("KEY_E")){
-            Engine.scene.objects["Defiant"].rotateZ(-750);
+            Engine.scene.objects["Defiant"].rotateZ(-155);
         }
-        Engine.scene.objects["Defiant"].rotateY(Engine.EventManager.mouse.diffY*8.5);
-        Engine.scene.objects["Defiant"].rotateX(Engine.EventManager.mouse.diffX*8.5);
+        Engine.scene.objects["Defiant"].rotateY(Engine.EventManager.mouse.diffY*5.5);
+        Engine.scene.objects["Defiant"].rotateX(Engine.EventManager.mouse.diffX*5.5);
         
         
         var eye = vec3.create();
