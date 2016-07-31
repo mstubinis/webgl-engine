@@ -61,7 +61,6 @@ var Engine = Engine || {};
 					var value = mesh.triangles[i][key].position;
 					var vec = new Ammo.btVector3(value[0],value[1],value[2]);
 					var strRep = value[0].toFixed(2) + " , " + value[1].toFixed(2) + " , " + value[2].toFixed(2);
-					console.log(strRep);
 					if(!check.hasOwnProperty(strRep)){
 						check[strRep] = false;
 						shape.addPoint(vec,true);

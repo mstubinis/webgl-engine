@@ -5,6 +5,11 @@ var Engine = Engine || {};
     
     Engine.EventManager.loaded = false;
     
+	Engine.EventManager.orientationChange = {
+		enabled: true,
+		mode: "N/A"
+	};
+	
     Engine.EventManager.mobile = {
         gyro: {
             alpha: 0,
@@ -359,36 +364,55 @@ var Engine = Engine || {};
         Engine.EventManager.mobile.acc.rotGamma = e.rotationRate.gamma || 0;
     }
     Engine.EventManager.onresize = function(e){
-        setTimeout(function(){ 
-            var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-            var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-            Engine.resize(w,h);
-        }, 500);
+		Engine.EventManager.handleResize(undefined);
     }
+	Engine.EventManager.handleResize = function(orientation){
+		if(orientation === undefined){
+			setTimeout(function(){ 
+				var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+				var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+				Engine.resize(w,h);
+			}, 500);
+			return;
+		}
+		else{
+			var body = document.getElementsByTagName('body')[0];
+			var t = "";
+			var type = "";
+			switch (orientation){
+				case 0://Portrait
+					if(Engine.EventManager.orientationChange.mode == "vertical") t = "rotate(0deg);"
+					else                                                         t = "rotate(90deg);"
+					type = "v";
+					break;
+				case -90://Landscape(right,screen turned CW)
+					if(Engine.EventManager.orientationChange.mode == "vertical") t = "rotate(90deg);"
+					else                                                         t = "rotate(0deg);"
+					type = "h";
+					break;
+				case 90://Landscape(left, screen turned CCW)
+					if(Engine.EventManager.orientationChange.mode == "vertical") t = "rotate(90deg);"
+					else                                                         t = "rotate(0deg);"
+					type = "h";
+					break;
+				case 180://Portrait (upside down)
+					if(Engine.EventManager.orientationChange.mode == "vertical") t = "rotate(0deg);"
+					else                                                         t = "rotate(90deg);"
+					type = "v";
+					break;
+				case "Portrait":
+					break;
+				case "Landscape":
+					break;
+				default:
+					break;
+			}
+		}
+	}
     Engine.EventManager.onorientationchange = function(e){
         e = window.event || e;
         var orientation = e.orientation || window.orientation;
-        switch (orientation){
-            case 0://Portrait
-                break;
-            case -90://Landscape(right,screen turned CW)
-                break;
-            case 90://Landscape(left, screen turned CCW)
-                break;
-            case 180://Portrait (upside down)
-                break;
-            case "Portrait":
-                break;
-            case "Landscape":
-                break;
-            default:
-                break;
-        }
-        setTimeout(function(){ 
-            var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-            var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-            Engine.resize(w,h);
-        }, 500);
+		Engine.EventManager.handleResize(orientation);
     }
     Engine.EventManager.requestPointerLock = function(){
         if(!Engine.EventManager.pointerLock.available){ 

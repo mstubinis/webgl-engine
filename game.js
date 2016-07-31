@@ -28,28 +28,7 @@ var Engine = Engine || {};
         light.setPosition(2,2,2,0);
 
         Engine.requestPointerLock();
-        
-        var map = [];
-        for(var i = 5; i < 20; i++){
-            for(var j = 0; j < 15; j++){
-                for(var k = 0; k < 15; k++){
-                    var noise = Engine.Math.simplexNoise3D(i/3,j/3,k/3);
-                    var str = i+","+j+","+k;
-                    map[str] = noise;
-                }
-            }
-        }
-        Engine.Math.normalizeArrayOfNumbers(map);
-        for(var key in map){
-            var a = key.split(',')
-            var value = map[key];
-            if(value > 0.76){
-                var obj = new GameObject("Cube " + a[0] + a[1] + a[2],"Cube","Defiant");
-                obj.color = vec4.fill(0,1,0,1);
-                obj.setPosition(a[0]*2,a[1]*2,a[2]*2);
-                obj.shadeless = true;
-            }
-        }
+		Engine.disableOrientationChange("horizontal");
     }
     Engine.Game.update = function(dt){
         Engine.camera.translate(0,0,-Engine.EventManager.mouse.wheel*2.0);

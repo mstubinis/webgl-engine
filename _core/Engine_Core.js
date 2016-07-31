@@ -94,6 +94,14 @@ Engine.onResourcesLoaded = function(){
     Engine.resize(Engine.canvas.width,Engine.canvas.height);
     Engine.run();
 }
+Engine.disableOrientationChange = function(orientationType){
+	Engine.EventManager.orientationChange.enabled = false;
+	var s = orientationType.toLowerCase();
+	if(s == "horizontal" || s == "landscape" || s == "h" || s == "l")
+		Engine.EventManager.orientationChange.mode = "horizontal";
+	else if(s == "vertical" || s == "portrait" || s == "v" || s == "p")
+		Engine.EventManager.orientationChange.mode = "vertical";
+}
 Engine.requestPointerLock = function(){
     Engine.EventManager.pointerLock.desired = true;
 }
