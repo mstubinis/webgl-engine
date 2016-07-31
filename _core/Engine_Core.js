@@ -13,7 +13,6 @@ Engine.fps = Engine.framerate;
 Engine.run = function(){
     var now = Date.now();
     Engine.dt = (now - Engine.currentTime)/1000.00000000;
-	document.getElementById("canvasDebug").innerHTML = Engine.fps();
     Engine.currentTime = now;
     
     Engine.update(Engine.dt);
@@ -32,6 +31,7 @@ Engine.handleContextRestored = function() {
     Engine.run();
 }
 Engine.init = function(w,h){
+	Engine.windowWidth = w;
     Engine.currentTime = 0.0000000;
     Engine.dt = 0.0000000;
     //first build the canvas and it's necessary html elements.
@@ -45,12 +45,13 @@ Engine.init = function(w,h){
     var canvas_debug_element = document.createElement('div');
     canvas_debug_element.setAttribute('tabindex', '-1');
     canvas_debug_element.setAttribute('id', 'canvasDebug');
-    canvas_debug_element.setAttribute('style', 'margin:0;outline:0;border:0;padding:0;left:0;top:0;position:absolute;color:yellow;font-size:200%;');
+    canvas_debug_element.setAttribute('style', 'margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;color:yellow;font-size:200%;z-index:4');
 
     var canvas_element = document.createElement('canvas');
     canvas_element.setAttribute('tabindex', '-1');
     canvas_element.setAttribute('id', 'canvas');
-    canvas_element.setAttribute('style', 'top:0;left:0;z-index:3;');
+    canvas_element.setAttribute('style', 'position:relative;top:0;left:0;');
+	
     
     body.appendChild(canvas_event_element);
     body.appendChild(canvas_debug_element);
@@ -59,7 +60,7 @@ Engine.init = function(w,h){
     Engine.requestId = undefined;
     Engine.canvas = document.getElementById('canvas');
     Engine.canvasEventCatcher = document.getElementById("canvasEventCatcher");
-    
+	   
     Engine.canvas.width = w;
     Engine.canvas.height = h;
     Engine.canvasEventCatcher.style.width = w + "px";
@@ -97,10 +98,17 @@ Engine.onResourcesLoaded = function(){
 Engine.disableOrientationChange = function(orientationType){
 	Engine.EventManager.orientationChange.enabled = false;
 	var s = orientationType.toLowerCase();
-	if(s == "horizontal" || s == "landscape" || s == "h" || s == "l")
+	var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+	var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+	if(s == "horizontal" || s == "landscape" || s == "h" || s == "l"){
 		Engine.EventManager.orientationChange.mode = "horizontal";
-	else if(s == "vertical" || s == "portrait" || s == "v" || s == "p")
+	}
+	else if(s == "vertical" || s == "portrait" || s == "v" || s == "p"){
 		Engine.EventManager.orientationChange.mode = "vertical";
+	}
+	if(w > h){ Engine.EventManager.orientationChange.currOrientation = "horizontal"; }
+	else{      Engine.EventManager.orientationChange.currOrientation = "vertical"; }
+	Engine.EventManager.doWindowRotation();
 }
 Engine.requestPointerLock = function(){
     Engine.EventManager.pointerLock.desired = true;
