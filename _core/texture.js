@@ -3,7 +3,6 @@
 var Texture = function(name,file){
     if(name in Engine.ResourceManager.textures){ return Engine.ResourceManager.textures[name]; }
     var _this = this;
-    _this.loaded = false;
     if(typeof file == "string"){
         _this.texture = _this.load(_this,file);
     }
@@ -41,11 +40,11 @@ var Texture = function(name,file){
                     _images["_" + _i + "face"] = _face;
                     var _loaded = true; for(var key in _images){ if(_images[key] == -1){ _loaded = false; } }
                     if(_loaded){for(var j = 0; j < faces.length; j++){
-                        gl.bindTexture(gl.TEXTURE_CUBE_MAP, _this.texture);
-                        gl.texImage2D(_images["_" + j + "face"], 0, buffType, buffType, gl.UNSIGNED_BYTE, _images["_" + j]);
-						//cleanup
-						//for (var member in images) delete images[member];
-                    }}
+						gl.bindTexture(gl.TEXTURE_CUBE_MAP, _this.texture);
+						gl.texImage2D(_images["_" + j + "face"], 0, buffType, buffType, gl.UNSIGNED_BYTE, _images["_" + j]);
+					}
+					//cleanup
+					for (var member in _images) delete _images[member];}
                 }
             }(images,i,_this,face,img,ext);
         }
