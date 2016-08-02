@@ -130,8 +130,7 @@
             vec3 glowTexture = vec3(texture2D(glowMap,UV).r);
             vec3 SurfacePosition = Part3.yzw;
 
-            //vec3 SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
-            vec3 SurfaceNormal = normalize(Part1.xyz);
+            vec3 SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
 
             vec3 lighting = SceneAmbient;
             for(int i = 0; i < MAX_LIGHTS; ++i){ // stupid loop index cannot be compared with a non constant uniform... idk why...
@@ -159,7 +158,6 @@
                 }
             }
             gl_FragColor.rgb = max(lighting,glowTexture) * (diffuseTexture.rgb * ObjectColor.rgb);
-			//gl_FragColor.rgb = SurfaceNormal;
             gl_FragColor.a = MaterialColor.a * (diffuseTexture.a * ObjectColor.a);
         }
     </script>   

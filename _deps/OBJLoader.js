@@ -65,10 +65,7 @@ OBJ.indexVBO = function(mesh,threshold){
         ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],mesh.vec2_uvs[i] || vec2.fill(0,0),mesh.vec3_normals[i] || vec3.fill(0,0,0),new_mesh,ret,threshold);
         if ( ret.found ){
             new_mesh.indices.push( ret.index );
-			
-			
-            // Average the tangents and the bitangents
-			/*
+            // Average the tangents and the bitangents -- doesnt work with mirrored uvs atm.
 			if( mesh.vec3_tangents.length > 0){
 				new_mesh.vec3_tangents[ret.index][0] += mesh.vec3_tangents[i][0];
 				new_mesh.vec3_tangents[ret.index][1] += mesh.vec3_tangents[i][1];
@@ -79,7 +76,6 @@ OBJ.indexVBO = function(mesh,threshold){
 				new_mesh.vec3_binormals[ret.index][1] += mesh.vec3_binormals[i][1];
 				new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
 			}
-			*/
         }else{
             new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
@@ -95,108 +91,77 @@ OBJ.indexVBO = function(mesh,threshold){
     }
     return new_mesh;
 }
-OBJ.calculateTBN = function(mesh){
-    if(mesh.vec3_normals.length == 0) return;
+OBJ.calculateTBN = function(points,uvs,normals,mesh){
+    if(normals.length == 0) return;
     
-    for(var i=0; i < mesh.vec3_vertices.length; i+=3){
-        var deltaPos1 = vec3.fill(mesh.vec3_vertices[i + 1][0] - mesh.vec3_vertices[i + 0][0],
-                                  mesh.vec3_vertices[i + 1][1] - mesh.vec3_vertices[i + 0][1],
-                                  mesh.vec3_vertices[i + 1][2] - mesh.vec3_vertices[i + 0][2]);
-                                        
-        var deltaPos2 = vec3.fill(mesh.vec3_vertices[i + 2][0] - mesh.vec3_vertices[i + 0][0],
-                                  mesh.vec3_vertices[i + 2][1] - mesh.vec3_vertices[i + 0][1],
-                                  mesh.vec3_vertices[i + 2][2] - mesh.vec3_vertices[i + 0][2]);
+    for(var i=0; i < points.length; i+=3){
+        var deltaPos1 = vec3.fill(points[i + 1][0] - points[i + 0][0],points[i + 1][1] - points[i + 0][1],points[i + 1][2] - points[i + 0][2]);                        
+        var deltaPos2 = vec3.fill(points[i + 2][0] - points[i + 0][0],points[i + 2][1] - points[i + 0][1],points[i + 2][2] - points[i + 0][2]);
         
-        var deltaUV1 = vec2.fill(mesh.vec2_uvs[i + 1][0] - mesh.vec2_uvs[i + 0][0],
-                                 mesh.vec2_uvs[i + 1][1] - mesh.vec2_uvs[i + 0][1]);
-        var deltaUV2 = vec2.fill(mesh.vec2_uvs[i + 2][0] - mesh.vec2_uvs[i + 0][0],
-                                 mesh.vec2_uvs[i + 2][1] - mesh.vec2_uvs[i + 0][1]);
+        var deltaUV1 = vec2.fill(uvs[i + 1][0] - uvs[i + 0][0],uvs[i + 1][1] - uvs[i + 0][1]);
+        var deltaUV2 = vec2.fill(uvs[i + 2][0] - uvs[i + 0][0],uvs[i + 2][1] - uvs[i + 0][1]);
         
-        var r = 1.000000 / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+        var r = 1.0 / ((deltaUV1[0] * deltaUV2[1]) - (deltaUV1[1] * deltaUV2[0]));
         
-        var tangent = vec3.fill((deltaPos1[0] * deltaUV2[1] - deltaPos2[0] * deltaUV1[1]) * r,
-                                (deltaPos1[1] * deltaUV2[1] - deltaPos2[1] * deltaUV1[1]) * r,
-                                (deltaPos1[2] * deltaUV2[1] - deltaPos2[2] * deltaUV1[1]) * r);
+        var tangent = vec3.fill(((deltaPos1[0] * deltaUV2[1]) - (deltaPos2[0] * deltaUV1[1])) * r,
+                                ((deltaPos1[1] * deltaUV2[1]) - (deltaPos2[1] * deltaUV1[1])) * r,
+                                ((deltaPos1[2] * deltaUV2[1]) - (deltaPos2[2] * deltaUV1[1])) * r);
 
-        var bitangent = vec3.fill((deltaPos2[0] * deltaUV1[0] - deltaPos1[0] * deltaUV2[0]) * r,
-                                  (deltaPos2[1] * deltaUV1[0] - deltaPos1[1] * deltaUV2[0]) * r,
-                                  (deltaPos2[2] * deltaUV1[0] - deltaPos1[2] * deltaUV2[0]) * r);
+        var bitangent = vec3.fill(((deltaPos2[0] * deltaUV1[0]) - (deltaPos1[0] * deltaUV2[0])) * r,
+                                  ((deltaPos2[1] * deltaUV1[0]) - (deltaPos1[1] * deltaUV2[0])) * r,
+                                  ((deltaPos2[2] * deltaUV1[0]) - (deltaPos1[2] * deltaUV2[0])) * r);
 
-        var v1Norm = vec3.fill(mesh.vec3_normals[i + 0][0],mesh.vec3_normals[i + 0][1],mesh.vec3_normals[i + 0][2]);
-        var v2Norm = vec3.fill(mesh.vec3_normals[i + 1][0],mesh.vec3_normals[i + 1][1],mesh.vec3_normals[i + 1][2]);
-        var v3Norm = vec3.fill(mesh.vec3_normals[i + 2][0],mesh.vec3_normals[i + 2][1],mesh.vec3_normals[i + 2][2]);
+        var n1 = vec3.fill(normals[i + 0][0],normals[i + 0][1],normals[i + 0][2]);
+        var n2 = vec3.fill(normals[i + 1][0],normals[i + 1][1],normals[i + 1][2]);
+        var n3 = vec3.fill(normals[i + 2][0],normals[i + 2][1],normals[i + 2][2]);
                                         
-        var t1_sub = vec3.create(); vec3.sub(t1_sub,tangent,v1Norm);
-        var t2_sub = vec3.create(); vec3.sub(t2_sub,tangent,v2Norm);
-        var t3_sub = vec3.create(); vec3.sub(t3_sub,tangent,v3Norm);
+        var t1_mul = vec3.create(); vec3.scale(t1_mul, n1, vec3.dot(tangent,n1));
+        var t2_mul = vec3.create(); vec3.scale(t2_mul, n2, vec3.dot(tangent,n2));
+        var t3_mul = vec3.create(); vec3.scale(t3_mul, n3, vec3.dot(tangent,n3)); 
+        var t1 = vec3.create(); vec3.sub(t1, tangent, t1_mul);
+        var t2 = vec3.create(); vec3.sub(t2, tangent, t2_mul);
+        var t3 = vec3.create(); vec3.sub(t3, tangent, t3_mul);
+        vec3.normalize(t1, t1); vec3.normalize(t2, t2); vec3.normalize(t3, t3);
         
-        var d1 = vec3.dot(tangent,v1Norm);
-        var d2 = vec3.dot(tangent,v2Norm);
-        var d3 = vec3.dot(tangent,v3Norm);
-        var t1 = vec3.create(); vec3.mul(t1,t1_sub,vec3.fill(d1,d1,d1));
-        var t2 = vec3.create(); vec3.mul(t2,t2_sub,vec3.fill(d2,d2,d2));
-        var t3 = vec3.create(); vec3.mul(t3,t3_sub,vec3.fill(d3,d3,d3));
-        vec3.normalize(t1,t1);
-        vec3.normalize(t2,t2);
-        vec3.normalize(t3,t3);
-        
-        var b1_sub = vec3.create(); vec3.sub(b1_sub,bitangent,v1Norm);
-        var b2_sub = vec3.create(); vec3.sub(b2_sub,bitangent,v2Norm);
-        var b3_sub = vec3.create(); vec3.sub(b3_sub,bitangent,v3Norm);  
-        var bd1 = vec3.dot(bitangent,v1Norm);
-        var bd2 = vec3.dot(bitangent,v2Norm);
-        var bd3 = vec3.dot(bitangent,v3Norm);
-        var b1 = vec3.create(); vec3.mul(b1,b1_sub,vec3.fill(bd1,bd1,bd1));
-        var b2 = vec3.create(); vec3.mul(b2,b2_sub,vec3.fill(bd2,bd2,bd2));
-        var b3 = vec3.create(); vec3.mul(b3,b3_sub,vec3.fill(bd3,bd3,bd3));
-        vec3.normalize(b1,b1);
-        vec3.normalize(b2,b2);
-        vec3.normalize(b3,b3);
+        var b1_mul = vec3.create(); vec3.scale(b1_mul, n1, vec3.dot(bitangent,n1));
+        var b2_mul = vec3.create(); vec3.scale(b2_mul, n2, vec3.dot(bitangent,n2));
+        var b3_mul = vec3.create(); vec3.scale(b3_mul, n3, vec3.dot(bitangent,n3));  
+        var b1 = vec3.create(); vec3.sub(b1, bitangent, b1_mul);
+        var b2 = vec3.create(); vec3.sub(b2, bitangent, b2_mul);
+        var b3 = vec3.create(); vec3.sub(b3, bitangent, b3_mul);
+        vec3.normalize(b1, b1); vec3.normalize(b2, b2); vec3.normalize(b3, b3);
 		
-		//Orthogonalization
-		var t1_sub_n1 = vec3.create(); vec3.sub(t1_sub_n1,t1,v1Norm);
-		var t2_sub_n2 = vec3.create(); vec3.sub(t2_sub_n2,t2,v2Norm);
-		var t3_sub_n3 = vec3.create(); vec3.sub(t3_sub_n3,t3,v3Norm);
+		//Orthogonalization of tangent////////////////////////////////////////////////////////////////
+		var t1_mulDot = vec3.create(); vec3.scale(t1_mulDot, n1, vec3.dot(n1, t1));
+		var t2_mulDot = vec3.create(); vec3.scale(t2_mulDot, n2, vec3.dot(n2, t2));
+		var t3_mulDot = vec3.create(); vec3.scale(t3_mulDot, n3, vec3.dot(n3, t3));
 		
-		var mul1 = vec3.fill(vec3.dot(v1Norm, t1),vec3.dot(v1Norm, t1),vec3.dot(v1Norm, t1));
-		var mul2 = vec3.fill(vec3.dot(v2Norm, t2),vec3.dot(v2Norm, t2),vec3.dot(v2Norm, t2));
-		var mul3 = vec3.fill(vec3.dot(v3Norm, t3),vec3.dot(v3Norm, t3),vec3.dot(v3Norm, t3));
+		var t1_sub = vec3.create(); t1_sub = vec3.sub(t1_sub, t1, t1_mulDot);
+		var t2_sub = vec3.create(); t2_sub = vec3.sub(t2_sub, t2, t2_mulDot);
+		var t3_sub = vec3.create(); t3_sub = vec3.sub(t3_sub, t3, t3_mulDot);
 		
-		var __mul1 = vec3.create(); __mul1 = vec3.mul(__mul1,t1_sub_n1,mul1);
-		var __mul2 = vec3.create(); __mul2 = vec3.mul(__mul2,t2_sub_n2,mul2);
-		var __mul3 = vec3.create(); __mul3 = vec3.mul(__mul3,t3_sub_n3,mul3);
-		
-		t1 = vec3.normalize(t1,__mul1);
-		t2 = vec3.normalize(t2,__mul2);
-		t3 = vec3.normalize(t3,__mul3);
-        
+		vec3.normalize(t1, t1_sub);
+		vec3.normalize(t2, t2_sub);
+		vec3.normalize(t3, t3_sub);
+		////////////////////////////////////////////////////////////////////////////////////////////////
         mesh.vec3_tangents.push(t1); mesh.vec3_tangents.push(t2); mesh.vec3_tangents.push(t3);
         mesh.vec3_binormals.push(b1); mesh.vec3_binormals.push(b2); mesh.vec3_binormals.push(b3);
     }
-	//Handedness (for mirrored uvs)
-    for(var i=0; i < mesh.vec3_vertices.length; i++){
+	/*
+	//Handedness (for mirrored uvs) -- seems to screw things up with the mirrored uvs actually... hmm..
+    for(var i=0; i < points.length; i++){
         var n = mesh.vec3_normals[i];
         var b = mesh.vec3_binormals[i];
         var t = mesh.vec3_tangents[i];
-        // Gram-Schmidt orthogonalize
-        
-        var tSubN = vec3.create(); vec3.sub(tSubN,t,n);
-        var dotNT = vec3.dot(n,t);
-        var d = vec3.fill(dotNT,dotNT,dotNT);
-        var mul = vec3.create(); vec3.mul(mul,tSubN,d);
-        vec3.normalize(mul,mul);
-        t = mul;
-        // Calculate handedness
-        
-        var c = vec3.create(); vec3.cross(c,n,t);
-        var dotCrossB = vec3.dot(c,b);
-        if (dotCrossB < 0.0){
+        var cross = vec3.create(); vec3.cross(cross,n,t);
+        if (vec3.dot(cross,b) < 0.0){
             t[0] *= -1.0; t[1] *= -1.0; t[2] *= -1.0;
         }
         mesh.vec3_normals[i] = n;
         mesh.vec3_binormals[i] = b;
         mesh.vec3_tangents[i] = t;
     }
+	*/
 }
 OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices){
 	var triangle = {v1:{},v2:{},v3:{}};
@@ -347,7 +312,7 @@ OBJ.Mesh = function (meshObject,objectData){
     newMesh.vec3_vertices = []; newMesh.vec2_uvs = []; newMesh.vec3_normals = []; newMesh.vec3_binormals = []; newMesh.vec3_tangents = [];
     
     OBJ.loadDataIntoTriangles(newMesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices);
-    OBJ.calculateTBN(newMesh);
+    OBJ.calculateTBN(newMesh.vec3_vertices,newMesh.vec2_uvs,newMesh.vec3_normals,newMesh);
     newMesh = OBJ.indexVBO(newMesh,0.001);
     OBJ.finalize(newMesh);
     
