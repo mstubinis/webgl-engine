@@ -53,7 +53,7 @@ OBJ.indexVBO = function(mesh,threshold){
     if(threshold == 0.0) return mesh;
 
     var new_mesh = {};
-	new_mesh.triangles = mesh.triangles;
+    new_mesh.triangles = mesh.triangles;
     new_mesh.vec3_vertices = [];
     new_mesh.vec2_uvs = [];
     new_mesh.vec3_normals = [];
@@ -66,16 +66,16 @@ OBJ.indexVBO = function(mesh,threshold){
         if ( ret.found ){
             new_mesh.indices.push( ret.index );
             // Average the tangents and the bitangents -- doesnt work with mirrored uvs atm.
-			if( mesh.vec3_tangents.length > 0){
-				new_mesh.vec3_tangents[ret.index][0] += mesh.vec3_tangents[i][0];
-				new_mesh.vec3_tangents[ret.index][1] += mesh.vec3_tangents[i][1];
-				new_mesh.vec3_tangents[ret.index][2] += mesh.vec3_tangents[i][2];
-			}
-			if( mesh.vec3_binormals.length > 0){
-				new_mesh.vec3_binormals[ret.index][0] += mesh.vec3_binormals[i][0];
-				new_mesh.vec3_binormals[ret.index][1] += mesh.vec3_binormals[i][1];
-				new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
-			}
+            if( mesh.vec3_tangents.length > 0){
+                new_mesh.vec3_tangents[ret.index][0] += mesh.vec3_tangents[i][0];
+                new_mesh.vec3_tangents[ret.index][1] += mesh.vec3_tangents[i][1];
+                new_mesh.vec3_tangents[ret.index][2] += mesh.vec3_tangents[i][2];
+            }
+            if( mesh.vec3_binormals.length > 0){
+                new_mesh.vec3_binormals[ret.index][0] += mesh.vec3_binormals[i][0];
+                new_mesh.vec3_binormals[ret.index][1] += mesh.vec3_binormals[i][1];
+                new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
+            }
         }else{
             new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
@@ -130,25 +130,25 @@ OBJ.calculateTBN = function(points,uvs,normals,mesh){
         var b2 = vec3.create(); vec3.sub(b2, bitangent, b2_mul);
         var b3 = vec3.create(); vec3.sub(b3, bitangent, b3_mul);
         vec3.normalize(b1, b1); vec3.normalize(b2, b2); vec3.normalize(b3, b3);
-		
-		//Orthogonalization of tangent////////////////////////////////////////////////////////////////
-		var t1_mulDot = vec3.create(); vec3.scale(t1_mulDot, n1, vec3.dot(n1, t1));
-		var t2_mulDot = vec3.create(); vec3.scale(t2_mulDot, n2, vec3.dot(n2, t2));
-		var t3_mulDot = vec3.create(); vec3.scale(t3_mulDot, n3, vec3.dot(n3, t3));
-		
-		var t1_sub = vec3.create(); t1_sub = vec3.sub(t1_sub, t1, t1_mulDot);
-		var t2_sub = vec3.create(); t2_sub = vec3.sub(t2_sub, t2, t2_mulDot);
-		var t3_sub = vec3.create(); t3_sub = vec3.sub(t3_sub, t3, t3_mulDot);
-		
-		vec3.normalize(t1, t1_sub);
-		vec3.normalize(t2, t2_sub);
-		vec3.normalize(t3, t3_sub);
-		////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        //Orthogonalization of tangent////////////////////////////////////////////////////////////////
+        var t1_mulDot = vec3.create(); vec3.scale(t1_mulDot, n1, vec3.dot(n1, t1));
+        var t2_mulDot = vec3.create(); vec3.scale(t2_mulDot, n2, vec3.dot(n2, t2));
+        var t3_mulDot = vec3.create(); vec3.scale(t3_mulDot, n3, vec3.dot(n3, t3));
+        
+        var t1_sub = vec3.create(); t1_sub = vec3.sub(t1_sub, t1, t1_mulDot);
+        var t2_sub = vec3.create(); t2_sub = vec3.sub(t2_sub, t2, t2_mulDot);
+        var t3_sub = vec3.create(); t3_sub = vec3.sub(t3_sub, t3, t3_mulDot);
+        
+        vec3.normalize(t1, t1_sub);
+        vec3.normalize(t2, t2_sub);
+        vec3.normalize(t3, t3_sub);
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         mesh.vec3_tangents.push(t1); mesh.vec3_tangents.push(t2); mesh.vec3_tangents.push(t3);
         mesh.vec3_binormals.push(b1); mesh.vec3_binormals.push(b2); mesh.vec3_binormals.push(b3);
     }
-	/*
-	//Handedness (for mirrored uvs) -- seems to screw things up with the mirrored uvs actually... hmm..
+    /*
+    //Handedness (for mirrored uvs) -- seems to screw things up with the mirrored uvs actually... hmm..
     for(var i=0; i < points.length; i++){
         var n = mesh.vec3_normals[i];
         var b = mesh.vec3_binormals[i];
@@ -161,67 +161,67 @@ OBJ.calculateTBN = function(points,uvs,normals,mesh){
         mesh.vec3_binormals[i] = b;
         mesh.vec3_tangents[i] = t;
     }
-	*/
+    */
 }
 OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices){
-	var triangle = {v1:{},v2:{},v3:{}};
-	var triangles = [];
-	var count = 0;
-	
-	if(point_indices.length == 0){
-		for(var i=0; i < file_verts.length; i++ ){
-			mesh.vec3_vertices.push(file_verts[i]);
-			count++;
-			if(count == 1){
-				triangle.v1.position = file_verts[i];
-			}
-			else if(count == 2){
-				triangle.v2.position = file_verts[i];
-			}
-			else if(count >= 3){
-				triangle.v3.position = file_verts[i];
-				count = 0;
-				triangles.push(triangle);
-				triangle = {v1:{},v2:{},v3:{}};
-			}
-		}
-	}
-	else{		
-		for(var i=0; i < point_indices.length; i++ ){
-			mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
-			if(uv_indices.length > 0)
-				mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
-			if(normal_indices.length > 0)
-				mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
-			count++;
-			
-			if(count == 1){
-				triangle.v1.position = file_verts[ point_indices[i]-1 ];
-				if(uv_indices.length > 0)
-					triangle.v1.uv = file_uvs[ uv_indices[i]-1 ];
-				if(normal_indices.length > 0)
-					triangle.v1.normal = file_normals[ normal_indices[i]-1 ];
-			}
-			else if(count == 2){
-				triangle.v2.position = file_verts[ point_indices[i]-1 ];
-				if(uv_indices.length > 0)
-					triangle.v2.uv = file_uvs[ uv_indices[i]-1 ];
-				if(normal_indices.length > 0)
-					triangle.v2.normal = file_normals[ normal_indices[i]-1 ];
-			}
-			else if(count >= 3){
-				triangle.v3.position = file_verts[ point_indices[i]-1 ];
-				if(uv_indices.length > 0)
-					triangle.v3.uv = file_uvs[ uv_indices[i]-1 ];
-				if(normal_indices.length > 0)
-					triangle.v3.normal = file_normals[ normal_indices[i]-1 ];
-				count = 0;
-				triangles.push(triangle);
-				triangle = {v1:{},v2:{},v3:{}};
-			}
-		}
-	}
-	mesh.triangles = triangles;
+    var triangle = {v1:{},v2:{},v3:{}};
+    var triangles = [];
+    var count = 0;
+    
+    if(point_indices.length == 0){
+        for(var i=0; i < file_verts.length; i++ ){
+            mesh.vec3_vertices.push(file_verts[i]);
+            count++;
+            if(count == 1){
+                triangle.v1.position = file_verts[i];
+            }
+            else if(count == 2){
+                triangle.v2.position = file_verts[i];
+            }
+            else if(count >= 3){
+                triangle.v3.position = file_verts[i];
+                count = 0;
+                triangles.push(triangle);
+                triangle = {v1:{},v2:{},v3:{}};
+            }
+        }
+    }
+    else{       
+        for(var i=0; i < point_indices.length; i++ ){
+            mesh.vec3_vertices.push(file_verts[ point_indices[i]-1 ]);
+            if(uv_indices.length > 0)
+                mesh.vec2_uvs.push(file_uvs[ uv_indices[i]-1 ]);
+            if(normal_indices.length > 0)
+                mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
+            count++;
+            
+            if(count == 1){
+                triangle.v1.position = file_verts[ point_indices[i]-1 ];
+                if(uv_indices.length > 0)
+                    triangle.v1.uv = file_uvs[ uv_indices[i]-1 ];
+                if(normal_indices.length > 0)
+                    triangle.v1.normal = file_normals[ normal_indices[i]-1 ];
+            }
+            else if(count == 2){
+                triangle.v2.position = file_verts[ point_indices[i]-1 ];
+                if(uv_indices.length > 0)
+                    triangle.v2.uv = file_uvs[ uv_indices[i]-1 ];
+                if(normal_indices.length > 0)
+                    triangle.v2.normal = file_normals[ normal_indices[i]-1 ];
+            }
+            else if(count >= 3){
+                triangle.v3.position = file_verts[ point_indices[i]-1 ];
+                if(uv_indices.length > 0)
+                    triangle.v3.uv = file_uvs[ uv_indices[i]-1 ];
+                if(normal_indices.length > 0)
+                    triangle.v3.normal = file_normals[ normal_indices[i]-1 ];
+                count = 0;
+                triangles.push(triangle);
+                triangle = {v1:{},v2:{},v3:{}};
+            }
+        }
+    }
+    mesh.triangles = triangles;
 }
 OBJ.vec3ArrayToFloatArray = function(vec3_array){
     var ret = [];
@@ -242,24 +242,24 @@ OBJ.vec2ArrayToFloatArray = function(vec2_array){
 }
 OBJ.finalize = function(mesh){  
     mesh.radius = 0;
-	mesh.radiusX = 0;
-	mesh.radiusY = 0;
-	mesh.radiusZ = 0;
+    mesh.radiusX = 0;
+    mesh.radiusY = 0;
+    mesh.radiusZ = 0;
     for(var i = 0; i < mesh.vec3_vertices.length; i++){
         var len = vec3.length(mesh.vec3_vertices[i]);
-		var pt = mesh.vec3_vertices[i];	
-		var x = Math.abs(pt[0]);
-		if(x > mesh.radiusX){
-			mesh.radiusX = x;
-		}
-		var y = Math.abs(pt[1]);
-		if(y > mesh.radiusY){
-			mesh.radiusY = y;
-		}	
-		var z = Math.abs(pt[2]);
-		if(z > mesh.radiusZ){
-			mesh.radiusZ = z;
-		}		
+        var pt = mesh.vec3_vertices[i]; 
+        var x = Math.abs(pt[0]);
+        if(x > mesh.radiusX){
+            mesh.radiusX = x;
+        }
+        var y = Math.abs(pt[1]);
+        if(y > mesh.radiusY){
+            mesh.radiusY = y;
+        }   
+        var z = Math.abs(pt[2]);
+        if(z > mesh.radiusZ){
+            mesh.radiusZ = z;
+        }       
         if(len > mesh.radius){
             mesh.radius = len;
         }
@@ -325,7 +325,7 @@ OBJ.Mesh = function (meshObject,objectData){
         meshObject.binormals = newMesh.binormals;
     if(newMesh.tangents != undefined)
         meshObject.tangents = newMesh.tangents;
-	meshObject.triangles = newMesh.triangles;
+    meshObject.triangles = newMesh.triangles;
     meshObject.radius = newMesh.radius;
     meshObject.radiusX = newMesh.radiusX;
     meshObject.radiusY = newMesh.radiusY;

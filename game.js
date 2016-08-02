@@ -23,7 +23,13 @@ var Engine = Engine || {};
        
         var defiant1 = new GameObjectDynamic("Defiant1","Defiant","Defiant",Engine.PhysicsManager.COLLISION_FLAG_CONVEX,"DefiantCol");
         defiant1.setPosition(13,0,0);
-       
+
+		var instance = new InstanceObject("Defiant_Instance","Defiant","Defiant");
+		for(var i = 0; i < 10; i++){
+			var vec3_position = vec3.fill(i*5,i*5,i*5);
+			instance.addInstance(vec3_position);
+		}
+
         var light = new Light("DirLight1");
         light.setPosition(2,2,2,0);
 

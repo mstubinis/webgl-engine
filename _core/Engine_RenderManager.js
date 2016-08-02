@@ -10,8 +10,8 @@ var Engine = Engine || {};
         if (!gl) { return; }
         gl.extensions = {};
         gl.extensions.drawBuffers = gl.getExtension('WEBGL_draw_buffers');
-		gl.extensions.instancing = gl.getExtension('ANGLE_instanced_arrays');
-		gl.extensions.depthTexture = gl.getExtension('WEBGL_depth_texture');
+        gl.extensions.instancing = gl.getExtension('ANGLE_instanced_arrays');
+        gl.extensions.depthTexture = gl.getExtension('WEBGL_depth_texture');
 
         var maxVertexShaderUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
         var maxFragmentShaderUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
@@ -22,6 +22,7 @@ var Engine = Engine || {};
         var combinedTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         
         var maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+		console.log(maxVertexAttribs);
 
         var highp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
         var highpSupported = highp.precision != 0;
@@ -34,7 +35,7 @@ var Engine = Engine || {};
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
 
-		Engine.GBuffer.init();
+        Engine.GBuffer.init();
         return gl;
     }
     Engine.RenderManager.render = function(){
@@ -85,8 +86,8 @@ var Engine = Engine || {};
         var normalMatrix = mat4.create();
         mat4.invert(normalMatrix,obj.modelMatrix);
         mat4.transpose(normalMatrix,normalMatrix);
-		gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
-		
+        gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
+        
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "P"),false,Engine.camera.projectionMatrix); 
         
         if(material !== undefined){

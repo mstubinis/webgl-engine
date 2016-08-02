@@ -38,6 +38,17 @@
         this._isToBeDestroyed = true;
     }
     GameObject.prototype._free = function(){
+        delete this.mesh;
+        delete this.material;
+        delete this.radius;
+        delete this.modelMatrix;
+        delete this._position;
+        delete this.rotation;
+        delete this.scale;
+        delete this.visible;
+        delete this.shadeless;
+        delete this.needsUpdate;
+        delete this.id;
     }
     GameObject.prototype.translate = function(x,y,z) {
         Engine.GameObjectManager.translate(this,x,y,z);

@@ -3,12 +3,15 @@ var Engine = Engine || {};
 var gl;
 var g = {}; // global variables
 
-Engine.toRad = function(degree){ return degree * 0.0174533; }
-Engine.getExtension = function(fname){ return fname.substr((~-fname.lastIndexOf(".") >>> 0) + 2); }
+Engine.toRad=function(d){return d*0.0174533;}
+Engine.getExtension=function(f){return f.substr((~-f.lastIndexOf(".")>>>0)+2);}
 
 Engine.framerate = function(){ return 1.00000000 / Engine.dt; }
 Engine.fps = Engine.framerate;
 
+if(!Array.prototype.indexOf){
+Array.prototype.indexOf=function(e){var l=this.length>>>0;var f=Number(arguments[1]) || 0;
+f=(f<0)?Math.ceil(f):Math.floor(f);if(f<0)f+=l;for(;f<l;f++){if(f in this && this[f]===e)return f;}return -1;};}
 
 Engine.run = function(){
     var now = Date.now();
