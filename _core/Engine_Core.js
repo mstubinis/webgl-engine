@@ -128,6 +128,15 @@ Engine.resize = function(width,height){
 }
 Engine.update = function(dt){
     Engine.Game.update(dt);
+	
+	//cleanup memory
+	for(var key in Engine.scene.objects){
+		if(Engine.scene.objects[key].hasOwnProperty('_isToBeDestroyed')){
+			Engine.scene.objects[key]._free();
+			delete Engine.scene.objects[key];
+		}
+	}
+	
     for (var key in Engine.scene.lights) {
         Engine.scene.lights[key].update(dt);
     }
@@ -139,6 +148,7 @@ Engine.update = function(dt){
     }
     Engine.EventManager.update(dt);
 	Engine.PhysicsManager.update(dt);
+	
 }
 
 Engine.render = function(){

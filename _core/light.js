@@ -17,12 +17,10 @@ var Light = function(n,scene){
     this.color = vec3.fill(1,1,1);
     this.specularPower = 1.0;
     this.diffusePower = 1.0;
-    this.ambientPower = 0.05;
     
     this.constant = 0.3;
     this.linear = 0.2;
     this.exponent = 0.3;
-	
 	
 	if(scene === undefined){
 		this.id = Object.keys(Engine.scene.lights).length;
@@ -71,7 +69,7 @@ Light.prototype.sendUniforms = function(shader){
     }
     gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightPosition"]), pos[0],pos[1],pos[2]);
     gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightColor"]), this.color[0],this.color[1],this.color[2]);
-    gl.uniform4f(gl.getUniformLocation(shader,this.uniforms["LightProperties"]),this.ambientPower,this.diffusePower,this.specularPower,this.w);
+    gl.uniform3f(gl.getUniformLocation(shader,this.uniforms["LightProperties"]),this.diffusePower,this.specularPower,this.w);
 }
 Light.prototype.translate = function(x,y,z) {
     Engine.GameObjectManager.translate(this,x,y,z);

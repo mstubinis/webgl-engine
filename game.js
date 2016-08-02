@@ -5,7 +5,7 @@ var Engine = Engine || {};
     
     Engine.Game.initResources = function(){
         new Mesh("Defiant","data/models/defiant.obj");
-		new Mesh("DefiantCol","data/models/defiantCol.obj");
+        new Mesh("DefiantCol","data/models/defiantCol.obj");
         new Material("Defiant","data/models/defiant.png","data/models/defiant_Glow.png","data/models/defiant_Normal.png");
     }
     Engine.Game.initLogic = function(){
@@ -28,7 +28,7 @@ var Engine = Engine || {};
         light.setPosition(2,2,2,0);
 
         Engine.requestPointerLock();
-		Engine.disableOrientationChange("horizontal");
+        Engine.disableOrientationChange("horizontal");
     }
     Engine.Game.update = function(dt){
         Engine.camera.translate(0,0,-Engine.EventManager.mouse.wheel*2.0);

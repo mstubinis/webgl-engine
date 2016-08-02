@@ -7,6 +7,7 @@ var Mesh = function(name,meshFile,fromFile){
     var _this = this;
     _this.radius = 0;
     _this.loaded = false;
+    Engine.ResourceManager.meshes[name] = _this;
     if(fromFile){
         OBJ.downloadMeshes( {meshFile: meshFile}, InitMeshFunc,_this,name);
     }
@@ -18,7 +19,6 @@ var Mesh = function(name,meshFile,fromFile){
 var InitMeshFunc = function(_this,name){
     _this = OBJ.initMeshBuffers(gl, _this);
     _this.loaded = true;
-    Engine.ResourceManager.meshes[name] = _this;
     if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
         Engine.onResourcesLoaded();
     }

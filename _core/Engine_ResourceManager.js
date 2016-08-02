@@ -7,7 +7,7 @@ var Engine = Engine || {};
     Engine.ResourceManager.meshes = {};
     Engine.ResourceManager.materials = {};
     Engine.ResourceManager.textures = {};
-	Engine.ResourceManager.sounds = {};
+    Engine.ResourceManager.sounds = {};
     
     Engine.ResourceManager.scenes = {};
     
@@ -91,11 +91,6 @@ var Engine = Engine || {};
     Engine.ResourceManager.checkIfAllResourcesAreLoaded = function(){
         for(var key in Engine.ResourceManager.meshes){
             if(!Engine.ResourceManager.meshes[key].loaded){
-                return false;
-            }
-        }
-        for(var key in Engine.ResourceManager.textures){
-            if(!Engine.ResourceManager.textures[key].loaded){
                 return false;
             }
         }

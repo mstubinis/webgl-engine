@@ -91,12 +91,15 @@ var Engine = Engine || {};
 	{
 		Engine.GameObjectManager.translateDynamic = function(obj,x,y,z,local){
 			obj.rigidBody.activate();
-			var t = obj.rigidBody.getWorldTransform(t);
-			var p = vec3.fill(t.getOrigin().x(),t.getOrigin().y(),t.getOrigin().z());
+			var transform = obj.rigidBody.getWorldTransform(transform);
+			var origin = transform.getOrigin();
+			var p = vec3.fill(origin.x(),origin.y(),origin.z());
 			
 			if(local !== undefined && local == false){
 				p[0] += x; p[1] += y; p[2] += z;
 				Engine.GameObjectManager.setPositionDynamic(obj.position()[0] + p[0],obj.position()[1] + p[1],obj.position()[2] + p[2]);
+				Ammo.destroy(origin);
+				Ammo.destroy(transform);
 				return;
 			}	
 			var forwardVector = Engine.GameObjectManager.forwardDynamic(obj);
@@ -115,6 +118,8 @@ var Engine = Engine || {};
 			p[1] += upVector[1] * y;
 			p[2] += upVector[2] * y;
 			Engine.GameObjectManager.setPositionDynamic(obj.position()[0] + p[0],obj.position()[1] + p[1],obj.position()[2] + p[2]);
+			Ammo.destroy(origin);
+			Ammo.destroy(transform);
 		}
 		Engine.GameObjectManager.scaleDynamic = function(obj,x,y,z){
 			return;
@@ -140,26 +145,32 @@ var Engine = Engine || {};
 			*/
 		}
 		Engine.GameObjectManager.setPositionDynamic = function(obj,x,y,z){
-			var tr = new Ammo.btTransform();
-			tr.setOrigin(new Ammo.btVector3(x,y,z));
-			tr.setRotation(obj.rigidBody.getCenterOfMassTransform().getRotation());
+			var transform = new Ammo.btTransform();
+			var origin = new Ammo.btVector3(x,y,z);
+			transform.setOrigin(origin);
+			transform.setRotation(obj.rigidBody.getCenterOfMassTransform().getRotation());
 			
-			obj.rigidBody.getMotionState().setWorldTransform(tr);
-			obj.rigidBody.setWorldTransform(tr);
-			obj.rigidBody.setCenterOfMassTransform(tr);
+			obj.rigidBody.getMotionState().setWorldTransform(transform);
+			obj.rigidBody.setWorldTransform(transform);
+			obj.rigidBody.setCenterOfMassTransform(transform);
+			
+			Ammo.destroy(origin);
+			Ammo.destroy(transform);
 		}
 		Engine.GameObjectManager.updateDynamic = function(obj){
 			mat4.identity(obj.modelMatrix);
 
-			var tr = new Ammo.btTransform();
-			obj.rigidBody.getMotionState().getWorldTransform(tr);
-			var origin = tr.getOrigin();
-			var rotation = tr.getRotation();
+			var transform = new Ammo.btTransform();
+			obj.rigidBody.getMotionState().getWorldTransform(transform);
+			var origin = transform.getOrigin();
+			var rotation = transform.getRotation();
 
 			mat4.translate(obj.modelMatrix,obj.modelMatrix,vec3.fill(origin.x(),origin.y(),origin.z()));
 			var mat4FromQuat = mat4.create();
 			mat4.fromQuat(mat4FromQuat,quat.fill(rotation.x(),rotation.y(),rotation.z(),rotation.w()));
 			mat4.mul(obj.modelMatrix,obj.modelMatrix,mat4FromQuat);
+			
+			Ammo.destroy(transform);
 			
 			//var localScale = obj.rigidBody.getCollisionShape().getLocalScaling();
 			//mat4.scale(obj.modelMatrix,obj.modelMatrix,vec3.fill(localScale.x,localScale.y,localScale.z));
@@ -187,7 +198,12 @@ var Engine = Engine || {};
 			}
 			obj.rigidBody.activate();
 			if(local !== undefined && local == false){
-				obj.rigidBody.applyForce(new Ammo.btVector3(x,y,z),new Ammo.btVector3(rX,rY,rZ)); return;
+				var tvec3 = new Ammo.btVector3(x,y,z);
+				var lvec3 = new Ammo.btVector3(rX,rY,rZ);
+				obj.rigidBody.applyForce(tvec3,lvec3);
+				Ammo.destroy(tvec3);
+				Ammo.destroy(lvec3);
+				return;
 			}
 			var forwardVector = obj.forward();
 			var rightVector = obj.right();
@@ -203,7 +219,11 @@ var Engine = Engine || {};
 			res[1] += forwardVector[1] * z;
 			res[2] += forwardVector[2] * z;
 
-			obj.rigidBody.applyForce(new Ammo.btVector3(res[0],res[1],res[2]),new Ammo.btVector3(rX,rY,rZ)); 
+			var tvec3 = new Ammo.btVector3(res[0],res[1],res[2]);
+			var lvec3 = new Ammo.btVector3(rX,rY,rZ);
+			obj.rigidBody.applyForce(tvec3,lvec3); 
+			Ammo.destroy(tvec3);
+			Ammo.destroy(lvec3);
 		}
 		Engine.GameObjectManager.applyCentralForce = function(obj,x,y,z,local){
 			if(z === undefined && local === undefined){
@@ -212,7 +232,10 @@ var Engine = Engine || {};
 			}
 			obj.rigidBody.activate();
 			if(local !== undefined && local == false){
-				obj.rigidBody.applyCentralForce(new Ammo.btVector3(x,y,z));  return;
+				var tvec3 = new Ammo.btVector3(x,y,z);
+				obj.rigidBody.applyCentralForce(tvec3);
+				Ammo.destroy(tvec3);
+				return;
 			}
 			var forwardVector = obj.forward();
 			var rightVector = obj.right();
@@ -228,12 +251,17 @@ var Engine = Engine || {};
 			res[1] += forwardVector[1] * z;
 			res[2] += forwardVector[2] * z;
 
-			obj.rigidBody.applyCentralForce(new Ammo.btVector3(res[0],res[1],res[2])); 
+			var tvec3 = new Ammo.btVector3(res[0],res[1],res[2]);
+			obj.rigidBody.applyCentralForce(tvec3); 
+			Ammo.destroy(tvec3);
 		}
 		Engine.GameObjectManager.setLinearVelocity = function(obj,x,y,z,local){
 			this.rigidBody.activate();
 			if(local !== undefined && local == false){
-				this.rigidBody.setLinearVelocity(new Ammo.btVector3(x,y,z)); return;
+				var tvec3 = new Ammo.btVector3(x,y,z);
+				this.rigidBody.setLinearVelocity(tvec3);
+				Ammo.destroy(tvec3);
+				return;
 			}
 			var forwardVector = this.forward();
 			var rightVector = this.right();
@@ -249,12 +277,17 @@ var Engine = Engine || {};
 			res[1] += forwardVector[1] * z;
 			res[2] += forwardVector[2] * z;
 			
-			this.rigidBody.setLinearVelocity(new Ammo.btVector3(res[0],res[1],res[2])); 
+			var tvec3 = new Ammo.btVector3(res[0],res[1],res[2]);
+			this.rigidBody.setLinearVelocity(tvec3); 
+			Ammo.destroy(tvec3);
 		}
 		Engine.GameObjectManager.setAngularVelocity = function(obj,x,y,z,local){
 			obj.rigidBody.activate();
 			if(local !== undefined && local == false){
-				obj.rigidBody.setAngularVelocity(new Ammo.btVector3(x,y,z)); return;
+				var tvec3 = new Ammo.btVector3(x,y,z);
+				obj.rigidBody.setAngularVelocity(tvec3);
+				Ammo.destroy(tvec3);
+				return;
 			}
 			var forwardVector = obj.forward();
 			var rightVector = obj.right();
@@ -270,13 +303,16 @@ var Engine = Engine || {};
 			res[1] += forwardVector[1] * z;
 			res[2] += forwardVector[2] * z;
 			
-			obj.rigidBody.setAngularVelocity(new Ammo.btVector3(res[0],res[1],res[2])); 
+			var tvec3 = new Ammo.btVector3(res[0],res[1],res[2]);
+			obj.rigidBody.setAngularVelocity(tvec3); 
+			Ammo.destroy(tvec3);
 		}
 		Engine.GameObjectManager.applyTorque = function(obj,x,y,z,local){
 			obj.rigidBody.activate();
-			var tvec3 = new Ammo.btVector3(x,y,z);
 			if(local !== undefined && local == false){
+				var tvec3 = new Ammo.btVector3(x,y,z);
 				obj.rigidBody.applyTorque(tvec3);
+				Ammo.destroy(tvec3);
 				return;
 			}
 
@@ -293,7 +329,9 @@ var Engine = Engine || {};
 			res[0] += forwardVector[0] * z;
 			res[1] += forwardVector[1] * z;
 			res[2] += forwardVector[2] * z;
-			obj.rigidBody.applyTorque(new Ammo.btVector3(res[0],res[1],res[2]));
+			var tvec3 = new Ammo.btVector3(res[0],res[1],res[2]);
+			obj.rigidBody.applyTorque(tvec3);
+			Ammo.destroy(tvec3);
 		}
 		Engine.GameObjectManager.applyTorqueX = function(obj,x){ Engine.GameObjectManager.applyTorque(obj,x,0,0); }
 		Engine.GameObjectManager.applyTorqueY = function(obj,y){ Engine.GameObjectManager.applyTorque(obj,0,y,0); }
@@ -304,11 +342,13 @@ var Engine = Engine || {};
 			obj.rigidBody.setMassProps(mass,obj.rigidBody.getCollisionShape().getInertia());
 		}
 		Engine.GameObjectManager.getColumnVector = function(rigidBody,column){
-			var t = new Ammo.btTransform();
-			rigidBody.getMotionState().getWorldTransform(t);
-			var v = t.getBasis().getColumn(column);
-
-			return vec3.fill(v.x(),v.y(),v.z());
+			var transform = new Ammo.btTransform();
+			rigidBody.getMotionState().getWorldTransform(transform);
+			var ve = transform.getBasis().getColumn(column);
+			var v = vec3.fill(ve.x(),ve.y(),ve.z());
+			Ammo.destroy(ve);
+			Ammo.destroy(transform);
+			return v;
 		}
 		Engine.GameObjectManager.upDynamic = function(obj){ return Engine.GameObjectManager.getColumnVector(obj.rigidBody,1); }
 		Engine.GameObjectManager.rightDynamic = function(obj){ return Engine.GameObjectManager.getColumnVector(obj.rigidBody,0); }
@@ -317,8 +357,10 @@ var Engine = Engine || {};
 			var transform = new Ammo.btTransform();
 			obj.rigidBody.getMotionState().getWorldTransform(transform);
 			var origin = transform.getOrigin();
-
-			return vec3.fill(origin.x(),origin.y(),origin.z());
+			var v = vec3.fill(origin.x(),origin.y(),origin.z());
+			Ammo.destroy(origin);
+			Ammo.destroy(transform);
+			return v;
 		}
 		Engine.GameObjectManager.clearLinearForces = function(obj){
 			obj.rigidBody.setActivationState(0);

@@ -71,13 +71,10 @@ Skybox.prototype.update = function(dt){
     this.modelMatrix[14] = camPos[2];
 }
 Skybox.prototype.render = function(){
-    if(!this.cubeMap.loaded) return;
     if( !("Skybox") in Engine.ResourceManager.meshes || !Engine.ResourceManager.meshes["Skybox"].loaded){ return; }
     Engine.RenderManager.skyboxQueue.push(this);
 }
 Skybox.prototype.draw = function(){
-    if(!this.cubeMap.loaded) return;
-    
     var shader = Engine.ResourceManager.shaders["Skybox"].program;
 
     gl.useProgram(shader);

@@ -8,8 +8,6 @@ var Engine = Engine || {};
     Engine.EventManager.orientationChange = {
         enabled: true,
         mode: "N/A",
-		prevRot: 0,
-		nextRot: 0,
 		currOrientation: ""
     };
     
@@ -193,9 +191,6 @@ var Engine = Engine || {};
         if(Math.abs(Engine.EventManager.mouse.wheel) > 0){
             Engine.EventManager.mouse.wheel *= 0.7; if(Math.abs(Engine.EventManager.mouse.wheel) < 0.01){ Engine.EventManager.mouse.wheel = 0; }
         }
-		document.getElementById("canvasDebug").innerHTML = "Current Orientation: " + Engine.EventManager.orientationChange.currOrientation + "<br/>" +
-			"Prev Rot: " + Engine.EventManager.orientationChange.prevRot + "<br/>" +
-			"Next Rot: " + Engine.EventManager.orientationChange.nextRot;
         /*
         document.getElementById("canvasDebug").innerHTML = 
             "     Acc X: "      + Engine.EventManager.mobile.acc.x.toFixed(4) + 
@@ -380,6 +375,7 @@ var Engine = Engine || {};
 		Engine.windowWidth = w;
     }
 	Engine.EventManager.doWindowRotation = function(){
+		var body = document.getElementsByTagName('body')[0];
 		if(Engine.EventManager.orientationChange.mode == "horizontal"){
 			if(Engine.EventManager.orientationChange.currOrientation == "horizontal"){
 				setTimeout(function(){ 
@@ -387,7 +383,22 @@ var Engine = Engine || {};
 					var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
 					Engine.resize(w,h);
 					var s = "0px 0px 0px";
+					/*
 					Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
+						'-webkit-transform: rotate(0deg);'+
+						'-o-transform: rotate(0deg);'+
+						'-ms-transform: rotate(0deg);'+
+						'-moz-transform: rotate(0deg);'+
+						'transform: rotate(0deg);'+
+						
+						'-webkit-transform-origin: '+s+';'+
+						'-o-transform-origin: '+s+';'+
+						'-ms-transform-origin: '+s+';'+
+						'-moz-transform-origin: '+s+';'+
+						'transform-origin: '+s+';'
+					);
+					*/
+					body.setAttribute('style','overflow-y:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
 						'-webkit-transform: rotate(0deg);'+
 						'-o-transform: rotate(0deg);'+
 						'-ms-transform: rotate(0deg);'+
@@ -408,7 +419,22 @@ var Engine = Engine || {};
 					var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
 					Engine.resize(h,w);
 					var s = (w/2)+"px "+(w/2)+"px 0px";
+					/*
 					Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
+						'-webkit-transform: rotate(90deg);'+
+						'-o-transform: rotate(90deg);'+
+						'-ms-transform: rotate(90deg);'+
+						'-moz-transform: rotate(90deg);'+
+						'transform: rotate(90deg);'+
+						
+						'-webkit-transform-origin: '+s+';'+
+						'-o-transform-origin: '+s+';'+
+						'-ms-transform-origin: '+s+';'+
+						'-moz-transform-origin: '+s+';'+
+						'transform-origin: '+s+';'
+					);
+					*/
+					body.setAttribute('style','overflow-x:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
 						'-webkit-transform: rotate(90deg);'+
 						'-o-transform: rotate(90deg);'+
 						'-ms-transform: rotate(90deg);'+

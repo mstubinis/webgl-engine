@@ -62,12 +62,24 @@ OBJ.indexVBO = function(mesh,threshold){
     new_mesh.indices = [];
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){ 
         var ret = {}; ret.index = -1; ret.found = false;    
-        ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],
-                                         mesh.vec2_uvs[i] || vec2.fill(0,0),
-                                         mesh.vec3_normals[i] || vec3.fill(0,0,0),
-                                         new_mesh,ret,threshold);
+        ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],mesh.vec2_uvs[i] || vec2.fill(0,0),mesh.vec3_normals[i] || vec3.fill(0,0,0),new_mesh,ret,threshold);
         if ( ret.found ){
             new_mesh.indices.push( ret.index );
+			
+			
+            // Average the tangents and the bitangents
+			/*
+			if( mesh.vec3_tangents.length > 0){
+				new_mesh.vec3_tangents[ret.index][0] += mesh.vec3_tangents[i][0];
+				new_mesh.vec3_tangents[ret.index][1] += mesh.vec3_tangents[i][1];
+				new_mesh.vec3_tangents[ret.index][2] += mesh.vec3_tangents[i][2];
+			}
+			if( mesh.vec3_binormals.length > 0){
+				new_mesh.vec3_binormals[ret.index][0] += mesh.vec3_binormals[i][0];
+				new_mesh.vec3_binormals[ret.index][1] += mesh.vec3_binormals[i][1];
+				new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
+			}
+			*/
         }else{
             new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
@@ -140,10 +152,28 @@ OBJ.calculateTBN = function(mesh){
         vec3.normalize(b1,b1);
         vec3.normalize(b2,b2);
         vec3.normalize(b3,b3);
+		
+		//Orthogonalization
+		var t1_sub_n1 = vec3.create(); vec3.sub(t1_sub_n1,t1,v1Norm);
+		var t2_sub_n2 = vec3.create(); vec3.sub(t2_sub_n2,t2,v2Norm);
+		var t3_sub_n3 = vec3.create(); vec3.sub(t3_sub_n3,t3,v3Norm);
+		
+		var mul1 = vec3.fill(vec3.dot(v1Norm, t1),vec3.dot(v1Norm, t1),vec3.dot(v1Norm, t1));
+		var mul2 = vec3.fill(vec3.dot(v2Norm, t2),vec3.dot(v2Norm, t2),vec3.dot(v2Norm, t2));
+		var mul3 = vec3.fill(vec3.dot(v3Norm, t3),vec3.dot(v3Norm, t3),vec3.dot(v3Norm, t3));
+		
+		var __mul1 = vec3.create(); __mul1 = vec3.mul(__mul1,t1_sub_n1,mul1);
+		var __mul2 = vec3.create(); __mul2 = vec3.mul(__mul2,t2_sub_n2,mul2);
+		var __mul3 = vec3.create(); __mul3 = vec3.mul(__mul3,t3_sub_n3,mul3);
+		
+		t1 = vec3.normalize(t1,__mul1);
+		t2 = vec3.normalize(t2,__mul2);
+		t3 = vec3.normalize(t3,__mul3);
         
         mesh.vec3_tangents.push(t1); mesh.vec3_tangents.push(t2); mesh.vec3_tangents.push(t3);
         mesh.vec3_binormals.push(b1); mesh.vec3_binormals.push(b2); mesh.vec3_binormals.push(b3);
     }
+	//Handedness (for mirrored uvs)
     for(var i=0; i < mesh.vec3_vertices.length; i++){
         var n = mesh.vec3_normals[i];
         var b = mesh.vec3_binormals[i];
