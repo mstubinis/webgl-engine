@@ -149,6 +149,9 @@ Engine.update = function(dt){
     for (var key in Engine.scene.cameras) {
         Engine.scene.cameras[key].update(dt);
     }
+    for (var key in Engine.ResourceManager.sounds) {
+        Engine.ResourceManager.sounds[key].update(dt);
+    }
     Engine.EventManager.update(dt);
 	Engine.PhysicsManager.update(dt);
 	

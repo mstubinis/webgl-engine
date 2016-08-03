@@ -52,6 +52,39 @@
                 "}";
             new Shader("Instance",vert,frag,["position","uv","normal","binormal","tangent","col0","col1","col2","col3"],"vshader-instance","fshader-instance");
         }
+        if(!("InstanceWeak" in Engine.ResourceManager.shaders)){
+            //INSTANCE VERTEX SHADER////////////////////////////
+            var vert =
+                "attribute vec3 position;\n"+
+                "attribute vec2 uv;\n"+
+                "attribute vec3 normal;\n"+
+                "attribute vec3 binormal;\n"+
+                "attribute vec3 tangent;\n"+
+                "attribute vec3 col0;\n"+
+                "uniform mat4 V;\n"+
+                "uniform mat4 P;\n"+
+                "void main(void){\n"+
+				"   mat4 m = mat4(0.0);\n"+
+				"   m[0][0] = 1.0;\n"+
+				"   m[1][1] = 1.0;\n"+
+				"   m[2][2] = 1.0;\n"+
+				"   m[3][0] = col0.x;\n"+
+				"   m[3][1] = col0.y;\n"+
+				"   m[3][2] = col0.z;\n"+
+				"   m[3][3] = 1.0;\n"+
+                "   gl_Position = (P * V * m) * vec4(position,1.0);\n"+
+                "}";
+            //INSTANCE FRAGMENT SHADER////////////////////////////
+            var frag =
+                "precision mediump float;\n"+
+				"uniform sampler2D diffuseMap;\n"+
+				"uniform sampler2D glowMap;\n"+
+				"uniform sampler2D normalMap;\n"+
+                "void main(void){\n"+
+                "   gl_FragColor = vec4(1.0,1.0,0.0,1.0);\n"+
+                "}";
+            new Shader("InstanceWeak",vert,frag,["position","uv","normal","binormal","tangent","col0"],"vshader-instance-weak","fshader-instance-weak");
+        }
         this.instances = [];
 		this.col0 = gl.createBuffer();
 		this.col1 = gl.createBuffer();

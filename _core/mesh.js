@@ -1,23 +1,25 @@
 'use strict';
 
-var Mesh = function(name,meshFile,fromFile){
+var Mesh = function(name,meshFile,fromFile,flags){
     if(name in Engine.ResourceManager.meshes){ return Engine.ResourceManager.meshes[name]; }
-    if(fromFile === undefined) fromFile = true;
-    
+	if(fromFile === undefined) fromFile = true;
+	if(flags === undefined) 
+		flags = OBJ.LOAD_POSITIONS | OBJ.LOAD_UVS | OBJ.LOAD_NORMALS | OBJ.LOAD_TBN;
+
     var _this = this;
     _this.radius = 0;
     _this.loaded = false;
     Engine.ResourceManager.meshes[name] = _this;
     if(fromFile){
-        OBJ.downloadMeshes( {meshFile: meshFile}, InitMeshFunc,_this,name);
+        OBJ.downloadMeshes( {meshFile: meshFile}, InitMeshFunc,_this,name,flags);
     }
     else{
-        OBJ.Mesh(_this,meshFile);
-        InitMeshFunc(_this,name);
+        OBJ.Mesh(_this,meshFile,flags);
+        InitMeshFunc(_this,name,flags);
     }
 }; 
-var InitMeshFunc = function(_this,name){
-    _this = OBJ.initMeshBuffers(gl, _this);
+var InitMeshFunc = function(_this,name,flags){
+    _this = OBJ.initMeshBuffers(gl,_this,flags);
     _this.loaded = true;
     if(Engine.ResourceManager.checkIfAllResourcesAreLoaded()){
         Engine.onResourcesLoaded();
@@ -82,7 +84,7 @@ Mesh.prototype.sendUniformsInstance = function(drawMode,instanceCount){
         gl.vertexAttribPointer(4, this.tangentBuffer.itemSize, gl.FLOAT, false, 0, 0);
     }
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-	gl.extensions.instancing.drawElementsInstancedANGLE(drawMode,this.indexBuffer.numItems,gl.UNSIGNED_SHORT,0,instanceCount);
+    gl.extensions.instancing.drawElementsInstancedANGLE(drawMode,this.indexBuffer.numItems,gl.UNSIGNED_SHORT,0,instanceCount);
     if( this.hasOwnProperty('uvBuffer') ){ gl.disableVertexAttribArray(1); }
     if( this.hasOwnProperty('normalBuffer') ){ gl.disableVertexAttribArray(2); }
     if( this.hasOwnProperty('binormalBuffer') ){ gl.disableVertexAttribArray(3); }

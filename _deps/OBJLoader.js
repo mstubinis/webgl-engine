@@ -1,5 +1,12 @@
 'use strict';
 var OBJ = {};
+
+OBJ.LOAD_POSITIONS = 1 << 0; //1
+OBJ.LOAD_UVS = 1 << 1;       //2
+OBJ.LOAD_NORMALS = 1 << 2;   //4
+OBJ.LOAD_TBN = 1 << 3;       //8
+OBJ.LOAD_TRIANGLES = 1 << 4; //16
+
 OBJ.is_near = function(v1,v2,threshold){ return Math.abs( v1-v2 ) < threshold; }
 OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
     ret.found = false; ret.index = 0;
@@ -49,7 +56,7 @@ OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
     }
     return ret;
 }
-OBJ.indexVBO = function(mesh,threshold){
+OBJ.indexVBO = function(mesh,threshold,flags){
     if(threshold == 0.0) return mesh;
 
     var new_mesh = {};
@@ -77,7 +84,7 @@ OBJ.indexVBO = function(mesh,threshold){
                 new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
             }
         }else{
-            new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
+                new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
                 new_mesh.vec2_uvs.push(mesh.vec2_uvs[i]);
             if(mesh.vec3_normals.length > 0)
@@ -240,7 +247,7 @@ OBJ.vec2ArrayToFloatArray = function(vec2_array){
     }
     return ret;
 }
-OBJ.finalize = function(mesh){  
+OBJ.finalize = function(mesh,flags){  
     mesh.radius = 0;
     mesh.radiusX = 0;
     mesh.radiusY = 0;
@@ -249,20 +256,12 @@ OBJ.finalize = function(mesh){
         var len = vec3.length(mesh.vec3_vertices[i]);
         var pt = mesh.vec3_vertices[i]; 
         var x = Math.abs(pt[0]);
-        if(x > mesh.radiusX){
-            mesh.radiusX = x;
-        }
+        if(x > mesh.radiusX){   mesh.radiusX = x; }
         var y = Math.abs(pt[1]);
-        if(y > mesh.radiusY){
-            mesh.radiusY = y;
-        }   
+        if(y > mesh.radiusY){   mesh.radiusY = y; }   
         var z = Math.abs(pt[2]);
-        if(z > mesh.radiusZ){
-            mesh.radiusZ = z;
-        }       
-        if(len > mesh.radius){
-            mesh.radius = len;
-        }
+        if(z > mesh.radiusZ){   mesh.radiusZ = z; }       
+        if(len > mesh.radius){  mesh.radius = len; }
     }
     mesh.vertices = OBJ.vec3ArrayToFloatArray(mesh.vec3_vertices);
     if(mesh.vec2_uvs.length > 0)
@@ -274,7 +273,7 @@ OBJ.finalize = function(mesh){
     if(mesh.vec3_tangents.length > 0)
         mesh.tangents = OBJ.vec3ArrayToFloatArray(mesh.vec3_tangents);   
 }
-OBJ.Mesh = function (meshObject,objectData){
+OBJ.Mesh = function (meshObject,objectData,flags){
     var file_verts = [], file_uvs = [], file_normals = [];
     var point_indices = [], uv_indices = [], normal_indices = [];
     meshObject.indices = [];
@@ -298,12 +297,10 @@ OBJ.Mesh = function (meshObject,objectData){
         }else if ((/^f\s/).test(line)) {
             for (var j = 0; j < elements.length; j++){
                 var face_vertex = elements[j].split( '/' );
-                
-                point_indices.push(face_vertex[0]);
-                if(face_vertex[1] != undefined)
-                    uv_indices.push(face_vertex[1]);
-                if(face_vertex[2] != undefined)
-                    normal_indices.push(face_vertex[2]);
+                           
+                if(face_vertex[0] !== undefined && (flags & OBJ.LOAD_POSITIONS)) point_indices.push(face_vertex[0]);
+                if(face_vertex[1] !== undefined && (flags & OBJ.LOAD_UVS))       uv_indices.push(face_vertex[1]);
+                if(face_vertex[2] !== undefined && (flags & OBJ.LOAD_NORMALS))   normal_indices.push(face_vertex[2]);
             }
         }
     }
@@ -312,20 +309,24 @@ OBJ.Mesh = function (meshObject,objectData){
     newMesh.vec3_vertices = []; newMesh.vec2_uvs = []; newMesh.vec3_normals = []; newMesh.vec3_binormals = []; newMesh.vec3_tangents = [];
     
     OBJ.loadDataIntoTriangles(newMesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices);
-    OBJ.calculateTBN(newMesh.vec3_vertices,newMesh.vec2_uvs,newMesh.vec3_normals,newMesh);
-    newMesh = OBJ.indexVBO(newMesh,0.001);
-    OBJ.finalize(newMesh);
     
-    meshObject.vertices = newMesh.vertices;
-    if(newMesh.uvs != undefined)
+    if(flags & OBJ.LOAD_TBN)
+        OBJ.calculateTBN(newMesh.vec3_vertices,newMesh.vec2_uvs,newMesh.vec3_normals,newMesh);
+    newMesh = OBJ.indexVBO(newMesh,0.001,flags);
+    OBJ.finalize(newMesh,flags);
+    
+    if(newMesh.vertices !== undefined && (flags & OBJ.LOAD_POSITIONS))
+        meshObject.vertices = newMesh.vertices;
+    if(newMesh.uvs !== undefined && (flags & OBJ.LOAD_UVS))
         meshObject.uvs = newMesh.uvs;
-    if(newMesh.normals != undefined)
+    if(newMesh.normals !== undefined && (flags & OBJ.LOAD_NORMALS))
         meshObject.normals = newMesh.normals;
-    if(newMesh.binormals != undefined)
+    if(newMesh.binormals !== undefined && (flags & OBJ.LOAD_TBN))
         meshObject.binormals = newMesh.binormals;
-    if(newMesh.tangents != undefined)
+    if(newMesh.tangents !== undefined && (flags & OBJ.LOAD_TBN))
         meshObject.tangents = newMesh.tangents;
-    meshObject.triangles = newMesh.triangles;
+    if(flags & OBJ.LOAD_TRIANGLES)
+        meshObject.triangles = newMesh.triangles;
     meshObject.radius = newMesh.radius;
     meshObject.radiusX = newMesh.radiusX;
     meshObject.radiusY = newMesh.radiusY;
@@ -347,7 +348,7 @@ var Ajax = function(){
         _this.xml.open('GET', url, true); _this.xml.send();
     }
 };
-OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshDictionaryName){
+OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshDictionaryName,flags){
     var semaphore = Object.keys(nameAndURLs).length;
     var error = false;
     for(var mesh_name in nameAndURLs){
@@ -355,7 +356,7 @@ OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshD
             new Ajax().get(nameAndURLs[mesh_name], (function(name) {
                 return function (data, status) {
                     if (status === 200) {
-                        OBJ.Mesh(meshObject,data);
+                        OBJ.Mesh(meshObject,data,flags);
                     }
                     else {
                         error = true;
@@ -367,7 +368,7 @@ OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshD
                             console.error('An error has occurred and one or meshes has not been ' + 'downloaded. The execution of the script has terminated.');
                             throw '';
                         }
-                        completionCallback(meshObject,meshDictionaryName);
+                        completionCallback(meshObject,meshDictionaryName,flags);
                     }
                 }
             })(mesh_name));
@@ -384,28 +385,25 @@ var _buildBuffer = function( gl, type, data, itemSize ){
     buffer.numItems = data.length / itemSize;
     return buffer;
 }  
-OBJ.initMeshBuffers = function( gl, mesh ){
-    mesh.vertexBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.vertices, 3);
-    if(mesh.uvs != undefined)
+OBJ.initMeshBuffers = function(gl,mesh,flags){
+    if(mesh.vertices !== undefined && (flags & OBJ.LOAD_POSITIONS))
+        mesh.vertexBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.vertices, 3);
+    if(mesh.uvs !== undefined && (flags & OBJ.LOAD_UVS))
         mesh.uvBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.uvs, 2);
-    if(mesh.normals != undefined)
+    if(mesh.normals !== undefined && (flags & OBJ.LOAD_NORMALS))
         mesh.normalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.normals, 3);
-    if(mesh.binormals != undefined)
+    if(mesh.binormals !== undefined && (flags & OBJ.LOAD_TBN))
         mesh.binormalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.binormals, 3);
-    if(mesh.tangents != undefined)
+    if(mesh.tangents !== undefined && (flags & OBJ.LOAD_TBN))
         mesh.tangentBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.tangents, 3);
     mesh.indexBuffer = _buildBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, mesh.indices, 1);
     return mesh;
 }
 OBJ.deleteMeshBuffers = function( gl, mesh ){
-    gl.deleteBuffer(mesh.vertexBuffer);
-    if(mesh.uvBuffer != undefined)
-        gl.deleteBuffer(mesh.uvBuffer);
-    if(mesh.normalBuffer != undefined)
-        gl.deleteBuffer(mesh.normalBuffer);
-    if(mesh.binormalBuffer != undefined)
-        gl.deleteBuffer(mesh.binormalBuffer);
-    if(mesh.tangentBuffer != undefined)
-        gl.deleteBuffer(mesh.tangentBuffer);
+	if(mesh.vertexBuffer !== undefined)   gl.deleteBuffer(mesh.vertexBuffer);
+    if(mesh.uvBuffer !== undefined)       gl.deleteBuffer(mesh.uvBuffer);
+    if(mesh.normalBuffer !== undefined)   gl.deleteBuffer(mesh.normalBuffer);
+    if(mesh.binormalBuffer !== undefined) gl.deleteBuffer(mesh.binormalBuffer);
+    if(mesh.tangentBuffer !== undefined)  gl.deleteBuffer(mesh.tangentBuffer);
     gl.deleteBuffer(mesh.indexBuffer);
 }

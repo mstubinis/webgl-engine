@@ -8,7 +8,23 @@ var Sound = function(name,url){
 	_this.loadSoundEffect(name,url,_this);
 	
     Engine.ResourceManager.sounds[name] = _this;
-}; 
+};
+Sound.prototype.setPosition = function(x,y,z){
+	this.position = vec3.fill(x,y,z);
+	this.range = 25;
+	this.falloff = 10;
+}
+Sound.prototype.update = function(dt){
+	if(this.position !== undefined){
+		var dist = vec3.distance(this.position,Engine.camera.position());
+		if(dist > this.falloff){
+			this.volume = vec3.distance(this.position,Engine.camera.position()) / this.range;
+		}
+		else{
+			this.volume = 1.0;
+		}
+	}
+}
 Sound.prototype.loadSoundEffect = function(name,url,_this) {
 	var request = new XMLHttpRequest();
 	request.open('GET', url, true);

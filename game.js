@@ -5,7 +5,7 @@ var Engine = Engine || {};
     
     Engine.Game.initResources = function(){
         new Mesh("Defiant","data/models/defiant.obj");
-        new Mesh("DefiantCol","data/models/defiantCol.obj");
+        new Mesh("DefiantCol","data/models/defiantCol.obj",true,OBJ.LOAD_POSITIONS | OBJ.LOAD_TRIANGLES);
         new Material("Defiant","data/models/defiant.png","data/models/defiant_Glow.png","data/models/defiant_Normal.png");
     }
     Engine.Game.initLogic = function(){
@@ -24,12 +24,26 @@ var Engine = Engine || {};
         var defiant1 = new GameObjectDynamic("Defiant1","Defiant","Defiant",Engine.PhysicsManager.COLLISION_FLAG_CONVEX,"DefiantCol");
         defiant1.setPosition(13,0,0);
 
-		var instance = new InstanceObject("Defiant_Instance","Defiant","Defiant");
-		for(var i = 0; i < 10; i++){
-			var vec3_position = vec3.fill(i*5,i*5,i*5);
-			instance.addInstance(vec3_position);
-		}
-
+        /*
+        var instance = new InstanceObject("Defiant_Instance","Cube","Defiant");
+        var map = {};
+        for(var i = 0; i < 30; i++){
+            for(var j = 0; j < 30; j++){
+                for(var k = 0; k < 30; k++){
+                    map[i+","+j+","+k] = Engine.Math.simplexNoise3D(i*0.3,j*0.3,k*0.3);
+                }
+            }
+        }
+        Engine.Math.normalizeArrayOfNumbers(map);
+        for(var key in map){
+            var elements = key.split(",");
+            if(map[key] > 0.35){
+                var vec3_position = vec3.fill(elements[0]*2,elements[1]*2,elements[2]*2);
+                instance.addInstance(vec3_position);
+            }
+        }
+        */
+        
         var light = new Light("DirLight1");
         light.setPosition(2,2,2,0);
 
