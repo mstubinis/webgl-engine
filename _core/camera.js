@@ -43,50 +43,48 @@ var Camera = function(n,width,height,scene){
     if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
 };
 Camera.prototype.constructFrustrum = function(){
-    var mat4_vp = mat4.create(); mat4.mul(mat4_vp,this.viewMatrix,this.projectionMatrix);
-    var rowX = mat4.row(mat4_vp,0);
-    var rowY = mat4.row(mat4_vp,1);
-    var rowZ = mat4.row(mat4_vp,2);
-    var rowW = mat4.row(mat4_vp,3);
+    var vp = mat4.create(); 
+	mat4.mul(vp,this.projectionMatrix,this.viewMatrix);
+    var rowX = mat4.row(vp,0);
+    var rowY = mat4.row(vp,1);
+    var rowZ = mat4.row(vp,2);
+    var rowW = mat4.row(vp,3);
     
-    var rowWPlusRowX = vec4.create(); vec4.add(rowWPlusRowX,rowW,rowX);
-    var rowWMinusRowX = vec4.create(); vec4.sub(rowWMinusRowX,rowW,rowX);
-    var rowWPlusRowY = vec4.create(); vec4.add(rowWPlusRowY,rowW,rowY);
-    var rowWMinusRowY = vec4.create(); vec4.sub(rowWMinusRowY,rowW,rowY);
-    var rowWPlusRowZ = vec4.create(); vec4.add(rowWPlusRowZ,rowW,rowZ);
-    var rowWMinusRowZ = vec4.create(); vec4.sub(rowWMinusRowZ,rowW,rowZ);
+    var px = vec4.create(); vec4.add(px, rowW,rowX);
+    var mx = vec4.create(); vec4.sub(mx, rowW,rowX);
+    var py = vec4.create(); vec4.add(py, rowW,rowY);
+    var my = vec4.create(); vec4.sub(my, rowW,rowY);
+    var pz = vec4.create(); vec4.add(pz, rowW,rowZ);
+    var mz = vec4.create(); vec4.sub(mz, rowW,rowZ);
 
-    vec4.normalize(rowWPlusRowX,rowWPlusRowX);
-    vec4.normalize(rowWMinusRowX,rowWMinusRowX);
-    vec4.normalize(rowWPlusRowY,rowWPlusRowY);
-    vec4.normalize(rowWMinusRowY,rowWMinusRowY);
-    vec4.normalize(rowWPlusRowZ,rowWPlusRowZ);
-    vec4.normalize(rowWMinusRowZ,rowWMinusRowZ);
+    vec4.normalize(px,px);
+    vec4.normalize(mx,mx);
+    vec4.normalize(py,py);
+    vec4.normalize(my,my);
+    vec4.normalize(pz,pz);
+    vec4.normalize(mz,mz);
     
-    this.planes[0]=rowWPlusRowX;
-    this.planes[1]=rowWMinusRowX;
-    this.planes[2]=rowWPlusRowY;
-    this.planes[3]=rowWMinusRowY;
-    this.planes[4]=rowWPlusRowZ;
-    this.planes[5]=rowWMinusRowZ;
+    this.planes[0] = px;
+    this.planes[1] = mx;
+    this.planes[2] = py;
+    this.planes[3] = my;
+    this.planes[4] = pz;
+    this.planes[5] = mz;
 
     for(var i = 0; i < 6; i++){
         var normal = vec3.fill(this.planes[i][0], this.planes[i][1], this.planes[i][2]);
-        this.planes[i][0] = -this.planes[i][0] / vec3.length(normal);
-        this.planes[i][1] = -this.planes[i][1] / vec3.length(normal);
-        this.planes[i][2] = -this.planes[i][2] / vec3.length(normal);
+		var len = vec3.length(normal);
+        this.planes[i][0] = (-this.planes[i][0]) / len;
+        this.planes[i][1] = (-this.planes[i][1]) / len;
+        this.planes[i][2] = (-this.planes[i][2]) / len;
+		this.planes[i][3] = (-this.planes[i][3]) / len;
     }
 }
 Camera.prototype.sphereIntersectTest = function(pos,radius){
-    if(radius <= 0){
-        return false;
-    }
+    if(radius <= 0){ return false; }
     for (var i = 0; i < 6; i++){
-        var dist = this.planes[i][0] * pos[0] + this.planes[i][1] * pos[1] + this.planes[i][2] * pos[2] + this.planes[i][3] - radius;
-        document.getElementById("canvasDebug").innerHTML = dist;
-        if (dist > 0){
-            return false;
-        }
+        var dist = ((this.planes[i][0] * pos[0]) + (this.planes[i][1] * pos[1]) + (this.planes[i][2] * pos[2])) + (this.planes[i][3] - radius);
+        if (dist > 0){ return false; }
     }
     return true;
 }

@@ -77,7 +77,7 @@
     }
     GameObject.prototype.render = function(){
         if(this.visible == false){ return; }
-        //if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
+        if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
         
         this.shader = Engine.ResourceManager.shaders["Default"].program;
         this.drawMode = gl.TRIANGLES;
@@ -188,7 +188,7 @@
     }
     GameObjectDynamic.prototype.render = function(){
         if(!this.visible) return;
-        //if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
+        if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
         
         this.shader = Engine.ResourceManager.shaders["Default"].program;
         this.drawMode = gl.TRIANGLES;
