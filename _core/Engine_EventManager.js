@@ -159,7 +159,7 @@ var Engine = Engine || {};
             KEY_QUESTIONMARK: '191',
             KEY_FORWARDSLASH: '191',
             KEY_PIPE: '220',
-            KEY_FORWARDSLASH: '220'
+            KEY_BACKSLASH: '220'
         }
     };
     Engine.EventManager.isKeyDown = function(k){ return Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]] || false; }
