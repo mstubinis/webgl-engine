@@ -6,30 +6,30 @@ var Light = function(n,scene){
     else{
         if(n in Engine.ResourceManager.scenes[scene].lights){ return Engine.ResourceManager.scenes[scene].lights[n]; }
     }
-    
+
     this._position = vec4.fill(0,0,0);
     this.w = 1.0;
-    
+
     this.modelMatrix = mat4.create();
     this.rotation = quat.fill(0,0,0,1);
     this.scale = vec3.fill(1,1,1);
-    
+
     this.color = vec3.fill(1,1,1);
     this.specularPower = 1.0;
     this.diffusePower = 1.0;
-    
+
     this.constant = 0.3;
     this.linear = 0.2;
     this.exponent = 0.3;
-	
-	if(scene === undefined){
-		this.id = Object.keys(Engine.scene.lights).length;
-	}
-	else{
-		this.id = Object.keys(Engine.ResourceManager.scenes[scene].lights).length;
-	}
-    
-    
+
+    if(scene === undefined){
+        this.id = Object.keys(Engine.scene.lights).length;
+    }
+    else{
+        this.id = Object.keys(Engine.ResourceManager.scenes[scene].lights).length;
+    }
+
+
     //this is important
     var shader = Engine.ResourceManager.shaders["Default"].program;
     var lightLocations = [
@@ -53,14 +53,14 @@ var Light = function(n,scene){
     }
     this.uniforms = locations;
     //
-    
-    
-	if(scene === undefined){
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"lights");
-	}
-	else{
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"lights");
-	}
+
+
+    if(scene === undefined){
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"lights");
+    }
+    else{
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"lights");
+    }
 }
 Light.prototype.sendUniforms = function(shader){
     var pos = this.position();
