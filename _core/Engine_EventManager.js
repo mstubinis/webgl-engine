@@ -2,15 +2,15 @@
 var Engine = Engine || {};
 (function (scope, undefined){
     Engine.EventManager = {};
-    
+
     Engine.EventManager.loaded = false;
-    
+
     Engine.EventManager.orientationChange = {
         enabled: true,
         mode: "N/A",
-		currOrientation: ""
+        currOrientation: ""
     };
-    
+
     Engine.EventManager.mobile = {
         gyro: {
             alpha: 0,
@@ -169,10 +169,10 @@ var Engine = Engine || {};
         Engine.EventManager.mouse.pY = Engine.EventManager.mouse.y;
         Engine.EventManager.mouse.x = x;
         Engine.EventManager.mouse.y = y;
-        
+
         if(!Engine.EventManager.loaded) return;
         if(Engine.EventManager.pointerLock.activated){
-            
+
             Engine.EventManager.mouse.diffX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
             Engine.EventManager.mouse.diffY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
         }
@@ -242,19 +242,19 @@ var Engine = Engine || {};
             case 2://probably zoom
                 Engine.EventManager.touch.prevZoom1 = Engine.EventManager.touch.zoom1;
                 Engine.EventManager.touch.prevZoom2 = Engine.EventManager.touch.zoom2;
-                
+
                 Engine.EventManager.touch.zoom1 = vec2.fill(e.touches[0].clientX,e.touches[0].clientY);
                 Engine.EventManager.touch.zoom2 = vec2.fill(e.touches[1].clientX,e.touches[1].clientY);
-                
+
                 var y2 = Engine.EventManager.touch.zoom2[1]; var x2 = Engine.EventManager.touch.zoom2[0];
                 var y1 = Engine.EventManager.touch.zoom1[1]; var x1 = Engine.EventManager.touch.zoom1[0];
-                
+
                 var _y2 = Engine.EventManager.touch.prevZoom2[1]; var _x2 = Engine.EventManager.touch.prevZoom2[0];
                 var _y1 = Engine.EventManager.touch.prevZoom1[1]; var _x1 = Engine.EventManager.touch.prevZoom1[0];
-                
+
                 var x2Mx1 = (x2 - x1); x2Mx1*=x2Mx1; var y2My1 = (y2 - y1); y2My1*=y2My1;   
                 var _x2Mx1 = (_x2 - _x1); _x2Mx1*=_x2Mx1; var _y2My1 = (_y2 - _y1); _y2My1*=_y2My1;
-                
+
                 var prevDiameter = Math.sqrt(x2Mx1 + y2My1);
                 var currDiameter = Math.sqrt(_x2Mx1 + _y2My1);
                 Engine.EventManager.mouse.wheel = -((currDiameter - prevDiameter) * 0.1);    
@@ -288,7 +288,7 @@ var Engine = Engine || {};
         e = window.event || e;
         Engine.EventManager.updateMouseCoords(e.x || e.clientX,e.y || e.clientY,e);
         Engine.EventManager.mouse.state = "down";
-        
+
         if(Engine.EventManager.pointerLock.desired){
             if(!Engine.EventManager.pointerLock.activated && e.button == 0){
                 Engine.EventManager.requestPointerLock();
@@ -365,118 +365,118 @@ var Engine = Engine || {};
         Engine.EventManager.mobile.acc.rotGamma = e.rotationRate.gamma || 0;
     }
     Engine.EventManager.onresize = function(e){
-		var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-		if(w == Engine.windowWidth) return;	
-		setTimeout(function(){ 
-			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-			var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-			Engine.resize(w,h);
-		}, 100);
-		Engine.windowWidth = w;
+        var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+        if(w == Engine.windowWidth) return;	
+        setTimeout(function(){ 
+            var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+            var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+            Engine.resize(w,h);
+        }, 100);
+        Engine.windowWidth = w;
     }
-	Engine.EventManager.doWindowRotation = function(){
-		var body = document.getElementsByTagName('body')[0];
-		if(Engine.EventManager.orientationChange.mode == "horizontal"){
-			if(Engine.EventManager.orientationChange.currOrientation == "horizontal"){
-				setTimeout(function(){ 
-					var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-					var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-					Engine.resize(w,h);
-					var s = "0px 0px 0px";
-					/*
-					Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
-						'-webkit-transform: rotate(0deg);'+
-						'-o-transform: rotate(0deg);'+
-						'-ms-transform: rotate(0deg);'+
-						'-moz-transform: rotate(0deg);'+
-						'transform: rotate(0deg);'+
-						
-						'-webkit-transform-origin: '+s+';'+
-						'-o-transform-origin: '+s+';'+
-						'-ms-transform-origin: '+s+';'+
-						'-moz-transform-origin: '+s+';'+
-						'transform-origin: '+s+';'
-					);
-					*/
-					body.setAttribute('style','overflow-y:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
-						'-webkit-transform: rotate(0deg);'+
-						'-o-transform: rotate(0deg);'+
-						'-ms-transform: rotate(0deg);'+
-						'-moz-transform: rotate(0deg);'+
-						'transform: rotate(0deg);'+
-						
-						'-webkit-transform-origin: '+s+';'+
-						'-o-transform-origin: '+s+';'+
-						'-ms-transform-origin: '+s+';'+
-						'-moz-transform-origin: '+s+';'+
-						'transform-origin: '+s+';'
-					);
-				}, 100);
-			}
-			else if(Engine.EventManager.orientationChange.currOrientation == "vertical"){
-				setTimeout(function(){
-					var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-					var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-					Engine.resize(h,w);
-					var s = (w/2)+"px "+(w/2)+"px 0px";
-					/*
-					Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
-						'-webkit-transform: rotate(90deg);'+
-						'-o-transform: rotate(90deg);'+
-						'-ms-transform: rotate(90deg);'+
-						'-moz-transform: rotate(90deg);'+
-						'transform: rotate(90deg);'+
-						
-						'-webkit-transform-origin: '+s+';'+
-						'-o-transform-origin: '+s+';'+
-						'-ms-transform-origin: '+s+';'+
-						'-moz-transform-origin: '+s+';'+
-						'transform-origin: '+s+';'
-					);
-					*/
-					body.setAttribute('style','overflow-x:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
-						'-webkit-transform: rotate(90deg);'+
-						'-o-transform: rotate(90deg);'+
-						'-ms-transform: rotate(90deg);'+
-						'-moz-transform: rotate(90deg);'+
-						'transform: rotate(90deg);'+
-						
-						'-webkit-transform-origin: '+s+';'+
-						'-o-transform-origin: '+s+';'+
-						'-ms-transform-origin: '+s+';'+
-						'-moz-transform-origin: '+s+';'+
-						'transform-origin: '+s+';'
-					);
-				}, 100);
-			}
-		}
-		else{
-		}
-	}
+    Engine.EventManager.doWindowRotation = function(){
+        var body = document.getElementsByTagName('body')[0];
+        if(Engine.EventManager.orientationChange.mode == "horizontal"){
+            if(Engine.EventManager.orientationChange.currOrientation == "horizontal"){
+                setTimeout(function(){ 
+                    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+                    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+                    Engine.resize(w,h);
+                    var s = "0px 0px 0px";
+                    /*
+                    Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
+                        '-webkit-transform: rotate(0deg);'+
+                        '-o-transform: rotate(0deg);'+
+                        '-ms-transform: rotate(0deg);'+
+                        '-moz-transform: rotate(0deg);'+
+                        'transform: rotate(0deg);'+
+
+                        '-webkit-transform-origin: '+s+';'+
+                        '-o-transform-origin: '+s+';'+
+                        '-ms-transform-origin: '+s+';'+
+                        '-moz-transform-origin: '+s+';'+
+                        'transform-origin: '+s+';'
+                    );
+                    */
+                    body.setAttribute('style','overflow-y:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
+                        '-webkit-transform: rotate(0deg);'+
+                        '-o-transform: rotate(0deg);'+
+                        '-ms-transform: rotate(0deg);'+
+                        '-moz-transform: rotate(0deg);'+
+                        'transform: rotate(0deg);'+
+
+                        '-webkit-transform-origin: '+s+';'+
+                        '-o-transform-origin: '+s+';'+
+                        '-ms-transform-origin: '+s+';'+
+                        '-moz-transform-origin: '+s+';'+
+                        'transform-origin: '+s+';'
+                    );
+                }, 100);
+            }
+            else if(Engine.EventManager.orientationChange.currOrientation == "vertical"){
+                setTimeout(function(){
+                    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+                    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+                    Engine.resize(h,w);
+                    var s = (w/2)+"px "+(w/2)+"px 0px";
+                    /*
+                    Engine.canvas.setAttribute('style','position:relative;top:0;left:0;'+
+                        '-webkit-transform: rotate(90deg);'+
+                        '-o-transform: rotate(90deg);'+
+                        '-ms-transform: rotate(90deg);'+
+                        '-moz-transform: rotate(90deg);'+
+                        'transform: rotate(90deg);'+
+
+                        '-webkit-transform-origin: '+s+';'+
+                        '-o-transform-origin: '+s+';'+
+                        '-ms-transform-origin: '+s+';'+
+                        '-moz-transform-origin: '+s+';'+
+                        'transform-origin: '+s+';'
+                    );
+                    */
+                    body.setAttribute('style','overflow-x:hidden;background-color:black;margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;'+
+                        '-webkit-transform: rotate(90deg);'+
+                        '-o-transform: rotate(90deg);'+
+                        '-ms-transform: rotate(90deg);'+
+                        '-moz-transform: rotate(90deg);'+
+                        'transform: rotate(90deg);'+
+
+                        '-webkit-transform-origin: '+s+';'+
+                        '-o-transform-origin: '+s+';'+
+                        '-ms-transform-origin: '+s+';'+
+                        '-moz-transform-origin: '+s+';'+
+                        'transform-origin: '+s+';'
+                    );
+                }, 100);
+            }
+        }
+        else{
+        }
+    }
     Engine.EventManager.onorientationchange = function(e){
         e = window.event || e;
         var orientation = e.orientation || window.orientation;
-		switch (orientation){
-			case "Portrait":
-			case 0://Portrait
-			case 180://Portrait (upside down)
-				if(Engine.EventManager.orientationChange.mode == "vertical"){ Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 0; }
-				else{                                                         Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 90; }
-				Engine.EventManager.orientationChange.currOrientation = "vertical";
-				break;
-			case "Landscape":
-			case -90://Landscape(right,screen turned CW)
-			case 90://Landscape(left, screen turned CCW)
-				if(Engine.EventManager.orientationChange.mode == "vertical"){ Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 90; }
-				else{                                                         Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 0; }
-				Engine.EventManager.orientationChange.currOrientation = "horizontal";
-				break;
-			default:
-				break;
-		}
-		if(!Engine.EventManager.orientationChange.enabled){
-			Engine.EventManager.doWindowRotation();
-		}
+        switch (orientation){
+            case "Portrait":
+            case 0://Portrait
+            case 180://Portrait (upside down)
+                if(Engine.EventManager.orientationChange.mode == "vertical"){ Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 0; }
+                else{                                                         Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 90; }
+                Engine.EventManager.orientationChange.currOrientation = "vertical";
+                break;
+            case "Landscape":
+            case -90://Landscape(right,screen turned CW)
+            case 90://Landscape(left, screen turned CCW)
+                if(Engine.EventManager.orientationChange.mode == "vertical"){ Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 90; }
+                else{                                                         Engine.EventManager.orientationChange.prevRot = Engine.EventManager.orientationChange.nextRot; Engine.EventManager.orientationChange.nextRot = 0; }
+                Engine.EventManager.orientationChange.currOrientation = "horizontal";
+                break;
+            default:
+                break;
+        }
+        if(!Engine.EventManager.orientationChange.enabled){
+            Engine.EventManager.doWindowRotation();
+        }
     }
     Engine.EventManager.requestPointerLock = function(){
         if(!Engine.EventManager.pointerLock.available){ 
@@ -521,18 +521,18 @@ var Engine = Engine || {};
         Engine.canvasEventCatcher.addEventListener('keydown',Engine.EventManager.onkeydown);
         Engine.canvasEventCatcher.addEventListener('keyup',Engine.EventManager.onkeyup);
         Engine.canvasEventCatcher.addEventListener('focusout',Engine.EventManager.onfocusout);
-        
+
         document.addEventListener('pointerlockchange', Engine.EventManager.onpointerlockchange, false);
         document.addEventListener('mozpointerlockchange', Engine.EventManager.onpointerlockchange, false);
         document.addEventListener('webkitpointerlockchange', Engine.EventManager.onpointerlockchange, false);
-        
+
         document.addEventListener('pointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
         document.addEventListener('mozpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
         document.addEventListener('webkitpointerlockerror', Engine.EventManager.onpointerlockchangeerror, false);
-        
+
         window.addEventListener("resize", Engine.EventManager.onresize);
         window.addEventListener("orientationchange", Engine.EventManager.onorientationchange,false);
-        
+
         if(window.DeviceOrientationEvent){
             window.addEventListener("deviceorientation",Engine.EventManager.ondeviceorientation,true);
         }
@@ -559,18 +559,18 @@ var Engine = Engine || {};
         Engine.canvasEventCatcher.removeEventListener('keydown',Engine.EventManager.onkeydown);
         Engine.canvasEventCatcher.removeEventListener('keyup',Engine.EventManager.onkeyup);
         Engine.canvasEventCatcher.removeEventListener('focusout',Engine.EventManager.onfocusout);
-        
+
         document.removeEventListener("pointerlockchange", Engine.EventManager.onpointerlockchange, false);
         document.removeEventListener("mozpointerlockchange", Engine.EventManager.onpointerlockchange, false);
         document.removeEventListener("webkitpointerlockchange", Engine.EventManager.onpointerlockchange, false);
-        
+
         document.removeEventListener("pointerlockerror", Engine.EventManager.onpointerlockchangeerror, false);
         document.removeEventListener("mozpointerlockerror", Engine.EventManager.onpointerlockchangeerror, false);
         document.removeEventListener("webkitpointerlockerror", Engine.EventManager.onpointerlockchangeerror, false);
-        
+
         window.removeEventListener("resize", Engine.EventManager.onresize);
         window.removeEventListener("orientationchange", Engine.EventManager.onorientationchange,false);
-        
+
         if(window.DeviceOrientationEvent){
             window.removeEventListener("deviceorientation",Engine.EventManager.ondeviceorientation,true);
         }
