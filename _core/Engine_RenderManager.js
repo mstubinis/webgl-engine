@@ -4,7 +4,7 @@ var Engine = Engine || {};
     Engine.RenderManager = {};
     Engine.RenderManager.skyboxQueue = [];
     Engine.RenderManager.objectQueue = [];
-    
+
     Engine.RenderManager.init = function(canvas){
         gl = WebGLUtils.setupWebGL(canvas,{antialias: true});
         if (!gl) { return; }
@@ -16,22 +16,22 @@ var Engine = Engine || {};
         var maxVertexShaderUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
         var maxFragmentShaderUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
         var maxShaderVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
-        
+
         var vertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         var fragmentTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         var combinedTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-        
+
         var maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-		console.log(maxVertexAttribs);
+        console.log(maxVertexAttribs);
 
         var highp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
         var highpSupported = highp.precision != 0;
-        
+
         var antialias = gl.getContextAttributes().antialias;
         var size = gl.getParameter(gl.SAMPLES);
 
         gl.enableVertexAttribArray(0);//always have this enabled.
-        
+
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
 
@@ -45,16 +45,16 @@ var Engine = Engine || {};
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
+
         var shader = Engine.ResourceManager.shaders["Default"].program;
-        
+
         gl.useProgram(shader);
-        
+
         gl.uniform3f(gl.getUniformLocation(shader,"SceneAmbient"),Engine.scene.ambient[0],Engine.scene.ambient[1],Engine.scene.ambient[2]);
         gl.uniform1i(gl.getUniformLocation(shader, "numLights"), Object.keys(Engine.scene.lights).length);
-        
+
         for(key in Engine.scene.lights){
             Engine.scene.lights[key].sendUniforms(shader);
         }
@@ -75,7 +75,7 @@ var Engine = Engine || {};
         var material = Engine.ResourceManager.materials[obj.material];
         if(mesh === undefined || !mesh.loaded){ return; }
         gl.useProgram(obj.shader);
-          
+
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "M"),false,obj.modelMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "V"),false,Engine.camera.viewMatrix);
 
@@ -87,9 +87,9 @@ var Engine = Engine || {};
         mat4.invert(normalMatrix,obj.modelMatrix);
         mat4.transpose(normalMatrix,normalMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "normalMatrix"),false,normalMatrix);
-        
+
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "P"),false,Engine.camera.projectionMatrix); 
-        
+
         if(material !== undefined){
             material.sendUniforms(obj.shader);
             if(material.shadeless == false){
