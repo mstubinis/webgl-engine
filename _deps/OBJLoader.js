@@ -7,48 +7,38 @@ OBJ.LOAD_NORMALS = 1 << 2;   //4
 OBJ.LOAD_TBN = 1 << 3;       //8
 OBJ.LOAD_TRIANGLES = 1 << 4; //16
 
-OBJ.is_near = function(v1,v2,threshold){ return Math.abs( v1-v2 ) < threshold; }
-OBJ._getSimilarVertexIndex = function(in_pos,in_uv,in_norm,mesh,ret,threshold){
+OBJ.inear = function(v1,v2,threshold){ return Math.abs( v1-v2 ) < threshold; }
+OBJ._getSimilarVertexIndex = function(pos,uv,norm,mesh,ret,t){
     ret.found = false; ret.index = 0;
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){
-        if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){
-            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-                OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
-                OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
-                OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
+        if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length > 0){//pos+norm only
+            if (OBJ.inear(pos[0],mesh.vec3_vertices[i][0],t) && OBJ.inear(pos[1],mesh.vec3_vertices[i][1],t) &&
+                OBJ.inear(pos[2],mesh.vec3_vertices[i][2],t) && OBJ.inear(norm[0],mesh.vec3_normals[i][0],t) &&
+                OBJ.inear(norm[1],mesh.vec3_normals[i][1],t) && OBJ.inear(norm[2],mesh.vec3_normals[i][2],t)
             ){
                 ret.index = i; ret.found = true; return ret;
             }
         }
-        else if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length == 0){
-            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold)
+        else if(mesh.vec2_uvs.length == 0 && mesh.vec3_normals.length == 0){//pos only
+            if (OBJ.inear(pos[0],mesh.vec3_vertices[i][0],t) && OBJ.inear(pos[1],mesh.vec3_vertices[i][1],t) &&
+                OBJ.inear(pos[2],mesh.vec3_vertices[i][2],t)
             ){
                 ret.index = i; ret.found = true; return ret;
             }
         }
-        else if(mesh.vec3_normals.length == 0 && mesh.vec2_uvs.length > 0){
-            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-                OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
-                OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold)
+        else if(mesh.vec3_normals.length == 0 && mesh.vec2_uvs.length > 0){//pos+uv only
+            if (OBJ.inear(pos[0],mesh.vec3_vertices[i][0],t) && OBJ.inear(pos[1],mesh.vec3_vertices[i][1],t) &&
+                OBJ.inear(pos[2],mesh.vec3_vertices[i][2],t) && OBJ.inear(uv[0],mesh.vec2_uvs[i][0],t) &&
+                OBJ.inear(uv[1],mesh.vec2_uvs[i][1],t)
             ){
                 ret.index = i; ret.found = true; return ret;
             }
         }
-        else{
-            if (OBJ.is_near( in_pos[0] , mesh.vec3_vertices[i][0] ,threshold) &&
-                OBJ.is_near( in_pos[1] , mesh.vec3_vertices[i][1] ,threshold) &&
-                OBJ.is_near( in_pos[2] , mesh.vec3_vertices[i][2] ,threshold) &&
-                OBJ.is_near( in_uv[0]  , mesh.vec2_uvs[i][0]      ,threshold) &&
-                OBJ.is_near( in_uv[1]  , mesh.vec2_uvs[i][1]      ,threshold) &&
-                OBJ.is_near( in_norm[0] , mesh.vec3_normals[i][0] ,threshold) &&
-                OBJ.is_near( in_norm[1] , mesh.vec3_normals[i][1] ,threshold) &&
-                OBJ.is_near( in_norm[2] , mesh.vec3_normals[i][2] ,threshold)
+        else{//all components
+            if (OBJ.inear(pos[0],mesh.vec3_vertices[i][0],t) && OBJ.inear(pos[1],mesh.vec3_vertices[i][1],t) &&
+                OBJ.inear(pos[2],mesh.vec3_vertices[i][2],t) && OBJ.inear(uv[0],mesh.vec2_uvs[i][0],t) &&
+                OBJ.inear(uv[1],mesh.vec2_uvs[i][1],t) && OBJ.inear(norm[0],mesh.vec3_normals[i][0],t) &&
+                OBJ.inear(norm[1],mesh.vec3_normals[i][1],t) && OBJ.inear(norm[2],mesh.vec3_normals[i][2],t)
             ){
                 ret.index = i; ret.found = true; return ret;
             }
@@ -70,7 +60,7 @@ OBJ.indexVBO = function(mesh,threshold,flags){
     for (var i=0; i < mesh.vec3_vertices.length; i++ ){ 
         var ret = {}; ret.index = -1; ret.found = false;    
         ret = OBJ._getSimilarVertexIndex(mesh.vec3_vertices[i],mesh.vec2_uvs[i] || vec2.fill(0,0),mesh.vec3_normals[i] || vec3.fill(0,0,0),new_mesh,ret,threshold);
-        if ( ret.found ){
+        if (ret.found){
             new_mesh.indices.push( ret.index );
             // Average the tangents and the bitangents -- doesnt work with mirrored uvs atm.
             if( mesh.vec3_tangents.length > 0){
@@ -84,7 +74,7 @@ OBJ.indexVBO = function(mesh,threshold,flags){
                 new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
             }
         }else{
-                new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
+            new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
                 new_mesh.vec2_uvs.push(mesh.vec2_uvs[i]);
             if(mesh.vec3_normals.length > 0)
@@ -230,22 +220,11 @@ OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point
     }
     mesh.triangles = triangles;
 }
-OBJ.vec3ArrayToFloatArray = function(vec3_array){
-    var ret = [];
-    for(var i = 0; i < vec3_array.length; i++){
-        ret.push(vec3_array[i][0]);
-        ret.push(vec3_array[i][1]);
-        ret.push(vec3_array[i][2]);
-    }
-    return ret;
+OBJ.vec3ArrayToFloatArray = function(arr){
+    var ret = [];for(var i = 0; i < arr.length; i++){ret.push(arr[i][0]);ret.push(arr[i][1]);ret.push(arr[i][2]);}return ret;
 }
-OBJ.vec2ArrayToFloatArray = function(vec2_array){
-    var ret = [];
-    for(var i = 0; i < vec2_array.length; i++){
-        ret.push(vec2_array[i][0]);
-        ret.push(vec2_array[i][1]);
-    }
-    return ret;
+OBJ.vec2ArrayToFloatArray = function(arr){
+    var ret = [];for(var i = 0; i < arr.length; i++){ret.push(arr[i][0]);ret.push(arr[i][1]);}return ret;
 }
 OBJ.finalize = function(mesh,flags){  
     mesh.radius = 0;
@@ -376,7 +355,7 @@ OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshD
     }   
 };
 
-var _buildBuffer = function( gl, type, data, itemSize ){
+var _buildBuffer = function(gl,type,data,itemSize){
     var buffer = gl.createBuffer();
     var arrayView = type === gl.ARRAY_BUFFER ? Float32Array : Uint16Array;
     gl.bindBuffer(type, buffer);
@@ -399,7 +378,7 @@ OBJ.initMeshBuffers = function(gl,mesh,flags){
     mesh.indexBuffer = _buildBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, mesh.indices, 1);
     return mesh;
 }
-OBJ.deleteMeshBuffers = function( gl, mesh ){
+OBJ.deleteMeshBuffers = function(gl,mesh){
 	if(mesh.vertexBuffer !== undefined)   gl.deleteBuffer(mesh.vertexBuffer);
     if(mesh.uvBuffer !== undefined)       gl.deleteBuffer(mesh.uvBuffer);
     if(mesh.normalBuffer !== undefined)   gl.deleteBuffer(mesh.normalBuffer);
