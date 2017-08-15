@@ -2,7 +2,7 @@
 
 var Shader = function(name,vShaderFile,fShaderFile,attribs,vId,fId){
     if(name in Engine.ResourceManager.shaders){ return Engine.ResourceManager.shaders[name]; }
-    
+
     this.program = -1;
     if(vId === undefined && fId === undefined){
         this.compile(vShaderFile,fShaderFile,attribs);
@@ -11,7 +11,7 @@ var Shader = function(name,vShaderFile,fShaderFile,attribs,vId,fId){
         this.loadFromText(vShaderFile,fShaderFile,vId,fId);
         this.compile(vId,fId,attribs);
     }
-    
+
     Engine.ResourceManager.shaders[name] = this;
 };
 Shader.prototype.loadFromText = function(vShaderText,fShaderText,vId,fId){
@@ -35,10 +35,10 @@ Shader.prototype.compile = function(vshader, fshader, attribs){
     this.program = gl.createProgram();
     gl.attachShader (this.program, vertexShader);
     gl.attachShader (this.program, fragmentShader);
-    
+
     for(var i = 0; i < attribs.length; i++)
         gl.bindAttribLocation(this.program,i,attribs[i]);
-    
+
     gl.linkProgram(this.program);
     var linked = gl.getProgramParameter(this.program, gl.LINK_STATUS);
     if(!linked){
@@ -70,12 +70,12 @@ Shader.prototype.load = function(shaderId){
                 var fileno = parseInt(match[1], 10)-1;
                 var lineno = parseInt(match[2], 10)-1;
                 msg += "File Line " + fileno + " , Shader Line " + lineno + ": " + match[3] + "\n";
-                
+
             }
         }
-		if(window.console && window.console.log){
-			console.log(msg);
-		}
+        if(window.console && window.console.log){
+            console.log(msg);
+        }
         gl.deleteShader(shader);
         return null;
     }
