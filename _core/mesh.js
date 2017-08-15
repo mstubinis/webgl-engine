@@ -2,9 +2,9 @@
 
 var Mesh = function(name,meshFile,fromFile,flags){
     if(name in Engine.ResourceManager.meshes){ return Engine.ResourceManager.meshes[name]; }
-	if(fromFile === undefined) fromFile = true;
-	if(flags === undefined) 
-		flags = OBJ.LOAD_POSITIONS | OBJ.LOAD_UVS | OBJ.LOAD_NORMALS | OBJ.LOAD_TBN;
+    if(fromFile === undefined) fromFile = true;
+    if(flags === undefined) 
+        flags = OBJ.LOAD_POSITIONS | OBJ.LOAD_UVS | OBJ.LOAD_NORMALS | OBJ.LOAD_TBN;
 
     var _this = this;
     _this.radius = 0;
@@ -27,7 +27,7 @@ var InitMeshFunc = function(_this,name,flags){
 }
 Mesh.prototype.sendUniforms = function(drawMode){
     if(!this.loaded) return;
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
     gl.vertexAttribPointer(0, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
     if( this.hasOwnProperty('uvBuffer') ){
