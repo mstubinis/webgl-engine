@@ -7,7 +7,7 @@ var Engine = Engine || {};
     Engine.PhysicsManager.COLLISION_FLAG_CONVEX = 2; // 0010
     Engine.PhysicsManager.COLLISION_FLAG_STATIC_TRIANGLES = 4; // 0100
     Engine.PhysicsManager.COLLISION_FLAG_DYNAMIC_TRIANGLES = 8; // 1000
-    
+
     Engine.PhysicsManager.init = function(){
         Engine.PhysicsManager.collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         Engine.PhysicsManager.dispatcher = new Ammo.btCollisionDispatcher(Engine.PhysicsManager.collisionConfiguration);
@@ -27,7 +27,7 @@ var Engine = Engine || {};
     }
     Engine.PhysicsManager.update = function(dt){
         Engine.PhysicsManager.world.stepSimulation(dt, 1, 1.0/60.0);
-        
+
         var numManifolds = Engine.PhysicsManager.world.getDispatcher().getNumManifolds();
         for (var i = 0; i < numManifolds; i++){
             var contactManifold =  Engine.PhysicsManager.world.getDispatcher().getManifoldByIndexInternal(i);
@@ -43,14 +43,14 @@ var Engine = Engine || {};
 
                     var a = obA.getUserIndex();
                     var b = obB.getUserIndex();
-                    
+
                     Engine.scene.objectsID[a].collisionResponse(Engine.scene.objectsID[b]);
                     Engine.scene.objectsID[b].collisionResponse(Engine.scene.objectsID[a]);
                 }
             }
         }
     }
-    
+
     Engine.PhysicsManager.constructCollisionShape = function(flag,mesh){
         var shape;
         if(flag === undefined || (flag & Engine.PhysicsManager.COLLISION_FLAG_CONVEX)){
@@ -82,5 +82,4 @@ var Engine = Engine || {};
         //shape.setMargin(0.01);
         return shape;
     }
-    
 })(this);
