@@ -7,7 +7,7 @@ var Skybox = function(name,files,scene){
     else{
         if(name in Engine.ResourceManager.scenes[scene].objects){ return Engine.ResourceManager.scenes[scene].objects[name]; }
     }
-    
+
     //add skybox mesh if it does not already exist.
     if(!("Skybox" in Engine.ResourceManager.meshes)){
         var meshdata =  "v 1.000000 -1.000000 -1.000000\n" + 
@@ -58,7 +58,7 @@ var Skybox = function(name,files,scene){
     this.modelMatrix = mat4.create();
     mat4.scale(this.modelMatrix,this.modelMatrix,vec3.fill(1000,1000,1000));
     this.cubeMap = new Texture(name,files);
-    
+
     if(scene === undefined)
         Engine.scene.objects[name] = this;
     else
@@ -82,12 +82,12 @@ Skybox.prototype.draw = function(){
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, "M"),false,this.modelMatrix);
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, "V"),false,Engine.camera.viewMatrix);
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, "P"),false,Engine.camera.projectionMatrix); 
-    
+
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.cubeMap.texture);
     gl.uniform1i(gl.getUniformLocation(shader, "texture"), 0);
-    
+
     Engine.ResourceManager.meshes["Skybox"].sendUniforms(gl.TRIANGLES);
-    
+
     gl.depthMask(true);
 }
