@@ -6,50 +6,50 @@ var Camera = function(n,width,height,scene){
     else{
         if(n in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
     }
-    
+
     this.modelMatrix = mat4.create();
     this._position = vec3.fill(0,0,-9);
     this.rotation = quat.fill(0,0,0,1);
     this.viewMatrix = mat4.create();
     this.projectionMatrix = mat4.create();
-    
+
     //6 vec4's describing the viewing frustrum
     this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
-    
+
     this.angle = 45.0;
     this.ratio = Engine.canvas.width/Engine.canvas.height;
     this.near = 0.001;
     this.far = 10000.0;
-	
-	if(scene === undefined){
-		this.id = Object.keys(Engine.scene.cameras).length;
-	}
-	else{
-		this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
-	}
-    
-	this.viewWasOverriden = false;
-	
+
+    if(scene === undefined){
+        this.id = Object.keys(Engine.scene.cameras).length;
+    }
+    else{
+        this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
+    }
+
+    this.viewWasOverriden = false;
+
     this.resize(Engine.canvas.width,Engine.canvas.height);
     this.update(Engine.dt);
-	
-	if(scene === undefined){
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
-	}
-	else{
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
-	}
-    
+
+    if(scene === undefined){
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
+    }
+    else{
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
+    }
+
     if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
 };
 Camera.prototype.constructFrustrum = function(){
     var vp = mat4.create(); 
-	mat4.mul(vp,this.projectionMatrix,this.viewMatrix);
+    mat4.mul(vp,this.projectionMatrix,this.viewMatrix);
     var rowX = mat4.row(vp,0);
     var rowY = mat4.row(vp,1);
     var rowZ = mat4.row(vp,2);
     var rowW = mat4.row(vp,3);
-    
+
     var px = vec4.create(); vec4.add(px, rowW,rowX);
     var mx = vec4.create(); vec4.sub(mx, rowW,rowX);
     var py = vec4.create(); vec4.add(py, rowW,rowY);
@@ -63,7 +63,7 @@ Camera.prototype.constructFrustrum = function(){
     vec4.normalize(my,my);
     vec4.normalize(pz,pz);
     vec4.normalize(mz,mz);
-    
+
     this.planes[0] = px;
     this.planes[1] = mx;
     this.planes[2] = py;
@@ -73,11 +73,11 @@ Camera.prototype.constructFrustrum = function(){
 
     for(var i = 0; i < 6; i++){
         var normal = vec3.fill(this.planes[i][0], this.planes[i][1], this.planes[i][2]);
-		var len = vec3.length(normal);
+        var len = vec3.length(normal);
         this.planes[i][0] = (-this.planes[i][0]) / len;
         this.planes[i][1] = (-this.planes[i][1]) / len;
         this.planes[i][2] = (-this.planes[i][2]) / len;
-		this.planes[i][3] = (-this.planes[i][3]) / len;
+        this.planes[i][3] = (-this.planes[i][3]) / len;
     }
 }
 Camera.prototype.sphereIntersectTest = function(pos,radius){
@@ -126,11 +126,11 @@ Camera.prototype.setPosition = function(x,y,z){
     this.update(Engine.dt);
 }
 Camera.prototype.update = function(dt){
-	Engine.GameObjectManager.update(this);
-	if(!this.viewWasOverriden){
-		this.__lookAt(this.position(),this.target(),this.up());
-	}
-	this.viewWasOverriden = false;
+    Engine.GameObjectManager.update(this);
+    if(!this.viewWasOverriden){
+        this.__lookAt(this.position(),this.target(),this.up());
+    }
+    this.viewWasOverriden = false;
 }
 Camera.prototype.rotate = function(x,y,z){
     Engine.GameObjectManager.rotate(this,x,y,z);
