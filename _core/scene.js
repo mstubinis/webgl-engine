@@ -6,11 +6,11 @@ var Scene = function(name){
     this.objects = {};
     this.lights = {};
     this.cameras = {};
-	
+
     this.objectsID = {};
     this.lightsID = {};
     this.camerasID = {};
-    
+
     this.ambient = vec3.fill(0.05,0.05,0.05);
 
     Engine.ResourceManager.scenes[name] = this;
