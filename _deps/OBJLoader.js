@@ -63,6 +63,7 @@ OBJ.indexVBO = function(mesh,threshold,flags){
         if (ret.found){
             new_mesh.indices.push( ret.index );
             // Average the tangents and the bitangents -- doesnt work with mirrored uvs atm.
+            /*
             if( mesh.vec3_tangents.length > 0){
                 new_mesh.vec3_tangents[ret.index][0] += mesh.vec3_tangents[i][0];
                 new_mesh.vec3_tangents[ret.index][1] += mesh.vec3_tangents[i][1];
@@ -73,6 +74,7 @@ OBJ.indexVBO = function(mesh,threshold,flags){
                 new_mesh.vec3_binormals[ret.index][1] += mesh.vec3_binormals[i][1];
                 new_mesh.vec3_binormals[ret.index][2] += mesh.vec3_binormals[i][2];
             }
+            */
         }else{
             new_mesh.vec3_vertices.push( mesh.vec3_vertices[i]);
             if(mesh.vec2_uvs.length > 0)
@@ -90,16 +92,16 @@ OBJ.indexVBO = function(mesh,threshold,flags){
 }
 OBJ.calculateTBN = function(points,uvs,normals,mesh){
     if(normals.length == 0) return;
-    
+
     for(var i=0; i < points.length; i+=3){
         var deltaPos1 = vec3.fill(points[i + 1][0] - points[i + 0][0],points[i + 1][1] - points[i + 0][1],points[i + 1][2] - points[i + 0][2]);                        
         var deltaPos2 = vec3.fill(points[i + 2][0] - points[i + 0][0],points[i + 2][1] - points[i + 0][1],points[i + 2][2] - points[i + 0][2]);
-        
+
         var deltaUV1 = vec2.fill(uvs[i + 1][0] - uvs[i + 0][0],uvs[i + 1][1] - uvs[i + 0][1]);
         var deltaUV2 = vec2.fill(uvs[i + 2][0] - uvs[i + 0][0],uvs[i + 2][1] - uvs[i + 0][1]);
-        
+
         var r = 1.0 / ((deltaUV1[0] * deltaUV2[1]) - (deltaUV1[1] * deltaUV2[0]));
-        
+
         var tangent = vec3.fill(((deltaPos1[0] * deltaUV2[1]) - (deltaPos2[0] * deltaUV1[1])) * r,
                                 ((deltaPos1[1] * deltaUV2[1]) - (deltaPos2[1] * deltaUV1[1])) * r,
                                 ((deltaPos1[2] * deltaUV2[1]) - (deltaPos2[2] * deltaUV1[1])) * r);
@@ -111,7 +113,7 @@ OBJ.calculateTBN = function(points,uvs,normals,mesh){
         var n1 = vec3.fill(normals[i + 0][0],normals[i + 0][1],normals[i + 0][2]);
         var n2 = vec3.fill(normals[i + 1][0],normals[i + 1][1],normals[i + 1][2]);
         var n3 = vec3.fill(normals[i + 2][0],normals[i + 2][1],normals[i + 2][2]);
-                                        
+
         var t1_mul = vec3.create(); vec3.scale(t1_mul, n1, vec3.dot(tangent,n1));
         var t2_mul = vec3.create(); vec3.scale(t2_mul, n2, vec3.dot(tangent,n2));
         var t3_mul = vec3.create(); vec3.scale(t3_mul, n3, vec3.dot(tangent,n3)); 
@@ -119,7 +121,7 @@ OBJ.calculateTBN = function(points,uvs,normals,mesh){
         var t2 = vec3.create(); vec3.sub(t2, tangent, t2_mul);
         var t3 = vec3.create(); vec3.sub(t3, tangent, t3_mul);
         vec3.normalize(t1, t1); vec3.normalize(t2, t2); vec3.normalize(t3, t3);
-        
+
         var b1_mul = vec3.create(); vec3.scale(b1_mul, n1, vec3.dot(bitangent,n1));
         var b2_mul = vec3.create(); vec3.scale(b2_mul, n2, vec3.dot(bitangent,n2));
         var b3_mul = vec3.create(); vec3.scale(b3_mul, n3, vec3.dot(bitangent,n3));  
@@ -127,16 +129,16 @@ OBJ.calculateTBN = function(points,uvs,normals,mesh){
         var b2 = vec3.create(); vec3.sub(b2, bitangent, b2_mul);
         var b3 = vec3.create(); vec3.sub(b3, bitangent, b3_mul);
         vec3.normalize(b1, b1); vec3.normalize(b2, b2); vec3.normalize(b3, b3);
-        
+
         //Orthogonalization of tangent////////////////////////////////////////////////////////////////
         var t1_mulDot = vec3.create(); vec3.scale(t1_mulDot, n1, vec3.dot(n1, t1));
         var t2_mulDot = vec3.create(); vec3.scale(t2_mulDot, n2, vec3.dot(n2, t2));
         var t3_mulDot = vec3.create(); vec3.scale(t3_mulDot, n3, vec3.dot(n3, t3));
-        
+
         var t1_sub = vec3.create(); t1_sub = vec3.sub(t1_sub, t1, t1_mulDot);
         var t2_sub = vec3.create(); t2_sub = vec3.sub(t2_sub, t2, t2_mulDot);
         var t3_sub = vec3.create(); t3_sub = vec3.sub(t3_sub, t3, t3_mulDot);
-        
+
         vec3.normalize(t1, t1_sub);
         vec3.normalize(t2, t2_sub);
         vec3.normalize(t3, t3_sub);
@@ -164,7 +166,7 @@ OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point
     var triangle = {v1:{},v2:{},v3:{}};
     var triangles = [];
     var count = 0;
-    
+
     if(point_indices.length == 0){
         for(var i=0; i < file_verts.length; i++ ){
             mesh.vec3_vertices.push(file_verts[i]);
@@ -191,7 +193,7 @@ OBJ.loadDataIntoTriangles = function(mesh,file_verts,file_uvs,file_normals,point
             if(normal_indices.length > 0)
                 mesh.vec3_normals.push(file_normals[ normal_indices[i]-1 ]);
             count++;
-            
+
             if(count == 1){
                 triangle.v1.position = file_verts[ point_indices[i]-1 ];
                 if(uv_indices.length > 0)
@@ -256,7 +258,7 @@ OBJ.Mesh = function (meshObject,objectData,flags){
     var file_verts = [], file_uvs = [], file_normals = [];
     var point_indices = [], uv_indices = [], normal_indices = [];
     meshObject.indices = [];
-    
+
     var lines = objectData.split('\n');// array of lines separated by the newline
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
@@ -276,24 +278,24 @@ OBJ.Mesh = function (meshObject,objectData,flags){
         }else if ((/^f\s/).test(line)) {
             for (var j = 0; j < elements.length; j++){
                 var face_vertex = elements[j].split( '/' );
-                           
+
                 if(face_vertex[0] !== undefined && (flags & OBJ.LOAD_POSITIONS)) point_indices.push(face_vertex[0]);
                 if(face_vertex[1] !== undefined && (flags & OBJ.LOAD_UVS))       uv_indices.push(face_vertex[1]);
                 if(face_vertex[2] !== undefined && (flags & OBJ.LOAD_NORMALS))   normal_indices.push(face_vertex[2]);
             }
         }
     }
-    
+
     var newMesh = {};
     newMesh.vec3_vertices = []; newMesh.vec2_uvs = []; newMesh.vec3_normals = []; newMesh.vec3_binormals = []; newMesh.vec3_tangents = [];
-    
+
     OBJ.loadDataIntoTriangles(newMesh,file_verts,file_uvs,file_normals,point_indices,uv_indices,normal_indices);
-    
+
     if(flags & OBJ.LOAD_TBN)
         OBJ.calculateTBN(newMesh.vec3_vertices,newMesh.vec2_uvs,newMesh.vec3_normals,newMesh);
     newMesh = OBJ.indexVBO(newMesh,0.001,flags);
     OBJ.finalize(newMesh,flags);
-    
+
     if(newMesh.vertices !== undefined && (flags & OBJ.LOAD_POSITIONS))
         meshObject.vertices = newMesh.vertices;
     if(newMesh.uvs !== undefined && (flags & OBJ.LOAD_UVS))
@@ -311,7 +313,7 @@ OBJ.Mesh = function (meshObject,objectData,flags){
     meshObject.radiusY = newMesh.radiusY;
     meshObject.radiusZ = newMesh.radiusZ;
     meshObject.indices = newMesh.indices;
-    
+
     //cleanup
     for (var member in newMesh) delete newMesh[member];
     return meshObject;
@@ -352,7 +354,7 @@ OBJ.downloadMeshes = function (nameAndURLs, completionCallback, meshObject,meshD
                 }
             })(mesh_name));
         }
-    }   
+    }
 };
 
 var _buildBuffer = function(gl,type,data,itemSize){
@@ -379,7 +381,7 @@ OBJ.initMeshBuffers = function(gl,mesh,flags){
     return mesh;
 }
 OBJ.deleteMeshBuffers = function(gl,mesh){
-	if(mesh.vertexBuffer !== undefined)   gl.deleteBuffer(mesh.vertexBuffer);
+    if(mesh.vertexBuffer !== undefined)   gl.deleteBuffer(mesh.vertexBuffer);
     if(mesh.uvBuffer !== undefined)       gl.deleteBuffer(mesh.uvBuffer);
     if(mesh.normalBuffer !== undefined)   gl.deleteBuffer(mesh.normalBuffer);
     if(mesh.binormalBuffer !== undefined) gl.deleteBuffer(mesh.binormalBuffer);
