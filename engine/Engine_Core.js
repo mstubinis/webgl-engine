@@ -47,7 +47,11 @@ Engine.init = function(w,h,args){
     Engine.dt = 0.0000000;
     //first build the canvas and it's necessary html elements.
     var body = document.getElementsByTagName('body')[0];
-    
+	
+	var wrapperDIV = document.createElement('div');
+	wrapperDIV.setAttribute('style', 'width:800px;margin:0 auto;');
+    body.appendChild(wrapperDIV);
+	
     var canvas_event_element = document.createElement('div');
     canvas_event_element.setAttribute('tabindex', '0');
     canvas_event_element.setAttribute('id', 'canvasEventCatcher');
@@ -64,19 +68,16 @@ Engine.init = function(w,h,args){
     canvas_element.setAttribute('style', 'position:relative;top:0;left:0;');
 	
     
-    body.appendChild(canvas_event_element);
-    body.appendChild(canvas_debug_element);
-    body.appendChild(canvas_element);
+    wrapperDIV.appendChild(canvas_event_element);
+    wrapperDIV.appendChild(canvas_debug_element);
+    wrapperDIV.appendChild(canvas_element);
     //
     Engine.requestId = undefined;
-    Engine.canvas = document.getElementById('canvas');
-    Engine.canvasEventCatcher = document.getElementById("canvasEventCatcher");
-	   
-    Engine.canvas.width = w;
-    Engine.canvas.height = h;
-    Engine.canvasEventCatcher.style.width = w + "px";
-    Engine.canvasEventCatcher.style.height = h + "px";
-    
+    Engine.canvas = canvas_element;
+    Engine.canvasEventCatcher = canvas_event_element;
+	Engine.wrapperDIV = wrapperDIV;
+	
+
     gl = Engine.RenderManager.init(Engine.canvas);
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
@@ -92,7 +93,8 @@ Engine.init = function(w,h,args){
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
     Engine.ResourceManager.initDefaultResources();
-    
+	
+	Engine.Game.onResize(undefined);
     //this is the above area referenced below
 }
 Engine.onResourcesLoaded = function(){
@@ -107,7 +109,6 @@ Engine.onResourcesLoaded = function(){
     Engine.ResourceManager.initPreGameLogic();
     Engine.Game.initLogic();
     Engine.ResourceManager.initDefaultLogic();  
-    Engine.resize(Engine.canvas.width,Engine.canvas.height);
     Engine.run();
 }
 Engine.disableOrientationChange = function(orientationType){
@@ -128,16 +129,66 @@ Engine.disableOrientationChange = function(orientationType){
 Engine.requestPointerLock = function(){
     Engine.EventManager.pointerLock.desired = true;
 }
-Engine.resize = function(width,height){
-    Engine.canvas.width = width;
-    Engine.canvas.height = height;
-    Engine.canvasEventCatcher.style.width = width + "px";
-    Engine.canvasEventCatcher.style.height = height + "px"; 
-    gl.viewport(0, 0, width, height);
+
+Engine.resize = function(w,h,overridedEventCatcherWidth,overridedEventCatcherHeight){
+    Engine.canvas.width = w;
+	Engine.canvas.height = h;
+	Engine.wrapperDIV.style.width = w + "px";
+	
+	//now deal with the overrides for event catcher
+	var catcherNumWidth  = undefined;
+	var catcherNumHeight = undefined;
+	var catcherNumWidthCSS  = undefined;
+	var catcherNumHeightCSS = undefined;
+	if(overridedEventCatcherWidth !== undefined){
+		if(!isNaN(overridedEventCatcherWidth)){
+			catcherNumWidth = overridedEventCatcherWidth;
+			catcherNumWidthCSS = overridedEventCatcherWidth + "px";
+		}else{
+			catcherNumWidthCSS = overridedEventCatcherWidth;
+			//now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
+			var num = (overridedEventCatcherWidth).replace(/[^0-9]/g,''); //extract the number
+			if( overridedEventCatcherWidth.indexOf("px") !== -1 ){
+				catcherNumWidth = num; //we are dealing with px
+			}else if( overridedEventCatcherWidth.indexOf("%") !== -1 ){
+				catcherNumWidth = (num / 100.0) * bodyHeight //we are dealing with %
+			}
+		}
+	}else{
+		catcherNumWidth = w;
+		catcherNumWidthCSS = w + "px";
+	}
+	var bodyWidth  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	var bodyHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	if(overridedEventCatcherHeight !== undefined){
+		if(!isNaN(overridedEventCatcherHeight)){
+			catcherNumHeight = overridedEventCatcherHeight;
+			catcherNumHeightCSS = overridedEventCatcherHeight + "px";
+		}else{
+			catcherNumHeightCSS = overridedEventCatcherHeight;
+			//now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
+			var num = (overridedEventCatcherHeight).replace(/[^0-9]/g,''); //extract the number
+			if( overridedEventCatcherHeight.indexOf("px") !== -1 ){
+				catcherNumHeight = num; //we are dealing with px
+			}else if( overridedEventCatcherHeight.indexOf("%") !== -1 ){
+				catcherNumHeight = (num / 100.0) * bodyHeight //we are dealing with %
+			}
+		}
+	}else{
+		catcherNumHeight = h;
+		catcherNumHeightCSS = h + "px";
+	}
+
+    Engine.canvasEventCatcher.style.width  = catcherNumWidthCSS;
+    Engine.canvasEventCatcher.style.height = catcherNumHeightCSS;
+    var calculatedLeft = (bodyWidth - catcherNumWidth) / 2.0;
+	Engine.canvasEventCatcher.style.left = calculatedLeft + "px"; //since the event catcher uses position:abolute, we need to offset to keep it in place
+	
+    gl.viewport(0, 0, w, h);
     for (var key in Engine.ResourceManager.scenes) {
         var scene = Engine.ResourceManager.scenes[key];
         for (var key1 in scene.cameras) {
-            scene.cameras[key1].resize(width,height);
+            scene.cameras[key1].resize(w,h);
         }
     }
 }
@@ -177,3 +228,7 @@ Engine.render = function(){
 Engine.isKeyDown = function(key){ return Engine.EventManager.isKeyDown(key); }
 Engine.isKeyDownOnce = function(key){ return Engine.EventManager.isKeyDownOnce(key); }
 Engine.isKeyUp = function(key){ return Engine.EventManager.isKeyUp(key); }
+
+Engine.isMouseDown = function(mouse){ return Engine.EventManager.isMouseDown(mouse); }
+Engine.isMouseDownOnce = function(mouse){ return Engine.EventManager.isMouseDownOnce(mouse); }
+Engine.isMouseUp = function(mouse){ return Engine.EventManager.isMouseUp(mouse); }
