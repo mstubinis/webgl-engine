@@ -2,7 +2,7 @@
 var Engine = Engine || {};
 (function (scope, undefined){
     Engine.PhysicsManager = {};
-
+    Engine.PhysicsManager.disabled = false;
     Engine.PhysicsManager.COLLISION_FLAG_BOX = 1; // 0001
     Engine.PhysicsManager.COLLISION_FLAG_CONVEX = 2; // 0010
     Engine.PhysicsManager.COLLISION_FLAG_STATIC_TRIANGLES = 4; // 0100
@@ -26,6 +26,9 @@ var Engine = Engine || {};
         Engine.PhysicsManager.world.setGravity(new Ammo.btVector3(x,y,z));
     }
     Engine.PhysicsManager.update = function(dt){
+		if(Engine.PhysicsManager.disabled) return;
+		
+		
         Engine.PhysicsManager.world.stepSimulation(dt, 1, 1.0/60.0);
         
         var numManifolds = Engine.PhysicsManager.world.getDispatcher().getNumManifolds();

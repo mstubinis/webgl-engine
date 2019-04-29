@@ -5,7 +5,7 @@ var g = {}; // global variables
 
 Engine.toRad=function(d){return d*0.0174533;}
 Engine.getExtension=function(f){return f.substr((~-f.lastIndexOf(".")>>>0)+2);}
-
+Engine.args = undefined //args passed into the engine by the user
 Engine.framerate = function(){ return 1.00000000 / Engine.dt; }
 Engine.fps = Engine.framerate;
 
@@ -33,7 +33,15 @@ Engine.handleContextLost = function(e) {
 Engine.handleContextRestored = function() {
     Engine.run();
 }
-Engine.init = function(w,h){
+Engine.requestGeolocation = function(){
+    if (navigator.geolocation) {
+		Engine.EventManager.geolocation.enabled = true;
+    } else {
+        Engine.EventManager.geolocation.enabled = false;
+    }
+}
+Engine.init = function(w,h,args){
+	Engine.args = args;
 	Engine.windowWidth = w;
     Engine.currentTime = 0.0000000;
     Engine.dt = 0.0000000;
@@ -70,13 +78,17 @@ Engine.init = function(w,h){
     Engine.canvasEventCatcher.style.height = h + "px";
     
     gl = Engine.RenderManager.init(Engine.canvas);
-  
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
     
 	Engine.Math.init();
-	Engine.PhysicsManager.init();
-	Engine.SoundManager.init();
+	
+	if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
+	    Engine.PhysicsManager.init();
+	}
+	if (Engine.args["sounds"] !== undefined && Engine.args["sounds"] != false){
+		Engine.SoundManager.init();
+	}
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
     Engine.ResourceManager.initDefaultResources();
@@ -153,13 +165,15 @@ Engine.update = function(dt){
         Engine.ResourceManager.sounds[key].update(dt);
     }
     Engine.EventManager.update(dt);
-	Engine.PhysicsManager.update(dt);
-	
+	if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
+		Engine.PhysicsManager.update(dt);
+	}
 }
-
 Engine.render = function(){
     Engine.RenderManager.render();
+	Engine.Game.render();
 }
 
 Engine.isKeyDown = function(key){ return Engine.EventManager.isKeyDown(key); }
+Engine.isKeyDownOnce = function(key){ return Engine.EventManager.isKeyDownOnce(key); }
 Engine.isKeyUp = function(key){ return Engine.EventManager.isKeyUp(key); }

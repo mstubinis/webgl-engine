@@ -57,8 +57,7 @@ var Engine = Engine || {};
 			obj.scale[2] = z;
 			if( !(obj.mesh) in Engine.ResourceManager.meshes){
 				obj.radius = 0;
-			}
-			else{
+			}else{
 				obj.radius = Engine.ResourceManager.meshes[obj.mesh].radius * vec3.maxElement(obj.scale);
 			}
 		}

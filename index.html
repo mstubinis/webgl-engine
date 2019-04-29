@@ -6,33 +6,34 @@
     <style>
     html,head,body{margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;}
     </style>
-    <script src="_deps/gl-matrix.js"> </script>
-    <script src="_deps/webgl-utils.js"></script>
-    <script src="_deps/OBJLoader.js"></script>
-
-    <script src="_deps/ammo.js"></script>
+	<link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- no favicon for now -->
 	
-    <script src="_core/Engine_ResourceManager.js"></script>
-    <script src="_core/Engine_GBuffer.js"></script>
-    <script src="_core/Engine_RenderManager.js"></script>
-    <script src="_core/Engine_ObjectManager.js"></script>
-    <script src="_core/Engine_EventManager.js"></script>
-	<script src="_core/Engine_PhysicsManager.js"></script>
-	<script src="_core/Engine_SoundManager.js"></script>
-    <script src="_core/Engine_Math.js"></script>
-    <script src="_core/Engine_Core.js"></script>
+    <script src="deps/gl-matrix.js"> </script>
+    <script src="deps/webgl-utils.js"></script>
+    <script src="deps/OBJLoader.js"></script>
+    <script src="deps/ammo.js"></script>
+	
+    <script src="engine/Engine_ResourceManager.js"></script>
+    <script src="engine/Engine_GBuffer.js"></script>
+    <script src="engine/Engine_RenderManager.js"></script>
+    <script src="engine/Engine_ObjectManager.js"></script>
+    <script src="engine/Engine_EventManager.js"></script>
+	<script src="engine/Engine_PhysicsManager.js"></script>
+	<script src="engine/Engine_SoundManager.js"></script>
+    <script src="engine/Engine_Math.js"></script>
+    <script src="engine/Engine_Core.js"></script>
     
-    <script src="_core/scene.js"></script>
-    <script src="_core/shader.js"></script>
-    <script src="_core/mesh.js"></script>
-    <script src="_core/texture.js"></script>
-    <script src="_core/material.js"></script>
-    <script src="_core/camera.js"></script>
-    <script src="_core/object.js"></script>
-    <script src="_core/skybox.js"></script>
-    <script src="_core/light.js"></script>
-    <script src="_core/sound.js"></script>
-	<script src="_core/instance.js"></script>
+    <script src="engine/scene.js"></script>
+    <script src="engine/shader.js"></script>
+    <script src="engine/mesh.js"></script>
+    <script src="engine/texture.js"></script>
+    <script src="engine/material.js"></script>
+    <script src="engine/camera.js"></script>
+    <script src="engine/object.js"></script>
+    <script src="engine/skybox.js"></script>
+    <script src="engine/light.js"></script>
+    <script src="engine/sound.js"></script>
+	<script src="engine/instance.js"></script>
 	
     <script src="game.js"></script>
      
@@ -74,6 +75,9 @@
         uniform sampler2D diffuseMap;
         uniform sampler2D glowMap;
         uniform sampler2D normalMap;
+        uniform int diffuseMapActive;
+        uniform int glowMapActive;
+        uniform int normalMapActive;
 
         const int MAX_LIGHTS = 8;
         uniform int numLights;
@@ -128,10 +132,21 @@
                 return;
             }
             
-            vec3 glowTexture = vec3(texture2D(glowMap,UV).r);
+            vec3 glowTexture;
+			if(glowMapActive == int(1.0)){
+				glowTexture = vec3(texture2D(glowMap,UV).r);
+			}
+			else{
+				glowTexture = vec3(0.0);
+			}
             vec3 SurfacePosition = Part3.yzw;
 
-            vec3 SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
+			vec3 SurfaceNormal;
+			if(normalMapActive == int(1.0)){
+				SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
+			}else{
+				SurfaceNormal = normalize(Part1.xyz);
+			}
 
             vec3 lighting = SceneAmbient;
             for(int i = 0; i < MAX_LIGHTS; ++i){ // stupid loop index cannot be compared with a non constant uniform... idk why...
@@ -140,8 +155,7 @@
                     vec3 individualLighting = vec3(0.0);
                     if(light.LightProperties.z == 0.0) {//directional light
                         individualLighting = CalcLightInternal(normalize(light.LightPosition),light,SurfaceNormal,SurfacePosition);
-                    } 
-                    else {//point light
+                    }else {//point light
                         vec3 SurfaceToLight = normalize(light.LightPosition - SurfacePosition);
                         individualLighting = CalcLightInternal(SurfaceToLight,light,SurfaceNormal,SurfacePosition);
                         float D = length(light.LightPosition - SurfacePosition);
@@ -177,7 +191,11 @@
     function init(){
         var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
         var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-        Engine.init( w,h );
+		
+		var args = {
+		};
+		
+        Engine.init( w,h,args );
     }
     window.onload = init;
     </script>

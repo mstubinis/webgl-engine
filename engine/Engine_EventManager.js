@@ -5,17 +5,23 @@ var Engine = Engine || {};
     
     Engine.EventManager.loaded = false;
     
+    Engine.EventManager.geolocation = {
+        enabled: false,
+        lat: 0,
+        long: 0,
+        accuracy: 0
+    };
     Engine.EventManager.orientationChange = {
         enabled: true,
         mode: "N/A",
 		currOrientation: ""
-    };
-    
+    };  
     Engine.EventManager.mobile = {
         gyro: {
             alpha: 0,
             beta: 0,
-            gamma: 0
+            gamma: 0,
+			compass: 0
         },
         acc: {
             rotAlpha: 0,
@@ -55,7 +61,7 @@ var Engine = Engine || {};
     Engine.EventManager.keyboard = {
         currentKey: -1,
         prevKey: -1,
-        state: "N/A",
+        //state: "N/A",
         key: {},
         map: {
             KEY_UP: '38',
@@ -162,8 +168,19 @@ var Engine = Engine || {};
             KEY_FORWARDSLASH: '220'
         }
     };
-    Engine.EventManager.isKeyDown = function(k){ return Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]] || false; }
-    Engine.EventManager.isKeyUp = function(k){ return (!Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]]) || true; }
+    Engine.EventManager.isKeyDown = function(k){ 
+		return Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]] || false; 
+	}
+    Engine.EventManager.isKeyDownOnce = function(k){ 
+		var res = Engine.EventManager.isKeyDown(k);
+		var mappedKey = Engine.EventManager.keyboard.map[k]
+		return (res 
+			&& Engine.EventManager.keyboard.currentKey == mappedKey 
+			&& (Engine.EventManager.keyboard.currentKey != Engine.EventManager.keyboard.prevKey)) ? true : false;
+	}
+    Engine.EventManager.isKeyUp = function(k){ 
+		return (!Engine.EventManager.keyboard.key[Engine.EventManager.keyboard.map[k]]) || true; 
+	}
     Engine.EventManager.updateMouseCoords = function(x,y,e){
         Engine.EventManager.mouse.pX = Engine.EventManager.mouse.x;
         Engine.EventManager.mouse.pY = Engine.EventManager.mouse.y;
@@ -171,12 +188,10 @@ var Engine = Engine || {};
         Engine.EventManager.mouse.y = y;
         
         if(!Engine.EventManager.loaded) return;
-        if(Engine.EventManager.pointerLock.activated){
-            
+        if(Engine.EventManager.pointerLock.activated){      
             Engine.EventManager.mouse.diffX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
             Engine.EventManager.mouse.diffY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
-        }
-        else{
+        }else{
             Engine.EventManager.mouse.diffX = (Engine.EventManager.mouse.x - Engine.EventManager.mouse.pX);
             Engine.EventManager.mouse.diffY = (Engine.EventManager.mouse.y - Engine.EventManager.mouse.pY);
         }
@@ -191,21 +206,6 @@ var Engine = Engine || {};
         if(Math.abs(Engine.EventManager.mouse.wheel) > 0){
             Engine.EventManager.mouse.wheel *= 0.7; if(Math.abs(Engine.EventManager.mouse.wheel) < 0.01){ Engine.EventManager.mouse.wheel = 0; }
         }
-        /*
-        document.getElementById("canvasDebug").innerHTML = 
-            "     Acc X: "      + Engine.EventManager.mobile.acc.x.toFixed(4) + 
-            " , Y: "            + Engine.EventManager.mobile.acc.y.toFixed(4) + 
-            " , Z: "            + Engine.EventManager.mobile.acc.z.toFixed(4) +
-            "<br/>Acc GX: "     + Engine.EventManager.mobile.acc.gx.toFixed(4) + 
-            " , GY: "           + Engine.EventManager.mobile.acc.gy.toFixed(4) + 
-            " , GZ: "           + Engine.EventManager.mobile.acc.gz.toFixed(4) + 
-            "<br/>Acc RotX: "   + Engine.EventManager.mobile.acc.rotAlpha.toFixed(4) + 
-            " , RotY: "         + Engine.EventManager.mobile.acc.rotBeta.toFixed(4) + 
-            " , RotZ: "         + Engine.EventManager.mobile.acc.rotGamma.toFixed(4) + 
-            "<br/>Gyro Alpha: " + Engine.EventManager.mobile.gyro.alpha.toFixed(4) + 
-            " , Beta: "         + Engine.EventManager.mobile.gyro.beta.toFixed(4) + 
-            " , Gamma: "        + Engine.EventManager.mobile.gyro.gamma.toFixed(4);
-        */
     }
     Engine.EventManager.ontouchstart = function(e){
         e = window.event || e;
@@ -327,15 +327,25 @@ var Engine = Engine || {};
     }
     Engine.EventManager.onkeydown = function(e){
         e = window.event || e;
-        e.preventDefault();
+
+		Engine.EventManager.keyboard.prevKey    = Engine.EventManager.keyboard.currentKey;
+		Engine.EventManager.keyboard.currentKey = e.keyCode;
+		
         Engine.EventManager.keyboard.key[e.keyCode] = true;
-        Engine.EventManager.keyboard.state = "down";
+        //Engine.EventManager.keyboard.state = "down";
+		
+		e.preventDefault();
     }
     Engine.EventManager.onkeyup = function(e){
         e = window.event || e;
-        e.preventDefault();
+
+		Engine.EventManager.keyboard.prevKey    = -1;
+		Engine.EventManager.keyboard.currentKey = -1;
+		
         Engine.EventManager.keyboard.key[e.keyCode] = false;
-        Engine.EventManager.keyboard.state = "up";
+        //Engine.EventManager.keyboard.state = "up";
+		
+		e.preventDefault();
     }
     Engine.EventManager.onfocusout = function(e){
         e = window.event || e;
@@ -351,6 +361,11 @@ var Engine = Engine || {};
         Engine.EventManager.mobile.gyro.alpha = e.alpha || e.x || 0;
         Engine.EventManager.mobile.gyro.beta = e.beta || e.y || 0;
         Engine.EventManager.mobile.gyro.gamma = e.gamma || e.z || 0;
+		if(e.webkitCompassHeading){// Apple works only with this, alpha doesn't work
+			Engine.EventManager.mobile.gyro.compass = e.webkitCompassHeading;  
+		}else{
+			Engine.EventManager.mobile.gyro.compass = Engine.EventManager.mobile.gyro.alpha;
+		}
     }
     Engine.EventManager.ondevicemotion = function(e){
         e = window.event || e;

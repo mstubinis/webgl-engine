@@ -77,7 +77,7 @@ Skybox.prototype.render = function(){
 Skybox.prototype.draw = function(){
     var shader = Engine.ResourceManager.shaders["Skybox"].program;
 
-    gl.useProgram(shader);
+    Engine.RenderManager.bindShader(shader);
     gl.depthMask(false);
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, "M"),false,this.modelMatrix);
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, "V"),false,Engine.camera.viewMatrix);

@@ -21,6 +21,17 @@ var Engine = Engine || {};
     }
     
     Engine.ResourceManager.initDefaultResources = function(){//add any needed game resources that the user might have forgotten
+        if(!("Triangle" in Engine.ResourceManager.meshes)){
+            var data = "v -1.189336 -2.691553 0.003049\n"+
+						"v 2.856694 1.354477 0.003049\n"+
+						"v -1.189336 1.354477 0.003049\n"+
+						"vt -0.097116 0.247428\n"+
+						"vt 0.749696 0.247428\n"+
+						"vt 0.749696 0.998623\n"+
+						"vn -0.0000 0.0000 1.0000\n"+
+						"f 2/1/1 3/2/1 1/3/1";
+            new Mesh("Triangle",data,false);
+        }
         if(!("Plane" in Engine.ResourceManager.meshes)){
             var data = "v -1.000000 -1.000000 0.000000\n"+
                        "v 1.000000 -1.000000 0.000000\n"+

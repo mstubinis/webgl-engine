@@ -2,13 +2,12 @@
 var Camera = function(n,width,height,scene){
     if(scene === undefined){
         if(n in Engine.scene.cameras){ return undefined; }
-    }
-    else{
+    }else{
         if(n in Engine.ResourceManager.scenes[scene].cameras){ return undefined; }
     }
     
     this.modelMatrix = mat4.create();
-    this._position = vec3.fill(0,0,-9);
+    this._position = vec3.fill(0,0,0);
     this.rotation = quat.fill(0,0,0,1);
     this.viewMatrix = mat4.create();
     this.projectionMatrix = mat4.create();
@@ -16,15 +15,14 @@ var Camera = function(n,width,height,scene){
     //6 vec4's describing the viewing frustrum
     this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
     
-    this.angle = 45.0;
+    this.angle = 60.0;
     this.ratio = Engine.canvas.width/Engine.canvas.height;
-    this.near = 0.001;
+    this.near = 0.01;
     this.far = 10000.0;
 	
 	if(scene === undefined){
 		this.id = Object.keys(Engine.scene.cameras).length;
-	}
-	else{
+	}else{
 		this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
 	}
     
@@ -35,8 +33,7 @@ var Camera = function(n,width,height,scene){
 	
 	if(scene === undefined){
 		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
-	}
-	else{
+	}else{
 		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
 	}
     

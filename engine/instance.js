@@ -191,7 +191,9 @@
         var mesh = Engine.ResourceManager.meshes[this.mesh];
         var material = Engine.ResourceManager.materials[this.material];
         if(mesh === undefined || !mesh.loaded){ return; }
-        gl.useProgram(this.shader);
+
+		Engine.RenderManager.bindShader(this.shader);
+		
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "V"),false,Engine.camera.viewMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "P"),false,Engine.camera.projectionMatrix); 
         //var camPos = Engine.camera.position();

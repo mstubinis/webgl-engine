@@ -1,17 +1,14 @@
 'use strict';
 
 var Shader = function(name,vShaderFile,fShaderFile,attribs,vId,fId){
-    if(name in Engine.ResourceManager.shaders){ return Engine.ResourceManager.shaders[name]; }
-    
+    if(name in Engine.ResourceManager.shaders){ return Engine.ResourceManager.shaders[name]; }  
     this.program = -1;
     if(vId === undefined && fId === undefined){
         this.compile(vShaderFile,fShaderFile,attribs);
-    }
-    else{
+    }else{
         this.loadFromText(vShaderFile,fShaderFile,vId,fId);
         this.compile(vId,fId,attribs);
     }
-    
     Engine.ResourceManager.shaders[name] = this;
 };
 Shader.prototype.loadFromText = function(vShaderText,fShaderText,vId,fId){
@@ -43,6 +40,9 @@ Shader.prototype.compile = function(vshader, fshader, attribs){
     var linked = gl.getProgramParameter(this.program, gl.LINK_STATUS);
     if(!linked){
         var error = gl.getProgramInfoLog(this.program);
+		if(window.console && window.console.log){
+			console.log("Link status error in compiling shader: " + msg);
+		}
         gl.deleteProgram(this.program);
         gl.deleteProgram(fragmentShader);
         gl.deleteProgram(vertexShader);
