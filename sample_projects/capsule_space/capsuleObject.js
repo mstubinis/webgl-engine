@@ -20,7 +20,10 @@ CapsuleDreadnaught.prototype = Object.create(GameObject.prototype);
 CapsuleDreadnaught.prototype.update = function(){
 	return;
 }
-
+CapsuleDreadnaught.prototype.customRender = function(){
+	gl.enable(gl.DEPTH_TEST);
+	//gl.depthMask(gl.TRUE);
+}
 var CapsuleStar = function(name,mesh,material,spawnLight,scene){
 	CapsuleObject.call(this,name,mesh,material,scene);
 	this.color = vec4.fill(255.0/255.0,235/255.0,206/255.0,1.0);
@@ -62,24 +65,11 @@ CapsuleStar.prototype.update = function(){
 }
 
 
-
-
-
 var CapsuleRibbon = function(name,mesh,material,scene){
-	CapsuleObject.call(this,name,mesh,material,scene);
+	GameObject.call(this,name,mesh,material,scene);
 }; 
-CapsuleRibbon.prototype = Object.create(CapsuleObject.prototype);
+CapsuleRibbon.prototype = Object.create(GameObject.prototype);
 CapsuleRibbon.prototype.customRender = function(){
 	gl.disable(gl.DEPTH_TEST);
-}
-CapsuleRibbon.prototype.render = function(){
-    if(!this.visible) return;
-	if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
-
-	//gl.disable(gl.DEPTH_TEST);
-	//gl.depthMask(gl.FALSE);
-	
-    this.shader = Engine.ResourceManager.shaders["Default"].program;
-    this.drawMode = gl.TRIANGLES;
-    Engine.RenderManager.objectQueue.push(this);
+	//gl.depthMask(gl.TRUE);
 }

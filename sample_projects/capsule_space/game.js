@@ -60,10 +60,10 @@ var Engine = Engine || {};
 		Engine.Game.tunnelB_2.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		Engine.Game.tunnelB_3.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		
-		Engine.Game.ribbon1 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1A","CapsuleRibbon_1A","Capsule_C");
-		Engine.Game.ribbon2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1B","CapsuleRibbon_1B","Capsule_C");
-		Engine.Game.ribbon3 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1C","CapsuleRibbon_1C","Capsule_C");
-		Engine.Game.ribbon4 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1D","CapsuleRibbon_1D","Capsule_C");
+		Engine.Game.ribbon1 = new CapsuleRibbon("AAAAAA_Capsule_Tunnel_C_Ribbon_1A","CapsuleRibbon_1A","Capsule_C");
+		Engine.Game.ribbon2 = new CapsuleRibbon("AAAAAA_Capsule_Tunnel_C_Ribbon_1B","CapsuleRibbon_1B","Capsule_C");
+		Engine.Game.ribbon3 = new CapsuleRibbon("AAAAAA_Capsule_Tunnel_C_Ribbon_1C","CapsuleRibbon_1C","Capsule_C");
+		Engine.Game.ribbon4 = new CapsuleRibbon("AAAAAA_Capsule_Tunnel_C_Ribbon_1D","CapsuleRibbon_1D","Capsule_C");
 		
 		Engine.Game.ribbon1.setPosition(0,6,0);
 		Engine.Game.ribbon2.setPosition(0,6,0);
