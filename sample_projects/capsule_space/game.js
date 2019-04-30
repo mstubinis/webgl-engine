@@ -14,8 +14,10 @@ var Engine = Engine || {};
 		new Mesh("CapsuleTunnel_2","data/models/capsuleTunnel_2.obj");
 		new Mesh("CapsuleTunnel_3","data/models/capsuleTunnel_3.obj");
 		
-		new Mesh("CapsuleRibbon_1","data/models/capsuleRibbon_1.obj");
-		new Mesh("CapsuleRibbon_2","data/models/capsuleRibbon_2.obj");
+		new Mesh("CapsuleRibbon_1A","data/models/capsuleRibbon_1A.obj");
+		new Mesh("CapsuleRibbon_1B","data/models/capsuleRibbon_1B.obj");
+		new Mesh("CapsuleRibbon_1C","data/models/capsuleRibbon_1C.obj");
+		new Mesh("CapsuleRibbon_1D","data/models/capsuleRibbon_1D.obj");
 		
 		new Material("StarFlare","data/effects/StarFlare.png");
 		new Material("Capsule_A","data/effects/capsule_a.png");
@@ -58,14 +60,20 @@ var Engine = Engine || {};
 		Engine.Game.tunnelB_2.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		Engine.Game.tunnelB_3.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		
-		Engine.Game.ribbon1 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1","CapsuleRibbon_1","Capsule_C");
-		Engine.Game.ribbon1.setPosition(0,6,0);
+		Engine.Game.ribbon1 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1A","CapsuleRibbon_1A","Capsule_C");
+		Engine.Game.ribbon2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1B","CapsuleRibbon_1B","Capsule_C");
+		Engine.Game.ribbon3 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1C","CapsuleRibbon_1C","Capsule_C");
+		Engine.Game.ribbon4 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1D","CapsuleRibbon_1D","Capsule_C");
 		
-		Engine.Game.ribbon2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_2","CapsuleRibbon_2","Capsule_C");
+		Engine.Game.ribbon1.setPosition(0,6,0);
 		Engine.Game.ribbon2.setPosition(0,6,0);
+		Engine.Game.ribbon3.setPosition(0,6,0);
+		Engine.Game.ribbon4.setPosition(0,6,0);
 		
 		Engine.Game.ribbon1.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
 		Engine.Game.ribbon2.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
+		Engine.Game.ribbon3.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
+		Engine.Game.ribbon4.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
 		
 		Engine.Game.timer = 0;
 		
@@ -178,6 +186,8 @@ var Engine = Engine || {};
 		
 		Engine.Game.ribbon1.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
 		Engine.Game.ribbon2.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
+		Engine.Game.ribbon3.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
+		Engine.Game.ribbon4.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
 		
 		Engine.Game.tunnelA_1.rotate(0,0,0.24,true);
 		Engine.Game.tunnelA_2.rotate(0,0,0.24,true);
@@ -212,6 +222,17 @@ var Engine = Engine || {};
 		if(Engine.Game.ribbon2.position()[2] >= 20.0 * Engine.Game.tunnel_radius*3 || Engine.Game.ribbon2.position()[2] <= -20.0 * Engine.Game.tunnel_radius*3){
 			Engine.Game.ribbon2.setPosition(0,6,0);
 		}
+		
+		if(Engine.Game.ribbon3.position()[2] >= 20.0 * Engine.Game.tunnel_radius*3 || Engine.Game.ribbon3.position()[2] <= -20.0 * Engine.Game.tunnel_radius*3){
+			Engine.Game.ribbon3.setPosition(0,6,0);
+		}
+		if(Engine.Game.ribbon4.position()[2] >= 20.0 * Engine.Game.tunnel_radius*3 || Engine.Game.ribbon4.position()[2] <= -20.0 * Engine.Game.tunnel_radius*3){
+			Engine.Game.ribbon4.setPosition(0,6,0);
+		}
+		
+		
+		
+		
 		//
     }
 	Engine.Game.render = function(){

@@ -187,6 +187,9 @@
         this.drawMode = gl.TRIANGLES;
         Engine.RenderManager.objectQueue.push(this);
     }
+    InstanceObject.prototype.customRender = function(){
+
+    }
     InstanceObject.prototype.draw = function(){
         var mesh = Engine.ResourceManager.meshes[this.mesh];
         var material = Engine.ResourceManager.materials[this.material];

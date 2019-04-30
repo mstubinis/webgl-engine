@@ -60,3 +60,26 @@ CapsuleStar.prototype.update = function(){
     mat4.mul(this.modelMatrix,this.modelMatrix,mat4FromQuat);
     mat4.scale(this.modelMatrix,this.modelMatrix,this.scale);
 }
+
+
+
+
+
+var CapsuleRibbon = function(name,mesh,material,scene){
+	CapsuleObject.call(this,name,mesh,material,scene);
+}; 
+CapsuleRibbon.prototype = Object.create(CapsuleObject.prototype);
+CapsuleRibbon.prototype.customRender = function(){
+	gl.disable(gl.DEPTH_TEST);
+}
+CapsuleRibbon.prototype.render = function(){
+    if(!this.visible) return;
+	if(!Engine.camera.sphereIntersectTest(this.position(),this.radius)){ return; }
+
+	//gl.disable(gl.DEPTH_TEST);
+	//gl.depthMask(gl.FALSE);
+	
+    this.shader = Engine.ResourceManager.shaders["Default"].program;
+    this.drawMode = gl.TRIANGLES;
+    Engine.RenderManager.objectQueue.push(this);
+}

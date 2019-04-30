@@ -85,6 +85,9 @@
         this.drawMode = gl.TRIANGLES;
         Engine.RenderManager.objectQueue.push(this);
     }
+    GameObject.prototype.customRender = function(){
+
+    }
     GameObject.prototype.draw = function(){
         Engine.RenderManager.drawObject(this);
     }
@@ -197,6 +200,9 @@
         this.shader = Engine.ResourceManager.shaders["Default"].program;
         this.drawMode = gl.TRIANGLES;
         Engine.RenderManager.objectQueue.push(this);
+    }
+    GameObjectDynamic.prototype.customRender = function(){
+
     }
     GameObjectDynamic.prototype.draw = function(){
         Engine.RenderManager.drawObject(this);

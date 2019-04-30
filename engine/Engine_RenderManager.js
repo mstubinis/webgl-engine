@@ -35,6 +35,7 @@ var Engine = Engine || {};
         
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
+		gl.depthMask(gl.TRUE);
 		
 		if (Engine.args["gbuffer"] !== undefined && Engine.args["gbuffer"] != false){
 			Engine.GBuffer.init();
@@ -86,6 +87,7 @@ var Engine = Engine || {};
         if(mesh === undefined || !mesh.loaded){ return; }
 
 		this.bindShader(obj.shader);
+		obj.customRender();
 		  
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "M"),false,obj.modelMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "V"),false,Engine.camera.viewMatrix);
