@@ -196,8 +196,8 @@
 		
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "V"),false,Engine.camera.viewMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "P"),false,Engine.camera.projectionMatrix); 
-        //var camPos = Engine.camera.position();
-        //gl.uniform3f(gl.getUniformLocation(this.shader, "CameraPosition"),camPos[0],camPos[1],camPos[2]);
+        var camPos = Engine.camera.position();
+        gl.uniform3f(gl.getUniformLocation(this.shader, "CameraPosition"),camPos[0],camPos[1],camPos[2]);
 		
 		// Bind the instance matrix data
 		gl.enableVertexAttribArray(5);

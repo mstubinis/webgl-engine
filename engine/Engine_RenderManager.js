@@ -24,7 +24,6 @@ var Engine = Engine || {};
         var combinedTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         
         var maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-		//console.log(maxVertexAttribs);
 
         var highp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
         var highpSupported = highp.precision != 0;

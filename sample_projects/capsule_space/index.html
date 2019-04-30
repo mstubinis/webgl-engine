@@ -2,9 +2,21 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>WebGL Engine</title>
+    <title>Capsule Space</title>
     <style>
-    html,head,body{margin:0;outline:0;border:0;padding:0;overflow:hidden;left:0;top:0;position:absolute;z-index:1;}
+    html,head,body{
+		margin:0;
+		outline:0;
+		border:0;
+		padding:0;
+		overflow:hidden;
+		left:0;
+		top:0;
+		position:absolute;
+		z-index:1;
+		width:100%;
+		height:100%;
+	}
     </style>
 	<link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- no favicon -->
     <script src="../../deps/gl-matrix.js"> </script>
@@ -12,27 +24,27 @@
     <script src="../../deps/OBJLoader.js"></script>
     <script src="../../deps/ammo.js"></script>
 	
-    <script src="../../engine/Engine_ResourceManager.js"></script>
-    <script src="../../engine/Engine_GBuffer.js"></script>
-    <script src="../../engine/Engine_RenderManager.js"></script>
-    <script src="../../engine/Engine_ObjectManager.js"></script>
-    <script src="../../engine/Engine_EventManager.js"></script>
-	<script src="../../engine/Engine_PhysicsManager.js"></script>
-	<script src="../../engine/Engine_SoundManager.js"></script>
-    <script src="../../engine/Engine_Math.js"></script>
-    <script src="../../engine/Engine_Core.js"></script>
+    <script src="../../deps/webgl-engine/Engine_ResourceManager.js"></script>
+    <script src="../../deps/webgl-engine/Engine_GBuffer.js"></script>
+    <script src="../../deps/webgl-engine/Engine_RenderManager.js"></script>
+    <script src="../../deps/webgl-engine/Engine_ObjectManager.js"></script>
+    <script src="../../deps/webgl-engine/Engine_EventManager.js"></script>
+	<script src="../../deps/webgl-engine/Engine_PhysicsManager.js"></script>
+	<script src="../../deps/webgl-engine/Engine_SoundManager.js"></script>
+    <script src="../../deps/webgl-engine/Engine_Math.js"></script>
+    <script src="../../deps/webgl-engine/Engine_Core.js"></script>
     
-    <script src="../../engine/scene.js"></script>
-    <script src="../../engine/shader.js"></script>
-    <script src="../../engine/mesh.js"></script>
-    <script src="../../engine/texture.js"></script>
-    <script src="../../engine/material.js"></script>
-    <script src="../../engine/camera.js"></script>
-    <script src="../../engine/object.js"></script>
-    <script src="../../engine/skybox.js"></script>
-    <script src="../../engine/light.js"></script>
-    <script src="../../engine/sound.js"></script>
-	<script src="../../engine/instance.js"></script>
+    <script src="../../deps/webgl-engine/scene.js"></script>
+    <script src="../../deps/webgl-engine/shader.js"></script>
+    <script src="../../deps/webgl-engine/mesh.js"></script>
+    <script src="../../deps/webgl-engine/texture.js"></script>
+    <script src="../../deps/webgl-engine/material.js"></script>
+    <script src="../../deps/webgl-engine/camera.js"></script>
+    <script src="../../deps/webgl-engine/object.js"></script>
+    <script src="../../deps/webgl-engine/skybox.js"></script>
+    <script src="../../deps/webgl-engine/light.js"></script>
+    <script src="../../deps/webgl-engine/sound.js"></script>
+	<script src="../../deps/webgl-engine/instance.js"></script>
 	
 	<script src="capsuleObject.js"></script>
     <script src="game.js"></script>
@@ -181,9 +193,13 @@
         }
     }
     function init(){
-        var w = Math.floor(window.innerWidth * 1.0);
-        var h = Math.floor(window.innerHeight * 1.0);
-        Engine.init( w,h );
+        //var w = Math.floor(window.innerWidth * 1.0);
+        //var h = Math.floor(window.innerHeight * 1.0);
+        var w = 800;
+        var h = 600;
+		var args = {
+		};
+        Engine.init( w,h,args );
     }
     window.onload = init;
     </script>

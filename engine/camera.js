@@ -129,13 +129,13 @@ Camera.prototype.update = function(dt){
 	}
 	this.viewWasOverriden = false;
 }
-Camera.prototype.rotate = function(x,y,z){
-    Engine.GameObjectManager.rotate(this,x,y,z);
+Camera.prototype.rotate = function(x,y,z,useDelta){
+    Engine.GameObjectManager.rotate(this,x,y,z,useDelta);
     this.update(Engine.dt);
 }
-Camera.prototype.rotateX = function(x){ this.rotate(x,0,0); }
-Camera.prototype.rotateY = function(y){ this.rotate(0,y,0); }
-Camera.prototype.rotateZ = function(z){ this.rotate(0,0,z); }
+Camera.prototype.rotateX = function(x,useDelta){ this.rotate(x,0,0,useDelta); }
+Camera.prototype.rotateY = function(y,useDelta){ this.rotate(0,y,0,useDelta); }
+Camera.prototype.rotateZ = function(z,useDelta){ this.rotate(0,0,z,useDelta); }
 
 Camera.prototype.up = function(){ return Engine.GameObjectManager.up(this); }
 Camera.prototype.right = function(){ return Engine.GameObjectManager.right(this); }

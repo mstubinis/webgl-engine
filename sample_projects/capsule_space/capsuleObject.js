@@ -27,27 +27,31 @@ var CapsuleStar = function(name,mesh,material,spawnLight,scene){
 }; 
 CapsuleStar.prototype = Object.create(CapsuleObject.prototype);
 CapsuleStar.prototype.update = function(){
+	if(Engine.paused()) return;
+	
     if(this.radius == 0 && (this.mesh) in Engine.ResourceManager.meshes && Engine.ResourceManager.meshes[this.mesh].loaded){
         Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
     }	
-    this._position[2] += (160 * Engine.Game.starSize );
+    this._position[2] += ((75 * Engine.Game.starSize) * Engine.dt );
     if(this._position[2] >= 200 * Engine.Game.starSize){
-		var x = (( Math.random() * 200) - 100)/100 * 3.7;
-		if(x > 0)
-			x += 1.5;
-		if(x < 0)
-			x -= 1.5;
-		var y = (( Math.random() * 200) - 100)/100 * 3.7;
-		if(y > 0)
-			y += 1.5;
-		if(y < 0)
-			y -= 1.5;
-        this._position[0] = x;
-		this._position[1] = y;
+		
+		var randDegree = (Math.random() * 360.0) * 0.0174533;
+		
+		var x = Math.sin(randDegree);
+		var y = Math.cos(randDegree);
+		x *= ((Engine.Game.starSize * 3) + 4);
+		y *= ((Engine.Game.starSize * 3) + 4);
+		var randSkewX = (Math.random() * 100) / 100;
+		var randSkewY = (Math.random() * 100) / 100;
+		randSkewX *= Engine.Game.starSize;
+		randSkewY *= Engine.Game.starSize;
+			
+        this._position[0] = x + randSkewX;
+		this._position[1] = y + randSkewY;
 		this._position[2] = -200 * Engine.Game.starSize;
     }	
-	this.rotation = Engine.camera.rotation - 1.5708;
-
+    this.rotation = Engine.camera.rotation;
+	
     mat4.identity(this.modelMatrix);
 
     mat4.translate(this.modelMatrix,this.modelMatrix,this._position);

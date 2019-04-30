@@ -1,7 +1,10 @@
 'use strict'; 
 var Engine = Engine || {};
+
+
 (function (scope, undefined){
     Engine.Game = {};
+	Engine.Game.cameraWheelScale = vec3.fill(2,2,2);
     
     Engine.Game.initResources = function(){
         new Mesh("Dreadnaught","data/models/dreadnaught.obj");
@@ -26,7 +29,7 @@ var Engine = Engine || {};
 		Engine.ResourceManager.materials["Capsule_D"].shadeless = true;
     }
     Engine.Game.initLogic = function(){
-		Engine.Game.starSize = 1.0;
+		Engine.Game.starSize = 10.0;
 		Engine.requestPointerLock();
         
         var light = new Light("PointLight1");
@@ -45,7 +48,7 @@ var Engine = Engine || {};
 		Engine.Game.tunnelB_2 = new GameObject("AAAAAA_Capsule_Tunnel_B_2","CapsuleTunnel_2","Capsule_B");
 		Engine.Game.tunnelB_3 = new GameObject("AAAAAA_Capsule_Tunnel_B_3","CapsuleTunnel_3","Capsule_B");
 		
-		Engine.Game.tunnel_radius = 5.0;
+		Engine.Game.tunnel_radius = 50.0;
 		
 		Engine.Game.tunnelA_1.setScale(1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		Engine.Game.tunnelA_2.setScale(1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
@@ -55,88 +58,133 @@ var Engine = Engine || {};
 		Engine.Game.tunnelB_2.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		Engine.Game.tunnelB_3.setScale(0.8 * Engine.Game.tunnel_radius,0.8 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
 		
-		Engine.Game.end2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_D_End_2","Plane","Capsule_D");
-		
 		Engine.Game.ribbon1 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_1","CapsuleRibbon_1","Capsule_C");
-		Engine.Game.ribbon1.setPosition(0,0.5,0);
+		Engine.Game.ribbon1.setPosition(0,6,0);
 		
 		Engine.Game.ribbon2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_C_Ribbon_2","CapsuleRibbon_2","Capsule_C");
-		Engine.Game.ribbon2.setPosition(0,0.5,0);
+		Engine.Game.ribbon2.setPosition(0,6,0);
 		
-		Engine.Game.ribbon1.setScale(1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
-		Engine.Game.ribbon2.setScale(1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius,1.0 * Engine.Game.tunnel_radius);
+		Engine.Game.ribbon1.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
+		Engine.Game.ribbon2.setScale(3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius,3.0 * Engine.Game.tunnel_radius);
 		
 		Engine.Game.timer = 0;
 		
 		Engine.Game.end1 = new CapsuleObject("AAAAAA_Capsule_Tunnel_D_End_1","Plane","Capsule_D");
+		Engine.Game.end2 = new CapsuleObject("AAAAAA_Capsule_Tunnel_D_End_2","Plane","Capsule_D");
 		
-		Engine.Game.end1.setPosition(0,0,-500);
-		Engine.Game.end2.setPosition(0,0,500);
+		Engine.Game.end1.setPosition(0,0,-500*3);
+		Engine.Game.end2.setPosition(0,0,500*3);
 		
-		Engine.Game.end1.setScale(19,19,19);
-		Engine.Game.end2.setScale(19,19,19);
+		Engine.Game.end2.rotateX(180 * 0.0174533);
+		
+		Engine.Game.end1.setScale(19*3,19*3,19*3);
+		Engine.Game.end2.setScale(19*3,19*3,19*3);
 		
 		Engine.Game.end2.color = vec4.fill(0,0,0,1);
 		
-		var step = -10.0;
+		var step = -10.0 * Engine.Game.starSize;
 		for(var i = 0; i < 60; i++){
-			var x = (( Math.random() * 200) - 100)/100 * 3.7; 
-			if(x > 0) 
-				x += 1.5; 
-			if(x < 0) 
-				x -= 1.5;
-			var y = (( Math.random() * 200) - 100)/100 * 3.7; 
-			if(y > 0) 
-				y += 1.5; 
-			if(y < 0) 
-				y -= 1.5;
-
-			var res = vec3.create();
-			var pos = vec3.fill(x,y,step);
-			var pos1 = vec3.fill(Engine.Game.starSize,Engine.Game.starSize,Engine.Game.starSize);
-			vec3.mul(res,pos,pos1);
+			var randDegree = (Math.random() * 360.0) * 0.0174533;
+			
+			var x = Math.sin(randDegree);
+			var y = Math.cos(randDegree);
+			x *= ((Engine.Game.starSize * 3) + 4);
+			y *= ((Engine.Game.starSize * 3) + 4);
+			var randSkewX = (Math.random() * 100) / 100;
+			var randSkewY = (Math.random() * 100) / 100;
+			randSkewX *= Engine.Game.starSize;
+			randSkewY *= Engine.Game.starSize;
+			var pos = vec3.fill(x + randSkewX,y + randSkewY,step);
 
 			var spawnLight = false;
 			if(i % 7 == 0){
 				spawnLight = true;
 			}
 			var star = new CapsuleStar("AAAAAA_Capsule_Tunnel_D_Star_" + i,"Plane","StarFlare",spawnLight)
-			star._position = res;
-			star.scale = vec3.fill(0.5,0.5,0.5);
-			step -= 6.0;
+			star._position = pos;
+			star.scale = vec3.fill(0.5 * Engine.Game.starSize,0.5 * Engine.Game.starSize,0.5 * Engine.Game.starSize);
+			step -= 6.0 * Engine.Game.starSize;
 		}	
         var dreadnaught = new CapsuleDreadnaught("Dreadnaught","Dreadnaught","Dreadnaught");
         dreadnaught.setPosition(0,0,0);
     }
+	Engine.Game.onResize = function(e){
+		setTimeout(function(){ 
+			var w = 800;
+            var h = 600;
+			Engine.resize(w,h);
+		}, 100);
+	}
     Engine.Game.update = function(dt){
-		Engine.Game.timer += dt;
 		//make camera orbit object
-        Engine.camera.rotateX(Engine.EventManager.mouse.diffY * 0.25);
-        Engine.camera.rotateY(-Engine.EventManager.mouse.diffX * 0.25);
-		var res = vec3.fill(1,1,1);
-		res[0] *= -Engine.camera.forward()[0];
-		res[1] *= -Engine.camera.forward()[1];
-		res[2] *= -Engine.camera.forward()[2];
-		mat4.lookAt(Engine.camera.viewMatrix,res,Engine.scene.objects["Dreadnaught"]._position,Engine.camera.up());
+		if(Engine.isMouseDown("LEFT")){
+			Engine.camera.rotateY( -Engine.EventManager.mouse.diffX * 0.55,true  );
+			Engine.camera.rotateX( -Engine.EventManager.mouse.diffY * 0.55,true  );	
+		}
+		
+		Engine.Game.cameraWheelScale[0] -= Engine.EventManager.mouse.wheel * 0.2;
+		Engine.Game.cameraWheelScale[1] -= Engine.EventManager.mouse.wheel * 0.2;
+		Engine.Game.cameraWheelScale[2] -= Engine.EventManager.mouse.wheel * 0.2;
+		
+		if(Engine.Game.cameraWheelScale[0] < 0.5) Engine.Game.cameraWheelScale[0] = 0.5;
+		if(Engine.Game.cameraWheelScale[1] < 0.5) Engine.Game.cameraWheelScale[1] = 0.5;
+		if(Engine.Game.cameraWheelScale[2] < 0.5) Engine.Game.cameraWheelScale[2] = 0.5;
+
+		if(Engine.Game.cameraWheelScale[0] > 4) Engine.Game.cameraWheelScale[0] = 4;
+		if(Engine.Game.cameraWheelScale[1] > 4) Engine.Game.cameraWheelScale[1] = 4;
+		if(Engine.Game.cameraWheelScale[2] > 4) Engine.Game.cameraWheelScale[2] = 4;
+		
+		
+		var res = vec3.fill(Engine.Game.cameraWheelScale[0],Engine.Game.cameraWheelScale[1],Engine.Game.cameraWheelScale[2]);
+		var fwd = Engine.camera.forward();
+		res[0] *= -fwd[0];
+		res[1] *= -fwd[1];
+		res[2] *= -fwd[2];
+		
+		Engine.camera.lookAt(res,Engine.scene.objects["Dreadnaught"]._position,Engine.camera.up());
+		
+		var sine = Math.sin(Engine.Game.timer * 2.4);
+		var cose = Math.cos(Engine.Game.timer * 2.4);
+		var x = sine * 0.07;
+		var y = cose * 0.05;
+		var roll  = (sine * 5.0) * 0.0174533;
+		var pitch = (sine * 3.7) * 0.0174533;
+		var q = quat.create();
+		quat.rotateX(q,q,pitch);
+		quat.rotateZ(q,q,roll);
+		
+        var pos = vec3.fill(x*1.2,-y,0.0);
+
+		mat4.identity(Engine.scene.objects["Dreadnaught"].modelMatrix);
+		mat4.translate(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,pos);
+		var mat4FromQuat = mat4.create();
+		mat4.fromQuat(mat4FromQuat,q);
+		mat4.mul(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,mat4FromQuat);
+		mat4.scale(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].scale);
+		
+		if(Engine.paused()) return;
+		
+		Engine.Game.timer += dt;
+
 		//			
 		//update capsule tunnel entities
-		Engine.Game.tunnelA_1.translate(0,0,(-38 * Engine.Game.tunnel_radius));
-		Engine.Game.tunnelA_2.translate(0,0,(-38 * Engine.Game.tunnel_radius));
-		Engine.Game.tunnelA_3.translate(0,0,(-38 * Engine.Game.tunnel_radius));
+		Engine.Game.tunnelA_1.translate(0,0,(-31 * Engine.Game.tunnel_radius));
+		Engine.Game.tunnelA_2.translate(0,0,(-31 * Engine.Game.tunnel_radius));
+		Engine.Game.tunnelA_3.translate(0,0,(-31 * Engine.Game.tunnel_radius));
 		
-		Engine.Game.tunnelB_1.translate(0,0,(-38 * Engine.Game.tunnel_radius));
-		Engine.Game.tunnelB_2.translate(0,0,(-38 * Engine.Game.tunnel_radius));
-		Engine.Game.tunnelB_3.translate(0,0,(-38 * Engine.Game.tunnel_radius));		
+		Engine.Game.tunnelB_1.translate(0,0,(-31 * Engine.Game.tunnel_radius));
+		Engine.Game.tunnelB_2.translate(0,0,(-31 * Engine.Game.tunnel_radius));
+		Engine.Game.tunnelB_3.translate(0,0,(-31 * Engine.Game.tunnel_radius));		
 		
-		Engine.Game.ribbon1.translate(0,0,(-18 * Engine.Game.tunnel_radius));
-		Engine.Game.ribbon2.translate(0,0,(-18 * Engine.Game.tunnel_radius));
+		Engine.Game.ribbon1.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
+		Engine.Game.ribbon2.translate(0,0,(-18 * Engine.Game.tunnel_radius*3));
 		
-		Engine.Game.tunnelA_1.rotate(0,0,0.24);
-		Engine.Game.tunnelA_2.rotate(0,0,0.24);
-		Engine.Game.tunnelA_3.rotate(0,0,0.24);
-		Engine.Game.tunnelB_1.rotate(0,0,-0.16);
-		Engine.Game.tunnelB_2.rotate(0,0,-0.16);
-		Engine.Game.tunnelB_3.rotate(0,0,-0.16);
+		Engine.Game.tunnelA_1.rotate(0,0,0.24,true);
+		Engine.Game.tunnelA_2.rotate(0,0,0.24,true);
+		Engine.Game.tunnelA_3.rotate(0,0,0.24,true);
+		Engine.Game.tunnelB_1.rotate(0,0,-0.16,true);
+		Engine.Game.tunnelB_2.rotate(0,0,-0.16,true);
+		Engine.Game.tunnelB_3.rotate(0,0,-0.16,true);
 			
 		if(Engine.Game.tunnelA_1.position()[2] >= 12.112 * Engine.Game.tunnel_radius || Engine.Game.tunnelA_1.position()[2] <= -12.112 * Engine.Game.tunnel_radius){
 			Engine.Game.tunnelA_1.setPosition(0,0,0);
@@ -158,41 +206,15 @@ var Engine = Engine || {};
 			Engine.Game.tunnelB_3.setPosition(0,0,0);
 		}
 		
-		if(Engine.Game.ribbon1.position()[2] >= 20.0 * Engine.Game.tunnel_radius || Engine.Game.ribbon1.position()[2] <= -20.0 * Engine.Game.tunnel_radius){
-			Engine.Game.ribbon1.setPosition(0,0.5,0);
+		if(Engine.Game.ribbon1.position()[2] >= 20.0 * Engine.Game.tunnel_radius*3 || Engine.Game.ribbon1.position()[2] <= -20.0 * Engine.Game.tunnel_radius*3){
+			Engine.Game.ribbon1.setPosition(0,6,0);
 		}
-		if(Engine.Game.ribbon2.position()[2] >= 20.0 * Engine.Game.tunnel_radius || Engine.Game.ribbon2.position()[2] <= -20.0 * Engine.Game.tunnel_radius){
-			Engine.Game.ribbon2.setPosition(0,0.5,0);
+		if(Engine.Game.ribbon2.position()[2] >= 20.0 * Engine.Game.tunnel_radius*3 || Engine.Game.ribbon2.position()[2] <= -20.0 * Engine.Game.tunnel_radius*3){
+			Engine.Game.ribbon2.setPosition(0,6,0);
 		}
-		
-		var sine = Math.sin(Engine.Game.timer * 2.4);
-		var cose = Math.cos(Engine.Game.timer * 2.4);
-		var x = sine * 0.07;
-		var y = cose * 0.05;
-		var roll  = (sine * 5.0) * 0.0174533;
-		var pitch = (sine * 3.7) * 0.0174533;
-		var q = quat.create();
-		quat.rotateX(q,q,pitch);
-		quat.rotateZ(q,q,roll);
-		
-/*
-		var x = Math.sin(Engine.Game.timer)*0.06;
-		var y = Math.cos(Engine.Game.timer)*0.031;
-		var rot = Math.sin(Engine.Game.timer)*0.2;
-
-		var pos = vec3.fill(x*1.2,-y,0.0);
-		var q = quat.create();
-		quat.rotateZ(q,q,rot);
-*/
-        var pos = vec3.fill(x*1.2,-y,0.0);
-
-
-		mat4.identity(Engine.scene.objects["Dreadnaught"].modelMatrix);
-		mat4.translate(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,pos);
-		var mat4FromQuat = mat4.create();
-		mat4.fromQuat(mat4FromQuat,q);
-		mat4.mul(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,mat4FromQuat);
-		mat4.scale(Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].modelMatrix,Engine.scene.objects["Dreadnaught"].scale);
 		//
     }
+	Engine.Game.render = function(){
+
+	}
 })(this);

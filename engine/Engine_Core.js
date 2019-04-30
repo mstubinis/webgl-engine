@@ -8,10 +8,17 @@ Engine.getExtension=function(f){return f.substr((~-f.lastIndexOf(".")>>>0)+2);}
 Engine.args = undefined //args passed into the engine by the user
 Engine.framerate = function(){ return 1.00000000 / Engine.dt; }
 Engine.fps = Engine.framerate;
+Engine.focused = true;
 
 if(!Array.prototype.indexOf){
 Array.prototype.indexOf=function(e){var l=this.length>>>0;var f=Number(arguments[1]) || 0;
 f=(f<0)?Math.ceil(f):Math.floor(f);if(f<0)f+=l;for(;f<l;f++){if(f in this && this[f]===e)return f;}return -1;};}
+
+Engine.paused = function(){
+	if( Engine.focused == false)
+		return true;
+	return false;
+}
 
 Engine.run = function(){
     var now = Date.now();
@@ -48,9 +55,13 @@ Engine.init = function(w,h,args){
     //first build the canvas and it's necessary html elements.
     var body = document.getElementsByTagName('body')[0];
 	
+	var wrapperDIV_1 = document.createElement('div');
+	wrapperDIV_1.setAttribute('style', 'width:100%');
+    body.appendChild(wrapperDIV_1);
+	
 	var wrapperDIV = document.createElement('div');
 	wrapperDIV.setAttribute('style', 'width:800px;margin:0 auto;');
-    body.appendChild(wrapperDIV);
+    wrapperDIV_1.appendChild(wrapperDIV);
 	
     var canvas_event_element = document.createElement('div');
     canvas_event_element.setAttribute('tabindex', '0');

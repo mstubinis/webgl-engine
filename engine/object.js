@@ -88,13 +88,13 @@
     GameObject.prototype.draw = function(){
         Engine.RenderManager.drawObject(this);
     }
-    GameObject.prototype.rotate = function(x,y,z){
-        Engine.GameObjectManager.rotate(this,x,y,z);
+    GameObject.prototype.rotate = function(x,y,z,useDelta){
+        Engine.GameObjectManager.rotate(this,x,y,z,useDelta);
         this.needsUpdate = true;
     }
-    GameObject.prototype.rotateX = function(x){ this.rotate(x,0,0); }
-    GameObject.prototype.rotateY = function(y){ this.rotate(0,y,0); }
-    GameObject.prototype.rotateZ = function(z){ this.rotate(0,0,z); }
+    GameObject.prototype.rotateX = function(x,useDelta){ this.rotate(x,0,0,useDelta); }
+    GameObject.prototype.rotateY = function(y,useDelta){ this.rotate(0,y,0,useDelta); }
+    GameObject.prototype.rotateZ = function(z,useDelta){ this.rotate(0,0,z,useDelta); }
         
     GameObject.prototype.up = function(){ return Engine.GameObjectManager.up(this); }
     GameObject.prototype.right = function(){ return Engine.GameObjectManager.right(this); }
@@ -201,12 +201,12 @@
     GameObjectDynamic.prototype.draw = function(){
         Engine.RenderManager.drawObject(this);
     }
-    GameObjectDynamic.prototype.rotate = function(x,y,z){
-        Engine.GameObjectManager.rotateDynamic(this,x,y,z);
+    GameObjectDynamic.prototype.rotate = function(x,y,z,useDelta){
+        Engine.GameObjectManager.rotateDynamic(this,x,y,z,useDelta);
     }
-    GameObjectDynamic.prototype.rotateX = function(x){ this.rotate(x,0,0); }
-    GameObjectDynamic.prototype.rotateY = function(y){ this.rotate(0,y,0); }
-    GameObjectDynamic.prototype.rotateZ = function(z){ this.rotate(0,0,z); }
+    GameObjectDynamic.prototype.rotateX = function(x,useDelta){ this.rotate(x,0,0,useDelta); }
+    GameObjectDynamic.prototype.rotateY = function(y,useDelta){ this.rotate(0,y,0,useDelta); }
+    GameObjectDynamic.prototype.rotateZ = function(z,useDelta){ this.rotate(0,0,z,useDelta); }
         
     GameObjectDynamic.prototype.up = function(){ return Engine.GameObjectManager.upDynamic(this); }
     GameObjectDynamic.prototype.right = function(){ return Engine.GameObjectManager.rightDynamic(this); }

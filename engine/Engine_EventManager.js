@@ -1,10 +1,14 @@
 'use strict';
 var Engine = Engine || {};
+
 (function (scope, undefined){
     Engine.EventManager = {};
     
     Engine.EventManager.loaded = false;
     
+	Engine.EventManager.hidden = undefined;
+	Engine.EventManager.visibilityChange = undefined;
+	
     Engine.EventManager.geolocation = {
         enabled: false,
         lat: 0,
@@ -218,7 +222,6 @@ var Engine = Engine || {};
     Engine.EventManager.isMouseUp = function(m){ 
 		return (!Engine.EventManager.mouse.buttons[Engine.EventManager.mouse.map[m]]) || true;
 	}
-	
     Engine.EventManager.updateMouseCoords = function(x,y,e){
         Engine.EventManager.mouse.pX = Engine.EventManager.mouse.x;
         Engine.EventManager.mouse.pY = Engine.EventManager.mouse.y;
@@ -404,6 +407,28 @@ var Engine = Engine || {};
 		for(var m in Engine.EventManager.mouse.buttons){
 			Engine.EventManager.mouse.buttons[m] = false;
 		}
+		Engine.focused = false;
+    }
+    Engine.EventManager.onfocusin = function(e){
+        e = window.event || e;
+        e.preventDefault(); 
+		Engine.focused = true;
+    }
+    Engine.EventManager.onfocus = function(e){
+        e = window.event || e;
+        e.preventDefault(); 
+		Engine.focused = true;
+    }
+    Engine.EventManager.onblur = function(e){
+        e = window.event || e;
+        e.preventDefault(); 
+        for(var k in Engine.EventManager.keyboard.key){
+            Engine.EventManager.keyboard.key[k] = false;
+        }
+		for(var m in Engine.EventManager.mouse.buttons){
+			Engine.EventManager.mouse.buttons[m] = false;
+		}
+		Engine.focused = false;
     }
     Engine.EventManager.ondeviceorientation = function(e){
         e = window.event || e;
@@ -527,6 +552,14 @@ var Engine = Engine || {};
         }
     }
     Engine.EventManager.onpointerlockchangeerror = function(){ console.log("error: could not activate pointer lock."); }
+
+	Engine.EventManager.handleVisibilityChange = function(s){
+		if (document[Engine.EventManager.hidden]) {
+			Engine.focused = false;
+		} else {
+			Engine.focused = true;
+		}
+	}
     Engine.EventManager.init = function(){
         if(Engine.EventManager.loaded) return;
         Engine.canvasEventCatcher.addEventListener('touchstart',Engine.EventManager.ontouchstart);
@@ -542,7 +575,28 @@ var Engine = Engine || {};
         Engine.canvasEventCatcher.addEventListener('keydown',Engine.EventManager.onkeydown);
         Engine.canvasEventCatcher.addEventListener('keyup',Engine.EventManager.onkeyup);
         Engine.canvasEventCatcher.addEventListener('focusout',Engine.EventManager.onfocusout);
-        
+		Engine.canvasEventCatcher.addEventListener('focusin',Engine.EventManager.onfocusin);
+        Engine.canvasEventCatcher.addEventListener('blur',Engine.EventManager.onblur);
+		Engine.canvasEventCatcher.addEventListener('focus',Engine.EventManager.onfocus);
+		
+		//this does not really work well...
+		if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+			Engine.EventManager.hidden = "hidden";
+			Engine.EventManager.visibilityChange = "visibilitychange";
+		} else if (typeof document.msHidden !== "undefined") {
+			Engine.EventManager.hidden = "msHidden";
+			Engine.EventManager.visibilityChange = "msvisibilitychange";
+		} else if (typeof document.webkitHidden !== "undefined") {
+			Engine.EventManager.hidden = "webkitHidden";
+			Engine.EventManager.visibilityChange = "webkitvisibilitychange";
+		}
+		else if (typeof document.mozHidden !== "undefined") {
+			Engine.EventManager.hidden = "mozHidden";
+			Engine.EventManager.visibilityChange = "mozvisibilitychange";
+		}
+		document.addEventListener(Engine.EventManager.visibilityChange, Engine.EventManager.handleVisibilityChange, false);
+		
+		
         document.addEventListener('pointerlockchange', Engine.EventManager.onpointerlockchange, false);
         document.addEventListener('mozpointerlockchange', Engine.EventManager.onpointerlockchange, false);
         document.addEventListener('webkitpointerlockchange', Engine.EventManager.onpointerlockchange, false);
@@ -579,7 +633,12 @@ var Engine = Engine || {};
         Engine.canvasEventCatcher.removeEventListener('keydown',Engine.EventManager.onkeydown);
         Engine.canvasEventCatcher.removeEventListener('keyup',Engine.EventManager.onkeyup);
         Engine.canvasEventCatcher.removeEventListener('focusout',Engine.EventManager.onfocusout);
-        
+		Engine.canvasEventCatcher.removeEventListener('focusin',Engine.EventManager.onfocusin);
+        Engine.canvasEventCatcher.removeEventListener('blur',Engine.EventManager.onblur);
+		Engine.canvasEventCatcher.removeEventListener('focus',Engine.EventManager.onfocus);
+		
+		document.removeEventListener(Engine.EventManager.visibilityChange, Engine.EventManager.handleVisibilityChange, false);
+		
         document.removeEventListener("pointerlockchange", Engine.EventManager.onpointerlockchange, false);
         document.removeEventListener("mozpointerlockchange", Engine.EventManager.onpointerlockchange, false);
         document.removeEventListener("webkitpointerlockchange", Engine.EventManager.onpointerlockchange, false);

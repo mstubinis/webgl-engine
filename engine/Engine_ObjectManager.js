@@ -75,10 +75,12 @@ var Engine = Engine || {};
 			if(obj.scale)
 				mat4.scale(obj.modelMatrix,obj.modelMatrix,obj.scale);
 		}
-		Engine.GameObjectManager.rotate = function(obj,x,y,z){
-			if(x !== undefined && x != 0){ x *= Engine.dt; quat.rotateX(obj.rotation,obj.rotation,x); }
-			if(y !== undefined && y != 0){ y *= Engine.dt; quat.rotateY(obj.rotation,obj.rotation,y); }
-			if(z !== undefined && z != 0){ z *= Engine.dt; quat.rotateZ(obj.rotation,obj.rotation,z); }
+		Engine.GameObjectManager.rotate = function(obj,x,y,z,useDelta){
+			if(useDelta === undefined || useDelta === false){ useDelta = 1.0; }
+			else{ useDelta = Engine.dt; }
+			if(x !== undefined && x != 0){ x *= useDelta; quat.rotateX(obj.rotation,obj.rotation,x); }
+			if(y !== undefined && y != 0){ y *= useDelta; quat.rotateY(obj.rotation,obj.rotation,y); }
+			if(z !== undefined && z != 0){ z *= useDelta; quat.rotateZ(obj.rotation,obj.rotation,z); }
 		}
 		Engine.GameObjectManager.up = function(obj){ return quat.up(obj.rotation); }
 		Engine.GameObjectManager.right = function(obj){ return quat.right(obj.rotation); }
@@ -174,15 +176,19 @@ var Engine = Engine || {};
 			//var localScale = obj.rigidBody.getCollisionShape().getLocalScaling();
 			//mat4.scale(obj.modelMatrix,obj.modelMatrix,vec3.fill(localScale.x,localScale.y,localScale.z));
 		}
-		Engine.GameObjectManager.rotateDynamic = function(obj,x,y,z){
+		Engine.GameObjectManager.rotateDynamic = function(obj,x,y,z,useDelta){
+			
+			if(useDelta === undefined || useDelta === false){ useDelta = 1.0; }
+			else{ useDelta = Engine.dt; }
+			
 			if(x !== undefined && x != 0.0){
-				x *= Engine.dt; Engine.GameObjectManager.applyTorqueY(obj,-x);
+				x *= useDelta; Engine.GameObjectManager.applyTorqueY(obj,-x);
 			}
 			if(y !== undefined && y != 0.0){
-				y *= Engine.dt; Engine.GameObjectManager.applyTorqueX(obj,-y);
+				y *= useDelta; Engine.GameObjectManager.applyTorqueX(obj,-y);
 			}
 			if(z !== undefined && z != 0.0){
-				z *= Engine.dt; Engine.GameObjectManager.applyTorqueZ(obj,z);
+				z *= useDelta; Engine.GameObjectManager.applyTorqueZ(obj,z);
 			}
 		}
 		Engine.GameObjectManager.applyForce = function(obj,x,y,z,rX,rY,rZ,local){
