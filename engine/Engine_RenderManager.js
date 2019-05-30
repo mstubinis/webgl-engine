@@ -2,7 +2,7 @@
 var Engine = Engine || {};
 (function (scope, undefined){
     Engine.RenderManager = {};
-	Engine.RenderManager.CurrentlyBoundShader = undefined;
+    Engine.RenderManager.CurrentlyBoundShader = undefined;
     Engine.RenderManager.skyboxQueue = [];
     Engine.RenderManager.objectQueue = [];
     
@@ -13,7 +13,7 @@ var Engine = Engine || {};
         gl.extensions.drawBuffers = gl.getExtension('WEBGL_draw_buffers');
         gl.extensions.instancing = gl.getExtension('ANGLE_instanced_arrays');
         gl.extensions.depthTexture = gl.getExtension('WEBGL_depth_texture');
-		gl.extensions.anisotropicFiltering = (gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('MOZ_EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'));
+        gl.extensions.anisotropicFiltering = (gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('MOZ_EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'));
 
         var maxVertexShaderUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
         var maxFragmentShaderUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
@@ -35,18 +35,18 @@ var Engine = Engine || {};
         
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
-		gl.depthMask(gl.TRUE);
-		
-		if (Engine.args["gbuffer"] !== undefined && Engine.args["gbuffer"] != false){
-			Engine.GBuffer.init();
-		}
+        gl.depthMask(gl.TRUE);
+        
+        if (Engine.args["gbuffer"] !== undefined && Engine.args["gbuffer"] != false){
+            Engine.GBuffer.init();
+        }
         return gl;
     }
-	Engine.RenderManager.bindShader = function(shader){
-		if(shader === this.CurrentlyBoundShader) return;
-		gl.useProgram(shader);
-		this.CurrentlyBoundShader = shader;
-	}
+    Engine.RenderManager.bindShader = function(shader){
+        if(shader === this.CurrentlyBoundShader) return;
+        gl.useProgram(shader);
+        this.CurrentlyBoundShader = shader;
+    }
     Engine.RenderManager.render = function(){
         gl.clearColor(0.0,0.0,0.0,1.0);
         gl.clearDepth(Engine.camera.far);
@@ -69,8 +69,8 @@ var Engine = Engine || {};
         }
         //queue up game objects for drawing
         for (var key in Engine.scene.objects) { 
-			Engine.scene.objects[key].render(); 
-		}
+            Engine.scene.objects[key].render(); 
+        }
         //then actually draw them...
         for(var i = 0; i < this.skyboxQueue.length; i++){
             this.skyboxQueue[i].draw();
@@ -86,9 +86,9 @@ var Engine = Engine || {};
         var material = Engine.ResourceManager.materials[obj.material];
         if(mesh === undefined || !mesh.loaded){ return; }
 
-		this.bindShader(obj.shader);
-		obj.customRender();
-		  
+        this.bindShader(obj.shader);
+        obj.customRender();
+          
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "M"),false,obj.modelMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(obj.shader, "V"),false,Engine.camera.viewMatrix);
 

@@ -19,29 +19,29 @@ var Camera = function(n,width,height,scene){
     this.ratio = Engine.canvas.width/Engine.canvas.height;
     this.near = 0.01;
     this.far = 10000.0;
-	
-	if(scene === undefined){
-		this.id = Object.keys(Engine.scene.cameras).length;
-	}else{
-		this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
-	}
     
-	this.viewWasOverriden = false;
-	
+    if(scene === undefined){
+        this.id = Object.keys(Engine.scene.cameras).length;
+    }else{
+        this.id = Object.keys(Engine.ResourceManager.scenes[scene].cameras).length;
+    }
+    
+    this.viewWasOverriden = false;
+    
     this.resize(Engine.canvas.width,Engine.canvas.height);
     this.update(Engine.dt);
-	
-	if(scene === undefined){
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
-	}else{
-		Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
-	}
+    
+    if(scene === undefined){
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.scene,"cameras");
+    }else{
+        Engine.GameObjectManager.addObjectToDictionary(n,this,Engine.ResourceManager.scenes[scene],"cameras");
+    }
     
     if(!Engine.hasOwnProperty('camera')){ Engine.camera = this; }
 };
 Camera.prototype.constructFrustrum = function(){
     var vp = mat4.create(); 
-	mat4.mul(vp,this.projectionMatrix,this.viewMatrix);
+    mat4.mul(vp,this.projectionMatrix,this.viewMatrix);
     var rowX = mat4.row(vp,0);
     var rowY = mat4.row(vp,1);
     var rowZ = mat4.row(vp,2);
@@ -70,11 +70,11 @@ Camera.prototype.constructFrustrum = function(){
 
     for(var i = 0; i < 6; i++){
         var normal = vec3.fill(this.planes[i][0], this.planes[i][1], this.planes[i][2]);
-		var len = vec3.length(normal);
+        var len = vec3.length(normal);
         this.planes[i][0] = (-this.planes[i][0]) / len;
         this.planes[i][1] = (-this.planes[i][1]) / len;
         this.planes[i][2] = (-this.planes[i][2]) / len;
-		this.planes[i][3] = (-this.planes[i][3]) / len;
+        this.planes[i][3] = (-this.planes[i][3]) / len;
     }
 }
 Camera.prototype.sphereIntersectTest = function(pos,radius){
@@ -111,8 +111,8 @@ Camera.prototype.__lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,
     this.constructFrustrum();
 }
 Camera.prototype.lookAt = function(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ){
-	this.__lookAt(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ);
-	this.viewWasOverriden = true;
+    this.__lookAt(eyeX,eyeY,eyeZ,centerX,centerY,centerZ,upX,upY,upZ);
+    this.viewWasOverriden = true;
 }
 Camera.prototype.translate = function(x,y,z){
     Engine.GameObjectManager.translate(this,-x,y,z);
@@ -123,11 +123,11 @@ Camera.prototype.setPosition = function(x,y,z){
     this.update(Engine.dt);
 }
 Camera.prototype.update = function(dt){
-	Engine.GameObjectManager.update(this);
-	if(!this.viewWasOverriden){
-		this.__lookAt(this.position(),this.target(),this.up());
-	}
-	this.viewWasOverriden = false;
+    Engine.GameObjectManager.update(this);
+    if(!this.viewWasOverriden){
+        this.__lookAt(this.position(),this.target(),this.up());
+    }
+    this.viewWasOverriden = false;
 }
 Camera.prototype.rotate = function(x,y,z,useDelta){
     Engine.GameObjectManager.rotate(this,x,y,z,useDelta);

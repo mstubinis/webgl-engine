@@ -26,9 +26,9 @@ var Engine = Engine || {};
         Engine.PhysicsManager.world.setGravity(new Ammo.btVector3(x,y,z));
     }
     Engine.PhysicsManager.update = function(dt){
-		if(Engine.PhysicsManager.disabled) return;
-		
-		
+        if(Engine.PhysicsManager.disabled) return;
+        
+        
         Engine.PhysicsManager.world.stepSimulation(dt, 1, 1.0/60.0);
         
         var numManifolds = Engine.PhysicsManager.world.getDispatcher().getNumManifolds();

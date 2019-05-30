@@ -66,14 +66,14 @@
         this.needsUpdate = true;
     }
     GameObject.prototype.update = function(dt){
-		if(this.radius == 0){
-			if(this.mesh in Engine.ResourceManager.meshes){
-				if(Engine.ResourceManager.meshes[this.mesh].loaded == true){
-					Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
-				}
-			}
-		}
-		if(this.needsUpdate == false){ return; }
+        if(this.radius == 0){
+            if(this.mesh in Engine.ResourceManager.meshes){
+                if(Engine.ResourceManager.meshes[this.mesh].loaded == true){
+                    Engine.GameObjectManager.setScale(this,this.scale[0],this.scale[1],this.scale[2]);
+                }
+            }
+        }
+        if(this.needsUpdate == false){ return; }
         Engine.GameObjectManager.update(this);
         this.needsUpdate = false;
     }
@@ -184,13 +184,13 @@
         this.update(Engine.dt);
     }
     GameObjectDynamic.prototype.update = function(dt){
-		if(this.radius == 0){
-			if(this.mesh in Engine.ResourceManager.meshes){
-				if(Engine.ResourceManager.meshes[this.mesh].loaded == true){
-					Engine.GameObjectManager.setScaleDynamic(this,this.scale[0],this.scale[1],this.scale[2]);
-				}
-			}
-		}
+        if(this.radius == 0){
+            if(this.mesh in Engine.ResourceManager.meshes){
+                if(Engine.ResourceManager.meshes[this.mesh].loaded == true){
+                    Engine.GameObjectManager.setScaleDynamic(this,this.scale[0],this.scale[1],this.scale[2]);
+                }
+            }
+        }
         Engine.GameObjectManager.updateDynamic(this);
     }
     GameObjectDynamic.prototype.render = function(){

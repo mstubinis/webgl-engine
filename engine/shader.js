@@ -40,9 +40,9 @@ Shader.prototype.compile = function(vshader, fshader, attribs){
     var linked = gl.getProgramParameter(this.program, gl.LINK_STATUS);
     if(!linked){
         var error = gl.getProgramInfoLog(this.program);
-		if(window.console && window.console.log){
-			console.log("Link status error in compiling shader: " + msg);
-		}
+        if(window.console && window.console.log){
+            console.log("Link status error in compiling shader: " + msg);
+        }
         gl.deleteProgram(this.program);
         gl.deleteProgram(fragmentShader);
         gl.deleteProgram(vertexShader);
@@ -73,9 +73,9 @@ Shader.prototype.load = function(shaderId){
                 
             }
         }
-		if(window.console && window.console.log){
-			console.log(msg);
-		}
+        if(window.console && window.console.log){
+            console.log(msg);
+        }
         gl.deleteShader(shader);
         return null;
     }

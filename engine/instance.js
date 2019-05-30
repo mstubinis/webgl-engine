@@ -22,31 +22,31 @@
                 "uniform mat4 V;\n"+
                 "uniform mat4 P;\n"+
                 "void main(void){\n"+
-				"   mat4 m = mat4(1.0);\n"+
-				"   m[0][0] = col0.x;\n"+
-				"   m[0][1] = col0.y;\n"+
-				"   m[0][2] = col0.z;\n"+
-				"   m[0][3] = col0.w;\n"+
-				"   m[1][0] = col1.x;\n"+
-				"   m[1][1] = col1.y;\n"+
-				"   m[1][2] = col1.z;\n"+
-				"   m[1][3] = col1.w;\n"+
-				"   m[2][0] = col2.x;\n"+
-				"   m[2][1] = col2.y;\n"+
-				"   m[2][2] = col2.z;\n"+
-				"   m[2][3] = col2.w;\n"+
-				"   m[3][0] = col3.x;\n"+
-				"   m[3][1] = col3.y;\n"+
-				"   m[3][2] = col3.z;\n"+
-				"   m[3][3] = col3.w;\n"+
+                "   mat4 m = mat4(1.0);\n"+
+                "   m[0][0] = col0.x;\n"+
+                "   m[0][1] = col0.y;\n"+
+                "   m[0][2] = col0.z;\n"+
+                "   m[0][3] = col0.w;\n"+
+                "   m[1][0] = col1.x;\n"+
+                "   m[1][1] = col1.y;\n"+
+                "   m[1][2] = col1.z;\n"+
+                "   m[1][3] = col1.w;\n"+
+                "   m[2][0] = col2.x;\n"+
+                "   m[2][1] = col2.y;\n"+
+                "   m[2][2] = col2.z;\n"+
+                "   m[2][3] = col2.w;\n"+
+                "   m[3][0] = col3.x;\n"+
+                "   m[3][1] = col3.y;\n"+
+                "   m[3][2] = col3.z;\n"+
+                "   m[3][3] = col3.w;\n"+
                 "   gl_Position = (P * V * m) * vec4(position,1.0);\n"+
                 "}";
             //INSTANCE FRAGMENT SHADER////////////////////////////
             var frag =
                 "precision mediump float;\n"+
-				"uniform sampler2D diffuseMap;\n"+
-				"uniform sampler2D glowMap;\n"+
-				"uniform sampler2D normalMap;\n"+
+                "uniform sampler2D diffuseMap;\n"+
+                "uniform sampler2D glowMap;\n"+
+                "uniform sampler2D normalMap;\n"+
                 "void main(void){\n"+
                 "   gl_FragColor = vec4(1.0,1.0,0.0,1.0);\n"+
                 "}";
@@ -64,32 +64,32 @@
                 "uniform mat4 V;\n"+
                 "uniform mat4 P;\n"+
                 "void main(void){\n"+
-				"   mat4 m = mat4(0.0);\n"+
-				"   m[0][0] = 1.0;\n"+
-				"   m[1][1] = 1.0;\n"+
-				"   m[2][2] = 1.0;\n"+
-				"   m[3][0] = col0.x;\n"+
-				"   m[3][1] = col0.y;\n"+
-				"   m[3][2] = col0.z;\n"+
-				"   m[3][3] = 1.0;\n"+
+                "   mat4 m = mat4(0.0);\n"+
+                "   m[0][0] = 1.0;\n"+
+                "   m[1][1] = 1.0;\n"+
+                "   m[2][2] = 1.0;\n"+
+                "   m[3][0] = col0.x;\n"+
+                "   m[3][1] = col0.y;\n"+
+                "   m[3][2] = col0.z;\n"+
+                "   m[3][3] = 1.0;\n"+
                 "   gl_Position = (P * V * m) * vec4(position,1.0);\n"+
                 "}";
             //INSTANCE FRAGMENT SHADER////////////////////////////
             var frag =
                 "precision mediump float;\n"+
-				"uniform sampler2D diffuseMap;\n"+
-				"uniform sampler2D glowMap;\n"+
-				"uniform sampler2D normalMap;\n"+
+                "uniform sampler2D diffuseMap;\n"+
+                "uniform sampler2D glowMap;\n"+
+                "uniform sampler2D normalMap;\n"+
                 "void main(void){\n"+
                 "   gl_FragColor = vec4(1.0,1.0,0.0,1.0);\n"+
                 "}";
             new Shader("InstanceWeak",vert,frag,["position","uv","normal","binormal","tangent","col0"],"vshader-instance-weak","fshader-instance-weak");
         }
         this.instances = [];
-		this.col0 = gl.createBuffer();
-		this.col1 = gl.createBuffer();
-		this.col2 = gl.createBuffer();
-		this.col3 = gl.createBuffer();
+        this.col0 = gl.createBuffer();
+        this.col1 = gl.createBuffer();
+        this.col2 = gl.createBuffer();
+        this.col3 = gl.createBuffer();
 
         
         this.mesh = mesh;
@@ -103,49 +103,49 @@
     }; 
     InstanceObject.prototype.addInstance = function(position){
         var _instancedIndividual = new InstanceIndividual(this);
-		
-		if(position !== undefined){ _instancedIndividual.setPosition(position[0],position[1],position[2]); }
-		
-		_instancedIndividual.update(Engine.dt);
-        this.instances.push(_instancedIndividual);	
-		
-		var data0 = new Float32Array(this.instances.length * 4);
-		var data1 = new Float32Array(this.instances.length * 4);
-		var data2 = new Float32Array(this.instances.length * 4);
-		var data3 = new Float32Array(this.instances.length * 4);
-		for(var i = 0; i < this.instances.length; i++){
-			data0[(i*4)+0] = this.instances[i].modelMatrix[0];
-			data0[(i*4)+1] = this.instances[i].modelMatrix[1];
-			data0[(i*4)+2] = this.instances[i].modelMatrix[2];
-			data0[(i*4)+3] = this.instances[i].modelMatrix[3];
-			
-			data1[(i*4)+0] = this.instances[i].modelMatrix[4];
-			data1[(i*4)+1] = this.instances[i].modelMatrix[5];
-			data1[(i*4)+2] = this.instances[i].modelMatrix[6];
-			data1[(i*4)+3] = this.instances[i].modelMatrix[7];
-			
-			data2[(i*4)+0] = this.instances[i].modelMatrix[8];
-			data2[(i*4)+1] = this.instances[i].modelMatrix[9];
-			data2[(i*4)+2] = this.instances[i].modelMatrix[10];
-			data2[(i*4)+3] = this.instances[i].modelMatrix[11];
-			
-			data3[(i*4)+0] = this.instances[i].modelMatrix[12];
-			data3[(i*4)+1] = this.instances[i].modelMatrix[13];
-			data3[(i*4)+2] = this.instances[i].modelMatrix[14];
-			data3[(i*4)+3] = this.instances[i].modelMatrix[15];
-		}
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col0);
-		gl.bufferData(gl.ARRAY_BUFFER, data0, gl.STATIC_DRAW);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col1);
-		gl.bufferData(gl.ARRAY_BUFFER, data1, gl.STATIC_DRAW);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col2);
-		gl.bufferData(gl.ARRAY_BUFFER, data2, gl.STATIC_DRAW);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col3);
-		gl.bufferData(gl.ARRAY_BUFFER, data3, gl.STATIC_DRAW);
+        
+        if(position !== undefined){ _instancedIndividual.setPosition(position[0],position[1],position[2]); }
+        
+        _instancedIndividual.update(Engine.dt);
+        this.instances.push(_instancedIndividual);  
+        
+        var data0 = new Float32Array(this.instances.length * 4);
+        var data1 = new Float32Array(this.instances.length * 4);
+        var data2 = new Float32Array(this.instances.length * 4);
+        var data3 = new Float32Array(this.instances.length * 4);
+        for(var i = 0; i < this.instances.length; i++){
+            data0[(i*4)+0] = this.instances[i].modelMatrix[0];
+            data0[(i*4)+1] = this.instances[i].modelMatrix[1];
+            data0[(i*4)+2] = this.instances[i].modelMatrix[2];
+            data0[(i*4)+3] = this.instances[i].modelMatrix[3];
+            
+            data1[(i*4)+0] = this.instances[i].modelMatrix[4];
+            data1[(i*4)+1] = this.instances[i].modelMatrix[5];
+            data1[(i*4)+2] = this.instances[i].modelMatrix[6];
+            data1[(i*4)+3] = this.instances[i].modelMatrix[7];
+            
+            data2[(i*4)+0] = this.instances[i].modelMatrix[8];
+            data2[(i*4)+1] = this.instances[i].modelMatrix[9];
+            data2[(i*4)+2] = this.instances[i].modelMatrix[10];
+            data2[(i*4)+3] = this.instances[i].modelMatrix[11];
+            
+            data3[(i*4)+0] = this.instances[i].modelMatrix[12];
+            data3[(i*4)+1] = this.instances[i].modelMatrix[13];
+            data3[(i*4)+2] = this.instances[i].modelMatrix[14];
+            data3[(i*4)+3] = this.instances[i].modelMatrix[15];
+        }
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col0);
+        gl.bufferData(gl.ARRAY_BUFFER, data0, gl.STATIC_DRAW);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col1);
+        gl.bufferData(gl.ARRAY_BUFFER, data1, gl.STATIC_DRAW);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col2);
+        gl.bufferData(gl.ARRAY_BUFFER, data2, gl.STATIC_DRAW);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col3);
+        gl.bufferData(gl.ARRAY_BUFFER, data3, gl.STATIC_DRAW);
     }
     InstanceObject.prototype.destroy = function(){
         this._isToBeDestroyed = true;
@@ -195,35 +195,35 @@
         var material = Engine.ResourceManager.materials[this.material];
         if(mesh === undefined || !mesh.loaded){ return; }
 
-		Engine.RenderManager.bindShader(this.shader);
-		
+        Engine.RenderManager.bindShader(this.shader);
+        
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "V"),false,Engine.camera.viewMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(this.shader, "P"),false,Engine.camera.projectionMatrix); 
         var camPos = Engine.camera.position();
         gl.uniform3f(gl.getUniformLocation(this.shader, "CameraPosition"),camPos[0],camPos[1],camPos[2]);
-		
-		// Bind the instance matrix data
-		gl.enableVertexAttribArray(5);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col0);
-		gl.vertexAttribPointer(5,4,gl.FLOAT,false,16,0);
-		gl.extensions.instancing.vertexAttribDivisorANGLE(5,1);
-		
-		gl.enableVertexAttribArray(6);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col1);
-		gl.vertexAttribPointer(6,4,gl.FLOAT,false,16,0);
-		gl.extensions.instancing.vertexAttribDivisorANGLE(6,1);
-		
-		gl.enableVertexAttribArray(7);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col2);
-		gl.vertexAttribPointer(7,4,gl.FLOAT,false,16,0);
-		gl.extensions.instancing.vertexAttribDivisorANGLE(7,1);
-		
-		gl.enableVertexAttribArray(8);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.col3);
-		gl.vertexAttribPointer(8,4,gl.FLOAT,false,16,0);
-		gl.extensions.instancing.vertexAttribDivisorANGLE(8,1);
-		
-		
+        
+        // Bind the instance matrix data
+        gl.enableVertexAttribArray(5);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col0);
+        gl.vertexAttribPointer(5,4,gl.FLOAT,false,16,0);
+        gl.extensions.instancing.vertexAttribDivisorANGLE(5,1);
+        
+        gl.enableVertexAttribArray(6);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col1);
+        gl.vertexAttribPointer(6,4,gl.FLOAT,false,16,0);
+        gl.extensions.instancing.vertexAttribDivisorANGLE(6,1);
+        
+        gl.enableVertexAttribArray(7);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col2);
+        gl.vertexAttribPointer(7,4,gl.FLOAT,false,16,0);
+        gl.extensions.instancing.vertexAttribDivisorANGLE(7,1);
+        
+        gl.enableVertexAttribArray(8);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.col3);
+        gl.vertexAttribPointer(8,4,gl.FLOAT,false,16,0);
+        gl.extensions.instancing.vertexAttribDivisorANGLE(8,1);
+        
+        
         //if(material !== undefined){
             //material.sendUniforms(this.shader);
             //if(!material.shadeless){
@@ -231,10 +231,10 @@
             //}
         //}
         mesh.sendUniformsInstance(this.drawMode,this.instances.length);
-		gl.disableVertexAttribArray(5);
-		gl.disableVertexAttribArray(6);
-		gl.disableVertexAttribArray(7);
-		gl.disableVertexAttribArray(8);
+        gl.disableVertexAttribArray(5);
+        gl.disableVertexAttribArray(6);
+        gl.disableVertexAttribArray(7);
+        gl.disableVertexAttribArray(8);
     }
     InstanceObject.prototype.rotate = function(index,x,y,z){
         Engine.GameObjectManager.rotate(this.instances[index],x,y,z);

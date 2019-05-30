@@ -4,12 +4,12 @@ var Engine = Engine || {};
     Engine.SoundManager = {};
 
     Engine.SoundManager.init = function(){
-		try {
-			window.AudioContext = window.AudioContext||window.webkitAudioContext;
-			Engine.SoundManager.context = new AudioContext();
-		}
-		catch(e) {
-			alert('Web Audio API is not supported in this browser');
-		}
+        try {
+            window.AudioContext = window.AudioContext||window.webkitAudioContext;
+            Engine.SoundManager.context = new AudioContext();
+        }
+        catch(e) {
+            alert('Web Audio API is not supported in this browser');
+        }
     };
 })(this);

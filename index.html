@@ -6,20 +6,20 @@
     <style>
     html,head,body{margin:0;outline:0;border:0;padding:0;top:0;left:0;position:absolute;z-index:1;}
     </style>
-	<link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- no favicon for now -->
-	
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- no favicon for now -->
+    
     <script src="deps/gl-matrix.js"> </script>
     <script src="deps/webgl-utils.js"></script>
     <script src="deps/OBJLoader.js"></script>
     <script src="deps/ammo.js"></script>
-	
+    
     <script src="engine/Engine_ResourceManager.js"></script>
     <script src="engine/Engine_GBuffer.js"></script>
     <script src="engine/Engine_RenderManager.js"></script>
     <script src="engine/Engine_ObjectManager.js"></script>
     <script src="engine/Engine_EventManager.js"></script>
-	<script src="engine/Engine_PhysicsManager.js"></script>
-	<script src="engine/Engine_SoundManager.js"></script>
+    <script src="engine/Engine_PhysicsManager.js"></script>
+    <script src="engine/Engine_SoundManager.js"></script>
     <script src="engine/Engine_Math.js"></script>
     <script src="engine/Engine_Core.js"></script>
     
@@ -33,8 +33,8 @@
     <script src="engine/skybox.js"></script>
     <script src="engine/light.js"></script>
     <script src="engine/sound.js"></script>
-	<script src="engine/instance.js"></script>
-	
+    <script src="engine/instance.js"></script>
+    
     <script src="game.js"></script>
      
     <script id="vshader" type="x-shader/x-vertex">
@@ -69,8 +69,8 @@
         }
     </script>
     <script id="fshader" type="x-shader/x-fragment">
-		precision mediump float;
-		precision mediump int;
+        precision mediump float;
+        precision mediump int;
 
         uniform sampler2D diffuseMap;
         uniform sampler2D glowMap;
@@ -133,20 +133,20 @@
             }
             
             vec3 glowTexture;
-			if(glowMapActive == int(1.0)){
-				glowTexture = vec3(texture2D(glowMap,UV).r);
-			}
-			else{
-				glowTexture = vec3(0.0);
-			}
+            if(glowMapActive == int(1.0)){
+                glowTexture = vec3(texture2D(glowMap,UV).r);
+            }
+            else{
+                glowTexture = vec3(0.0);
+            }
             vec3 SurfacePosition = Part3.yzw;
 
-			vec3 SurfaceNormal;
-			if(normalMapActive == int(1.0)){
-				SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
-			}else{
-				SurfaceNormal = normalize(Part1.xyz);
-			}
+            vec3 SurfaceNormal;
+            if(normalMapActive == int(1.0)){
+                SurfaceNormal = normalize(CalcBumpedNormal(Part1.xyz));
+            }else{
+                SurfaceNormal = normalize(Part1.xyz);
+            }
 
             vec3 lighting = SceneAmbient;
             for(int i = 0; i < MAX_LIGHTS; ++i){ // stupid loop index cannot be compared with a non constant uniform... idk why...
@@ -161,12 +161,12 @@
                         float D = length(light.LightPosition - SurfacePosition);
                         float Att = max(1.0 , light.LightAttenuation.x + (light.LightAttenuation.y * D) + (light.LightAttenuation.z * D * D));
                         
-						individualLighting /= Att;
+                        individualLighting /= Att;
                         //cone restrictions (affects attenuation)
                         //float lightToSurfaceAngle = degrees(acos(dot(-SurfaceToLight, normalize(light.coneDirection))));
                         //if(lightToSurfaceAngle > light.coneAngle){
                             //Att = 0.0;
-							//individualLighting = vec3(0.0);
+                            //individualLighting = vec3(0.0);
                         //}
                     }
                     lighting += individualLighting;
@@ -191,10 +191,10 @@
     function init(){
         var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
         var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-		
-		var args = {
-		};
-		
+        
+        var args = {
+        };
+        
         Engine.init( w,h,args );
     }
     window.onload = init;

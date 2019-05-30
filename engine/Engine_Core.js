@@ -15,9 +15,9 @@ Array.prototype.indexOf=function(e){var l=this.length>>>0;var f=Number(arguments
 f=(f<0)?Math.ceil(f):Math.floor(f);if(f<0)f+=l;for(;f<l;f++){if(f in this && this[f]===e)return f;}return -1;};}
 
 Engine.paused = function(){
-	if( Engine.focused == false)
-		return true;
-	return false;
+    if( Engine.focused == false)
+        return true;
+    return false;
 }
 
 Engine.run = function(){
@@ -42,27 +42,27 @@ Engine.handleContextRestored = function() {
 }
 Engine.requestGeolocation = function(){
     if (navigator.geolocation) {
-		Engine.EventManager.geolocation.enabled = true;
+        Engine.EventManager.geolocation.enabled = true;
     } else {
         Engine.EventManager.geolocation.enabled = false;
     }
 }
 Engine.init = function(w,h,args){
-	Engine.args = args;
-	Engine.windowWidth = w;
+    Engine.args = args;
+    Engine.windowWidth = w;
     Engine.currentTime = 0.0000000;
     Engine.dt = 0.0000000;
     //first build the canvas and it's necessary html elements.
     var body = document.getElementsByTagName('body')[0];
-	
-	var wrapperDIV_1 = document.createElement('div');
-	wrapperDIV_1.setAttribute('style', 'width:100%');
+    
+    var wrapperDIV_1 = document.createElement('div');
+    wrapperDIV_1.setAttribute('style', 'width:100%');
     body.appendChild(wrapperDIV_1);
-	
-	var wrapperDIV = document.createElement('div');
-	wrapperDIV.setAttribute('style', 'width:800px;margin:0 auto;');
+    
+    var wrapperDIV = document.createElement('div');
+    wrapperDIV.setAttribute('style', 'width:800px;margin:0 auto;');
     wrapperDIV_1.appendChild(wrapperDIV);
-	
+    
     var canvas_event_element = document.createElement('div');
     canvas_event_element.setAttribute('tabindex', '0');
     canvas_event_element.setAttribute('id', 'canvasEventCatcher');
@@ -77,7 +77,7 @@ Engine.init = function(w,h,args){
     canvas_element.setAttribute('tabindex', '-1');
     canvas_element.setAttribute('id', 'canvas');
     canvas_element.setAttribute('style', 'position:relative;top:0;left:0;');
-	
+    
     
     wrapperDIV.appendChild(canvas_event_element);
     wrapperDIV.appendChild(canvas_debug_element);
@@ -86,31 +86,31 @@ Engine.init = function(w,h,args){
     Engine.requestId = undefined;
     Engine.canvas = canvas_element;
     Engine.canvasEventCatcher = canvas_event_element;
-	Engine.wrapperDIV = wrapperDIV;
-	
+    Engine.wrapperDIV = wrapperDIV;
+    
 
     gl = Engine.RenderManager.init(Engine.canvas);
     Engine.canvas.addEventListener('webglcontextlost', Engine.handleContextLost, false);
     Engine.canvas.addEventListener('webglcontextrestored', Engine.handleContextRestored, false);
     
-	Engine.Math.init();
-	
-	if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
-	    Engine.PhysicsManager.init();
-	}
-	if (Engine.args["sounds"] !== undefined && Engine.args["sounds"] != false){
-		Engine.SoundManager.init();
-	}
+    Engine.Math.init();
+    
+    if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
+        Engine.PhysicsManager.init();
+    }
+    if (Engine.args["sounds"] !== undefined && Engine.args["sounds"] != false){
+        Engine.SoundManager.init();
+    }
     Engine.ResourceManager.initPreGameResources();
     Engine.Game.initResources();
     Engine.ResourceManager.initDefaultResources();
-	
-	Engine.Game.onResize(undefined);
+    
+    Engine.Game.onResize(undefined);
     //this is the above area referenced below
 }
 Engine.onResourcesLoaded = function(){
     Engine.EventManager.init();
-	
+    
     var now = Date.now();
     Engine.dt = 0.0000000;
     Engine.currentTime = now;
@@ -123,19 +123,19 @@ Engine.onResourcesLoaded = function(){
     Engine.run();
 }
 Engine.disableOrientationChange = function(orientationType){
-	Engine.EventManager.orientationChange.enabled = false;
-	var s = orientationType.toLowerCase();
-	var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
-	var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
-	if(s == "horizontal" || s == "landscape" || s == "h" || s == "l"){
-		Engine.EventManager.orientationChange.mode = "horizontal";
-	}
-	else if(s == "vertical" || s == "portrait" || s == "v" || s == "p"){
-		Engine.EventManager.orientationChange.mode = "vertical";
-	}
-	if(w > h){ Engine.EventManager.orientationChange.currOrientation = "horizontal"; }
-	else{      Engine.EventManager.orientationChange.currOrientation = "vertical"; }
-	Engine.EventManager.doWindowRotation();
+    Engine.EventManager.orientationChange.enabled = false;
+    var s = orientationType.toLowerCase();
+    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0.0);
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0.0);
+    if(s == "horizontal" || s == "landscape" || s == "h" || s == "l"){
+        Engine.EventManager.orientationChange.mode = "horizontal";
+    }
+    else if(s == "vertical" || s == "portrait" || s == "v" || s == "p"){
+        Engine.EventManager.orientationChange.mode = "vertical";
+    }
+    if(w > h){ Engine.EventManager.orientationChange.currOrientation = "horizontal"; }
+    else{      Engine.EventManager.orientationChange.currOrientation = "vertical"; }
+    Engine.EventManager.doWindowRotation();
 }
 Engine.requestPointerLock = function(){
     Engine.EventManager.pointerLock.desired = true;
@@ -143,58 +143,58 @@ Engine.requestPointerLock = function(){
 
 Engine.resize = function(w,h,overridedEventCatcherWidth,overridedEventCatcherHeight){
     Engine.canvas.width = w;
-	Engine.canvas.height = h;
-	Engine.wrapperDIV.style.width = w + "px";
-	
-	//now deal with the overrides for event catcher
-	var catcherNumWidth  = undefined;
-	var catcherNumHeight = undefined;
-	var catcherNumWidthCSS  = undefined;
-	var catcherNumHeightCSS = undefined;
-	if(overridedEventCatcherWidth !== undefined){
-		if(!isNaN(overridedEventCatcherWidth)){
-			catcherNumWidth = overridedEventCatcherWidth;
-			catcherNumWidthCSS = overridedEventCatcherWidth + "px";
-		}else{
-			catcherNumWidthCSS = overridedEventCatcherWidth;
-			//now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
-			var num = (overridedEventCatcherWidth).replace(/[^0-9]/g,''); //extract the number
-			if( overridedEventCatcherWidth.indexOf("px") !== -1 ){
-				catcherNumWidth = num; //we are dealing with px
-			}else if( overridedEventCatcherWidth.indexOf("%") !== -1 ){
-				catcherNumWidth = (num / 100.0) * bodyHeight //we are dealing with %
-			}
-		}
-	}else{
-		catcherNumWidth = w;
-		catcherNumWidthCSS = w + "px";
-	}
-	var bodyWidth  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	var bodyHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	if(overridedEventCatcherHeight !== undefined){
-		if(!isNaN(overridedEventCatcherHeight)){
-			catcherNumHeight = overridedEventCatcherHeight;
-			catcherNumHeightCSS = overridedEventCatcherHeight + "px";
-		}else{
-			catcherNumHeightCSS = overridedEventCatcherHeight;
-			//now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
-			var num = (overridedEventCatcherHeight).replace(/[^0-9]/g,''); //extract the number
-			if( overridedEventCatcherHeight.indexOf("px") !== -1 ){
-				catcherNumHeight = num; //we are dealing with px
-			}else if( overridedEventCatcherHeight.indexOf("%") !== -1 ){
-				catcherNumHeight = (num / 100.0) * bodyHeight //we are dealing with %
-			}
-		}
-	}else{
-		catcherNumHeight = h;
-		catcherNumHeightCSS = h + "px";
-	}
+    Engine.canvas.height = h;
+    Engine.wrapperDIV.style.width = w + "px";
+    
+    //now deal with the overrides for event catcher
+    var catcherNumWidth  = undefined;
+    var catcherNumHeight = undefined;
+    var catcherNumWidthCSS  = undefined;
+    var catcherNumHeightCSS = undefined;
+    if(overridedEventCatcherWidth !== undefined){
+        if(!isNaN(overridedEventCatcherWidth)){
+            catcherNumWidth = overridedEventCatcherWidth;
+            catcherNumWidthCSS = overridedEventCatcherWidth + "px";
+        }else{
+            catcherNumWidthCSS = overridedEventCatcherWidth;
+            //now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
+            var num = (overridedEventCatcherWidth).replace(/[^0-9]/g,''); //extract the number
+            if( overridedEventCatcherWidth.indexOf("px") !== -1 ){
+                catcherNumWidth = num; //we are dealing with px
+            }else if( overridedEventCatcherWidth.indexOf("%") !== -1 ){
+                catcherNumWidth = (num / 100.0) * bodyHeight //we are dealing with %
+            }
+        }
+    }else{
+        catcherNumWidth = w;
+        catcherNumWidthCSS = w + "px";
+    }
+    var bodyWidth  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    var bodyHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    if(overridedEventCatcherHeight !== undefined){
+        if(!isNaN(overridedEventCatcherHeight)){
+            catcherNumHeight = overridedEventCatcherHeight;
+            catcherNumHeightCSS = overridedEventCatcherHeight + "px";
+        }else{
+            catcherNumHeightCSS = overridedEventCatcherHeight;
+            //now for the hard part, we need the actual number, so we can rip it out (if we find "px", or calculate it by hand if "%")
+            var num = (overridedEventCatcherHeight).replace(/[^0-9]/g,''); //extract the number
+            if( overridedEventCatcherHeight.indexOf("px") !== -1 ){
+                catcherNumHeight = num; //we are dealing with px
+            }else if( overridedEventCatcherHeight.indexOf("%") !== -1 ){
+                catcherNumHeight = (num / 100.0) * bodyHeight //we are dealing with %
+            }
+        }
+    }else{
+        catcherNumHeight = h;
+        catcherNumHeightCSS = h + "px";
+    }
 
     Engine.canvasEventCatcher.style.width  = catcherNumWidthCSS;
     Engine.canvasEventCatcher.style.height = catcherNumHeightCSS;
     var calculatedLeft = (bodyWidth - catcherNumWidth) / 2.0;
-	Engine.canvasEventCatcher.style.left = calculatedLeft + "px"; //since the event catcher uses position:abolute, we need to offset to keep it in place
-	
+    Engine.canvasEventCatcher.style.left = calculatedLeft + "px"; //since the event catcher uses position:abolute, we need to offset to keep it in place
+    
     gl.viewport(0, 0, w, h);
     for (var key in Engine.ResourceManager.scenes) {
         var scene = Engine.ResourceManager.scenes[key];
@@ -205,15 +205,15 @@ Engine.resize = function(w,h,overridedEventCatcherWidth,overridedEventCatcherHei
 }
 Engine.update = function(dt){
     Engine.Game.update(dt);
-	
-	//cleanup memory
-	for(var key in Engine.scene.objects){
-		if(Engine.scene.objects[key].hasOwnProperty('_isToBeDestroyed')){
-			Engine.scene.objects[key]._free();
-			delete Engine.scene.objects[key];
-		}
-	}
-	
+    
+    //cleanup memory
+    for(var key in Engine.scene.objects){
+        if(Engine.scene.objects[key].hasOwnProperty('_isToBeDestroyed')){
+            Engine.scene.objects[key]._free();
+            delete Engine.scene.objects[key];
+        }
+    }
+    
     for (var key in Engine.scene.lights) {
         Engine.scene.lights[key].update(dt);
     }
@@ -227,13 +227,13 @@ Engine.update = function(dt){
         Engine.ResourceManager.sounds[key].update(dt);
     }
     Engine.EventManager.update(dt);
-	if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
-		Engine.PhysicsManager.update(dt);
-	}
+    if (Engine.args["physics"] !== undefined && Engine.args["physics"] != false){
+        Engine.PhysicsManager.update(dt);
+    }
 }
 Engine.render = function(){
     Engine.RenderManager.render();
-	Engine.Game.render();
+    Engine.Game.render();
 }
 
 Engine.isKeyDown = function(key){ return Engine.EventManager.isKeyDown(key); }

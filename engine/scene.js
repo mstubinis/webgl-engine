@@ -6,7 +6,7 @@ var Scene = function(name){
     this.objects = {};
     this.lights = {};
     this.cameras = {};
-	
+    
     this.objectsID = {};
     this.lightsID = {};
     this.camerasID = {};
